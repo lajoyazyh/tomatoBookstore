@@ -1,0 +1,20 @@
+{
+  "name": "tomatobookstore",
+  "version": "1.0.0",
+  "description": "A project for \"软件工程与计算Ⅱ\" in NJU (school of ISE). We are engaged to develop an online book store.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lajoyazyh/tomatoBookstore.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lajoyazyh/tomatoBookstore/issues"
+  },
+  "homepage": "https://github.com/lajoyazyh/tomatoBookstore#readme"
+}
