@@ -56,6 +56,12 @@ public class AccountController {
      */
     @PostMapping("/login")
     public Response login(@RequestParam("username") String username, @RequestParam("password") String password) {
-        return Response.buildSuccess(accountService.login(username, password));
+        String token = accountService.login(username, password);
+        if(token == "-1"){
+            return Response.buildFailure("400", "用户不存在/用户密码错误");
+        }else if(token != null){
+            return Response.buildSuccess(token);
+        }
+        return Response.buildFailure("400", "你的后端方法实现错了，再回去沉淀沉淀！");
     }
 }

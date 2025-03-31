@@ -10,7 +10,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = TomatoMallException.class)
     public Response<String> handleAllExternalException(TomatoMallException e) {
         e.printStackTrace();
-        return Response.buildFailure(e.getMessage());
+        return Response.buildFailure("400", e.getMessage());
     }
 }
 
