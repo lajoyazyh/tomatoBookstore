@@ -19,7 +19,8 @@ public class AccountController {
      * 获取用户详情
      */
     @GetMapping("/{username}")
-    public Response getUser(@RequestParam("username") String username) {
+    public Response getUser(@RequestHeader("token") String token, @RequestParam("username") String username) {
+        // token如何使用待完成
         AccountVO accountVO = accountService.getInformation(username);
         if(accountVO != null){
             return Response.buildSuccess(accountVO);
@@ -33,7 +34,7 @@ public class AccountController {
      * 创建新的用户
      */
     @PostMapping()
-    public Response createUser(AccountVO accountVO) {
+    public Response createUser(@RequestParam("accountVO") AccountVO accountVO) {
         String res = accountService.register(accountVO);
         if(res == "用户名已存在") {
             return Response.buildFailure("400", res);
@@ -46,9 +47,15 @@ public class AccountController {
     /**
      * 更新用户信息
      */
-    @PutMapping("/update")
-    public Response updateUser() {
-        return null;
+    @PutMapping()
+    public Response updateInformation(@RequestHeader("token") String token, @RequestParam("accountVO") AccountVO accountVO) {
+        // token如何使用待完成
+        Boolean flag = accountService.updateInformation(accountVO);
+        if(!flag){
+            return Response.buildFailure("400", "更新失败：缺少正确的用户名");
+        }else{
+            return Response.buildSuccess("更新成功");
+        }
     }
 
     /**

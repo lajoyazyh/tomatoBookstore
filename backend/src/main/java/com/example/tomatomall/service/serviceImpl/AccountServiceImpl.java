@@ -59,12 +59,31 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Boolean updateInformation(AccountVO accountVO) {
-        Account account=securityUtil.getCurrentAccount();
+        String username = accountVO.getUsername();
+        if(username == null){
+            return false;
+        }
+        Account account=accountRepository.findByUsername(username);
+        if(account == null){
+            return false;
+        }
         if (accountVO.getPassword()!=null){
             account.setPassword(accountVO.getPassword());
         }
-        if (accountVO.getUsername()!=null){
-            account.setUsername(accountVO.getUsername());
+        if (accountVO.getName()!=null){
+            account.setName(accountVO.getName());
+        }
+        if (accountVO.getAvatar()!=null){
+            account.setAvatar(accountVO.getAvatar());
+        }
+        if (accountVO.getRole()!=null){
+            account.setRole(accountVO.getRole());
+        }
+        if (accountVO.getTelephone()!=null){
+            account.setTelephone(accountVO.getTelephone());
+        }
+        if (accountVO.getEmail()!=null){
+            account.setEmail(accountVO.getEmail());
         }
         if (accountVO.getLocation()!=null){
             account.setLocation(accountVO.getLocation());
