@@ -45,7 +45,8 @@ public class AccountServiceImpl implements AccountService {
     public String login(String username, String password) {
         Account account = accountRepository.findByUsernameAndPassword(username, password);
         if (account == null) {
-            throw TomatoMallException.accountOrPasswordError();
+            // throw TomatoMallException.accountOrPasswordError();
+            return "-1";
         }
         return tokenUtil.getToken(account);
     }
