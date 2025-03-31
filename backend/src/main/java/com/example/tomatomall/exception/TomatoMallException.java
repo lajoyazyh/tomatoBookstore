@@ -4,8 +4,8 @@ public class TomatoMallException extends RuntimeException {
   public TomatoMallException(String message){
     super(message);
   }
-  public static TomatoMallException phoneAlreadyExists(){
-    return new TomatoMallException("手机号已经存在!");
+  public static TomatoMallException usernameAlreadyExists(){
+    return new TomatoMallException("用户名已经存在!");
   }
 
   public static TomatoMallException notLogin(){

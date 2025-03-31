@@ -1,6 +1,8 @@
 package com.example.tomatomall.controller;
 
+import com.example.tomatomall.po.Account;
 import com.example.tomatomall.service.AccountService;
+import com.example.tomatomall.vo.AccountVO;
 import com.example.tomatomall.vo.Response;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,17 +18,17 @@ public class AccountController {
     /**
      * 获取用户详情
      */
-    @GetMapping("/info")
-    public Response getUser() {
-        return Response.buildSuccess(accountService.getInformation());
+    @GetMapping()
+    public Response getUser(String username) {
+        return Response.buildSuccess(accountService.getInformation(username));
     }
 
     /**
      * 创建新的用户
      */
-    @PostMapping("/register")
-    public Response createUser() {
-        return null;
+    @PostMapping()
+    public Response createUser(AccountVO accountVO) {
+        return Response.buildSuccess(accountService.register(accountVO));
     }
 
     /**
