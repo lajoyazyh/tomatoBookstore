@@ -91,9 +91,125 @@ function handleRegister() {
 </script>
 
 <template>
-  <h1>注册</h1>
+  <el-main class="main-container">
+    <el-card class="register-card">
+      <div class="card-header">
+        <h2>创建账户</h2>
+      </div>
+
+      <el-form>
+        <el-form-item label="用户名">
+          <el-input v-model="username" placeholder="请输入用户名" required></el-input>
+        </el-form-item>
+
+        <el-form-item label="姓名">
+          <el-input v-model="name" placeholder="请输入姓名" required></el-input>
+        </el-form-item>
+
+        <el-form-item label="身份">
+          <el-select v-model="role" placeholder="请选择身份" style="width: 100%" required>
+            <el-option value="CUSTOMER" label="顾客"></el-option>
+            <el-option value="STAFF" label="商家"></el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="密码">
+          <el-input
+              type="password"
+              v-model="password"
+              placeholder="请输入密码"
+              required
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item label="确认密码">
+          <el-input
+              type="password"
+              v-model="confirmPassword"
+              placeholder="请再次输入密码"
+              required
+          ></el-input>
+          <p v-if="hasConfirmPassword && !isPasswordIdentical" class="error-message">密码不一致</p>
+        </el-form-item>
+
+        <el-form-item label="头像">
+          <el-upload
+              class="avatar-uploader"
+              :auto-upload="false"
+              :on-change="handleFileChange"
+              :show-file-list="false"
+              accept="image/*"
+          >
+            <img v-if="avatar" :src="avatar" class="avatar" />
+            <el-button v-else type="primary">选择头像</el-button>
+          </el-upload>
+        </el-form-item>
+
+        <el-form-item label="手机号">
+          <el-input v-model="telephone" placeholder="请输入手机号"></el-input>
+          <p v-if="hasTelephone && !isValidTelephone" class="error-message">手机号格式不正确</p>
+        </el-form-item>
+
+        <el-form-item label="邮箱">
+          <el-input v-model="email" placeholder="请输入邮箱"></el-input>
+          <p v-if="hasEmail && !isValidEmail" class="error-message">邮箱格式不正确</p>
+        </el-form-item>
+
+        <el-form-item label="位置">
+          <el-input v-model="location" placeholder="请输入位置"></el-input>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button
+              type="success"
+              @click="handleRegister"
+              :disabled="registerDisabled"
+              style="width: 100%"
+          >
+            注册
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+  </el-main>
 </template>
 
 <style scoped>
+.main-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
 
+.register-card {
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.el-form-item {
+  margin-bottom: 15px;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.avatar-uploader {
+  text-align: center;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
 </style>
