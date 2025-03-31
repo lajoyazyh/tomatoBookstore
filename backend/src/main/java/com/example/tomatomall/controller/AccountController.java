@@ -18,9 +18,15 @@ public class AccountController {
     /**
      * 获取用户详情
      */
-    @GetMapping()
-    public Response getUser(String username) {
-        return Response.buildSuccess(accountService.getInformation(username));
+    @GetMapping("/{username}")
+    public Response getUser(@RequestParam("username") String username) {
+        AccountVO accountVO = accountService.getInformation(username);
+        if(accountVO != null){
+            return Response.buildSuccess(accountVO);
+        }else{
+            return Response.buildFailure("401", null);
+        }
+
     }
 
     /**
@@ -28,7 +34,13 @@ public class AccountController {
      */
     @PostMapping()
     public Response createUser(AccountVO accountVO) {
-        return Response.buildSuccess(accountService.register(accountVO));
+        String res = accountService.register(accountVO);
+        if(res == "用户名已存在") {
+            return Response.buildFailure("400", res);
+        }else if(res == "注册成功"){
+            return Response.buildSuccess(res);
+        }
+        return Response.buildFailure("400", "你的后端方法实现错了，再回去沉淀沉淀！");
     }
 
     /**
@@ -43,7 +55,7 @@ public class AccountController {
      * 登录
      */
     @PostMapping("/login")
-    public Response login() {
-        return null;
+    public Response login(@RequestParam("username") String username, @RequestParam("password") String password) {
+        return Response.buildSuccess(accountService.login(username, password));
     }
 }

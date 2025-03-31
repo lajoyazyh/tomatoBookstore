@@ -33,7 +33,8 @@ public class AccountServiceImpl implements AccountService {
     public String register(AccountVO accountVO) {
         Account account = accountRepository.findByUsername(accountVO.getUsername());
         if (account != null) {
-            throw TomatoMallException.usernameAlreadyExists();
+            // throw TomatoMallException.usernameAlreadyExists();
+            return "用户名已存在";
         }
         Account newAccount = accountVO.toPO();
         accountRepository.save(newAccount);
@@ -41,10 +42,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public String login(String phone, String password) {
-        Account account = accountRepository.findByTelephoneAndPassword(phone, password);
+    public String login(String username, String password) {
+        Account account = accountRepository.findByUsernameAndPassword(username, password);
         if (account == null) {
-            throw TomatoMallException.phoneOrPasswordError();
+            throw TomatoMallException.accountOrPasswordError();
         }
         return tokenUtil.getToken(account);
     }
