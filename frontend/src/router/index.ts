@@ -1,30 +1,29 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import HomePage from '../pages/index.vue';
-import CartPage from "../pages/CartPage.vue";
-import WarehousePage from "../pages/WarehousePage.vue";
-
-const routes = [
-    {
-        path: '/',
-        name: 'index',
-        component: HomePage
-    },
-    {
-        path: '/cart',
-        name: 'cart',
-        component: CartPage,
-    },
-    {
-        path: '/warehouse',
-        name: 'warehouse',
-        component: WarehousePage,
-    },
-    //其他路由配置
-];
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 const router = createRouter({
-    history: createWebHistory(),
-    routes
-});
+        history: createWebHashHistory(),
+        routes: [{
+            path: '/',
+            redirect: '/index',
+        }, {
+            path: '/index',
+            component: () => import('../pages/index.vue'),
+            meta: { title: '首页' }
+        }, {
+            path: '/cart',
+            component: () => import('../pages/CartPage.vue'),
+            meta: { title: '购物车' }
+        }, {
+            path: '/warehouse',
+            component: () => import('../pages/WarehousePage.vue'),
+            meta: { title: '库存管理' }
+        }, {
+            path: '/register',
+            component: () => import('../pages/account/Register.vue'),
+            meta: { title: '注册' }
+        }
+    ]
+})
 
-export default router;
+
+export {router};
