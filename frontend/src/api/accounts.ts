@@ -1,5 +1,5 @@
 import { axios } from '../utils/request'
-import { USER_MODULE } from './_prefix'
+import { ACCOUNT_MODULE } from './_prefix'
 
 type LoginInfo = {
     username: string,
@@ -30,7 +30,7 @@ type UpdateInfo = {
 
 // 获取用户详情
 export const userInfo = () => {
-    return axios.get(`${USER_MODULE}`)
+    return axios.get(`${ACCOUNT_MODULE}`)
         .then(res => {
             return res
         })
@@ -38,7 +38,7 @@ export const userInfo = () => {
 
 // 创建用户
 export const userRegister = (registerInfo: RegisterInfo) => {
-    return axios.post(`${USER_MODULE}/register`, registerInfo, { headers: { 'Content-Type': 'application/json' } })
+    return axios.post(`${ACCOUNT_MODULE}/register`, registerInfo, { headers: { 'Content-Type': 'application/json' } })
         .then(res => {
             return res
         })
@@ -46,7 +46,7 @@ export const userRegister = (registerInfo: RegisterInfo) => {
 
 // 登录
 export const userLogin = (loginInfo: LoginInfo) => {
-    return axios.post(`${USER_MODULE}/login`, null, { params: loginInfo })
+    return axios.post(`${ACCOUNT_MODULE}/login`, null, { params: loginInfo })
         .then(res => {
             return res
         })
@@ -54,7 +54,7 @@ export const userLogin = (loginInfo: LoginInfo) => {
 
 // 更新用户信息
 export const userInfoUpdate = (updateInfo: UpdateInfo) => {
-    return axios.post(`${USER_MODULE}`, updateInfo, { headers: { 'Content-Type': 'application/json' } })
+    return axios.post(`${ACCOUNT_MODULE}`, updateInfo, { headers: { 'Content-Type': 'application/json' } })
         .then(res => {
             return res
         })
