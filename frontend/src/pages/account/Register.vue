@@ -184,6 +184,8 @@ function handleRegister() {
 .main-container {
   display: flex;
   justify-content: center;
+  align-items: center;
+  height: 90vh;
   padding: 20px;
 }
 
@@ -199,7 +201,7 @@ function handleRegister() {
 }
 
 .el-form-item {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .error-message {
