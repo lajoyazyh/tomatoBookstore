@@ -29,7 +29,7 @@ type UpdateInfo = {
 }
 
 // 获取用户详情
-export const getUser = () => {
+export const userInfo = () => {
     return axios.get(`${USER_MODULE}`)
         .then(res => {
             return res
@@ -37,7 +37,7 @@ export const getUser = () => {
 }
 
 // 创建用户
-export const createUser = (registerInfo: RegisterInfo) => {
+export const userRegister = (registerInfo: RegisterInfo) => {
     return axios.post(`${USER_MODULE}/register`, registerInfo, { headers: { 'Content-Type': 'application/json' } })
         .then(res => {
             return res
@@ -45,7 +45,7 @@ export const createUser = (registerInfo: RegisterInfo) => {
 }
 
 // 登录
-export const login = (loginInfo: LoginInfo) => {
+export const userLogin = (loginInfo: LoginInfo) => {
     return axios.post(`${USER_MODULE}/login`, null, { params: loginInfo })
         .then(res => {
             return res
@@ -53,7 +53,7 @@ export const login = (loginInfo: LoginInfo) => {
 }
 
 // 更新用户信息
-export const updateUser = (updateInfo: UpdateInfo) => {
+export const userInfoUpdate = (updateInfo: UpdateInfo) => {
     return axios.post(`${USER_MODULE}`, updateInfo, { headers: { 'Content-Type': 'application/json' } })
         .then(res => {
             return res
