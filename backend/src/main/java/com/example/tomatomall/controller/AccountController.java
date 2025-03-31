@@ -16,15 +16,15 @@ public class AccountController {
     /**
      * 获取用户详情
      */
-    @GetMapping()
+    @GetMapping("/info")
     public Response getUser() {
-        return null;
+        return Response.buildSuccess(accountService.getInformation());
     }
 
     /**
      * 创建新的用户
      */
-    @PostMapping()
+    @PostMapping("/register")
     public Response createUser() {
         return null;
     }
@@ -32,7 +32,7 @@ public class AccountController {
     /**
      * 更新用户信息
      */
-    @PutMapping()
+    @PutMapping("/update")
     public Response updateUser() {
         return null;
     }
