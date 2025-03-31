@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue'
+import { userRegister } from '../../api/accounts'
+import { uploadImage } from "../../api/images";
+import type { RegisterInfo } from '../../api/accounts'
 
 </script>
 

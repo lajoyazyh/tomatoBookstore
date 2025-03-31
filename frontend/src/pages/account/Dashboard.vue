@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue'
+import { userInfo,userInfoUpdate } from '../../api/accounts'
+import type { UpdateInfo } from '../../api/accounts'
 
 </script>
 

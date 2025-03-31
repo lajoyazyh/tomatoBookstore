@@ -1,23 +1,23 @@
 import { axios } from '../utils/request'
 import { ACCOUNT_MODULE } from './_prefix'
 
-type LoginInfo = {
+export type LoginInfo = {
     username: string,
     password: string
 }
 
-type RegisterInfo = {
-    username: string,
+export type RegisterInfo = {
+    username: string,   // 唯一
     password: string,
-    name: string,
-    avatar?: string,
+    name: string,       // 姓名
+    avatar?: string,    // 头像url
     role: string,
-    telephone?: string,
-    email?: string,
+    telephone?: string, // 1开头，共11位
+    email?: string,     // 需要符合email格式
     location?: string,
 }
 
-type UpdateInfo = {
+export type UpdateInfo = {
     username: string,
     password?: string,
     name?: string,
