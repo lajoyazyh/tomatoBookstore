@@ -88,12 +88,11 @@ function handleLogin() {
 
 <style scoped>
 .main-frame {
-  width: 100%;
-  height: 100%;
-
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
 }
 
 .bgimage {
