@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 public interface AccountRepository extends JpaRepository<Account, Integer> {
-    Account findByPhone(String phone);
-    Account findByPhoneAndPassword(String phone, String password);
+    Account findByTelephone(String telephone);
+    Account findByTelephoneAndPassword(String telephone, String password);
 }

@@ -33,19 +33,18 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Boolean register(AccountVO accountVO) {
-        Account account = accountRepositoryRepository.findByPhone(accountVO.getPhone());
+        Account account = accountRepositoryRepository.findByTelephone(accountVO.getTelephone());
         if (account != null) {
             throw TomatoMallException.phoneAlreadyExists();
         }
         Account newAccount = accountVO.toPO();
-        newAccount.setCreateTime(new Date());
         accountRepositoryRepository.save(newAccount);
         return true;
     }
 
     @Override
     public String login(String phone, String password) {
-        Account account = accountRepositoryRepository.findByPhoneAndPassword(phone, password);
+        Account account = accountRepositoryRepository.findByTelephoneAndPassword(phone, password);
         if (account == null) {
             throw TomatoMallException.phoneOrPasswordError();
         }
@@ -64,11 +63,11 @@ public class AccountServiceImpl implements AccountService {
         if (accountVO.getPassword()!=null){
             account.setPassword(accountVO.getPassword());
         }
-        if (accountVO.getName()!=null){
-            account.setName(accountVO.getName());
+        if (accountVO.getUsername()!=null){
+            account.setUsername(accountVO.getUsername());
         }
-        if (accountVO.getAddress()!=null){
-            account.setAddress(accountVO.getAddress());
+        if (accountVO.getLocation()!=null){
+            account.setLocation(accountVO.getLocation());
         }
         accountRepositoryRepository.save(account);
         return true;

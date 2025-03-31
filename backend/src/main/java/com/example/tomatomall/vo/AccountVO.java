@@ -15,30 +15,41 @@ import java.util.Date;
 public class AccountVO {
     private Integer id;
 
-    private String name;
-
-    private String phone;
+    private String username;
 
     private String password;
 
-    private Integer storeId;
+    private String name;
 
-    private String address;
+    private String avatar;
 
     private RoleEnum role;
+
+    private String telephone;
+
+    private String email;
+
+    private String location;
+
+//    private Integer storeId;
+//
+//    private String address;
+
+
 
     private Date createTime;
 
     public Account toPO(){
         Account Account=new Account();
         Account.setId(this.id);
-        Account.setAddress(this.address);
-        Account.setName(this.name);
-        Account.setPhone(this.phone);
-        Account.setRole(this.role);
-        Account.setStoreId(this.storeId);
+        Account.setUsername(this.username);
         Account.setPassword(this.password);
-        Account.setCreateTime(this.createTime);
+        Account.setName(this.name);
+        Account.setAvatar(this.avatar);
+        Account.setRole(this.role);
+        Account.setTelephone(this.telephone);
+        Account.setEmail(this.email);
+        Account.setLocation(this.location);
         return Account;
     }
 }
