@@ -12,6 +12,7 @@ import { ElMenu, ElMenuItem } from "element-plus";
       <el-menu-item index="/">番茄书城</el-menu-item>
       <el-menu-item index="/cart">购物车</el-menu-item>
       <el-menu-item index="/warehouse">库存管理</el-menu-item>
+      <el-menu-item index="/dashboard">个人信息</el-menu-item>
     </el-menu>
   </div>
 </template>
