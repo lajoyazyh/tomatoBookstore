@@ -71,7 +71,7 @@ function handleRegister() {
     email: email.value,
     location: location.value,
   }).then(res => {
-    if (res.data.code === '000') {  //类型守卫，它检查 res.data 对象中是否存在名为 code 的属性
+    if (res.data.code === '200') {  //类型守卫，它检查 res.data 对象中是否存在名为 code 的属性
       ElMessage({
         message: "注册成功！请登录账号",
         type: 'success',
@@ -80,13 +80,19 @@ function handleRegister() {
       router.push({path: "/login"})
     } else if (res.data.code === '400') {
       ElMessage({
+        message: "用户名已经存在！",
+        type: 'error',
+        center: true,
+      })
+    } else if (res.data.code === '000') {
+      ElMessage({
         message: res.data.msg,
         type: 'error',
         center: true,
       })
     }
   })
-} // TODO: 我不太确定要求唯一用户名的逻辑要以什么形式实现
+}
 
 </script>
 
