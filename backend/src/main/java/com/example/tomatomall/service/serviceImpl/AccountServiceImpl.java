@@ -10,8 +10,6 @@ import com.example.tomatomall.vo.AccountVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-
 /**
  * @Author: ZhuYehang
  * @Date: 2025/3/31
@@ -22,7 +20,7 @@ import java.util.Date;
 public class AccountServiceImpl implements AccountService {
 
     @Autowired
-    AccountRepository accountRepositoryRepository;
+    AccountRepository accountRepository;
 
     @Autowired
     TokenUtil tokenUtil;
@@ -32,28 +30,29 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public Boolean register(AccountVO accountVO) {
-        Account account = accountRepositoryRepository.findByTelephone(accountVO.getTelephone());
+    public String register(AccountVO accountVO) {
+        Account account = accountRepository.findByUsername(accountVO.getUsername());
         if (account != null) {
-            throw TomatoMallException.phoneAlreadyExists();
+            // throw TomatoMallException.usernameAlreadyExists();
+            return "用户名已存在";
         }
         Account newAccount = accountVO.toPO();
-        accountRepositoryRepository.save(newAccount);
-        return true;
+        accountRepository.save(newAccount);
+        return "注册成功";
     }
 
     @Override
-    public String login(String phone, String password) {
-        Account account = accountRepositoryRepository.findByTelephoneAndPassword(phone, password);
+    public String login(String username, String password) {
+        Account account = accountRepository.findByUsernameAndPassword(username, password);
         if (account == null) {
-            throw TomatoMallException.phoneOrPasswordError();
+            throw TomatoMallException.accountOrPasswordError();
         }
         return tokenUtil.getToken(account);
     }
 
     @Override
-    public AccountVO getInformation() {
-        Account account=securityUtil.getCurrentAccount();
+    public AccountVO getInformation(String username) {
+        Account account=accountRepository.findByUsername(username);
         return account.toVO();
     }
 
@@ -69,7 +68,7 @@ public class AccountServiceImpl implements AccountService {
         if (accountVO.getLocation()!=null){
             account.setLocation(accountVO.getLocation());
         }
-        accountRepositoryRepository.save(account);
+        accountRepository.save(account);
         return true;
     }
 
