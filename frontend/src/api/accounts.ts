@@ -38,7 +38,7 @@ export const userInfo = () => {
 
 // 创建用户
 export const userRegister = (registerInfo: RegisterInfo) => {
-    return axios.post(`${ACCOUNT_MODULE}/register`, registerInfo, { headers: { 'Content-Type': 'application/json' } })
+    return axios.post(`${ACCOUNT_MODULE}`, registerInfo, { headers: { 'Content-Type': 'application/json' } })
         .then(res => {
             return res
         })
