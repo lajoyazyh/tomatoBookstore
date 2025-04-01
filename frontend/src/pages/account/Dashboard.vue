@@ -2,10 +2,10 @@
 import {ElForm, ElFormItem, ElMessage} from "element-plus"
 import { ref, computed, onMounted } from 'vue'
 import {router} from '../../router'
-import { userInfo,userInfoUpdate } from '../../api/accounts'
+import { userInfo, userInfoUpdate } from '../../api/accounts'
 
 // 更改用户信息时，不必也不能更改username，username只作为标志
-const username = sessionStorage.getItem('username')
+const username = sessionStorage.getItem('username') || ''
 const password = ref('')
 const confirmPassword = ref('')
 const name = ref('')
@@ -24,7 +24,6 @@ const updateDisabled = computed(() => {
 })
 
 function getUserInfo() {
-  if(!username) return
   userInfo(username).then((res) => {
     name.value = res.data.result.name
     avatar.value = res.data.result.avatar
@@ -40,7 +39,31 @@ onMounted(async () => {
 })
 
 function handleUpdate() {
-
+  userInfoUpdate({
+    username: username,
+    password: password.value,
+    name: name.value,
+    avatar: avatar.value,
+    role: role.value,
+    telephone: telephone.value,
+    email: email.value,
+    location: location.value,
+  }).then((res) => {
+    if(res.data.code == '200') {
+      ElMessage({
+        customClass: 'customMessage',
+        type: 'success',
+        message: '更新成功！',
+      })
+      getUserInfo()
+    } else if (res.data.code === '400') {
+      ElMessage({
+        customClass: 'customMessage',
+        type: 'error',
+        message: res.data.msg,
+      })
+    }
+  })
 }
 
 </script>
