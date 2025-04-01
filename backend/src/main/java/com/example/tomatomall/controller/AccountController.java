@@ -34,7 +34,7 @@ public class AccountController {
      * 创建新的用户
      */
     @PostMapping()
-    public Response createUser(@RequestParam("accountVO") AccountVO accountVO) {
+    public Response createUser(@RequestBody AccountVO accountVO) {
         String res = accountService.register(accountVO);
         if(res == "用户名已存在") {
             return Response.buildFailure("400", res);
