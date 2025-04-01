@@ -40,7 +40,7 @@ const hasNecessaryValue = computed(() =>
 const registerDisabled = computed(() => {
   if(hasTelephone.value && !isValidTelephone.value) { return true }
   if(hasEmail.value && !isValidEmail.value) { return true }
-  return !hasNecessaryValue;
+  return !hasNecessaryValue.value;
 })
 
 function handleFileChange(file: any) {
