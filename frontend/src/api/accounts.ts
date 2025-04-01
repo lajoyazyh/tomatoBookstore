@@ -29,8 +29,8 @@ export type UpdateInfo = {
 }
 
 // 获取用户详情
-export const userInfo = () => {
-    return axios.get(`${ACCOUNT_MODULE}`)
+export const userInfo = (username : string) => {
+    return axios.get(`${ACCOUNT_MODULE}/${username}`)
         .then(res => {
             return res
         })
