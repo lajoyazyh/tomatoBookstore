@@ -54,19 +54,6 @@ public class Account {
     @Column(name = "location")
     private String location;
 
-//    //必须注意，在Java中用驼峰，在MySQL字段中用连字符_
-//    @Basic
-//    @Column(name = "create_time")
-//    private Date createTime;
-//
-//    @Basic
-//    @Column(name = "store_id")
-//    private Integer storeId;
-//
-//    @Basic
-//    @Column(name = "address")
-//    private String address;
-
 
     public AccountVO toVO(){
         AccountVO accountVO=new AccountVO();

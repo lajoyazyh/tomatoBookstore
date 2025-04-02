@@ -31,25 +31,21 @@ public class AccountVO {
 
     private String location;
 
-//    private Integer storeId;
-//
-//    private String address;
-
 
 
     private Date createTime;
 
     public Account toPO(){
-        Account Account=new Account();
-        Account.setId(this.id);
-        Account.setUsername(this.username);
-        Account.setPassword(this.password);
-        Account.setName(this.name);
-        Account.setAvatar(this.avatar);
-        Account.setRole(this.role);
-        Account.setTelephone(this.telephone);
-        Account.setEmail(this.email);
-        Account.setLocation(this.location);
-        return Account;
+        Account account=new Account();
+        account.setId(this.id);
+        account.setUsername(this.username);
+        account.setPassword(this.password);
+        account.setName(this.name);
+        account.setAvatar(this.avatar);
+        account.setRole(this.role);
+        account.setTelephone(this.telephone);
+        account.setEmail(this.email);
+        account.setLocation(this.location);
+        return account;
     }
 }

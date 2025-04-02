@@ -63,7 +63,7 @@ public class AccountController {
      * 更新用户信息
      */
     @PutMapping()
-    public Response updateInformation(@RequestHeader("token") String token, @RequestParam("accountVO") AccountVO accountVO) {
+    public Response updateInformation(@RequestHeader("token") String token, @RequestBody AccountVO accountVO) {
         try {
             if(!tokenUtil.verifyToken(token)){
                 return Response.buildFailure("401","未授权");
