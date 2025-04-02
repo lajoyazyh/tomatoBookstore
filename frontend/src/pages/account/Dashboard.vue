@@ -36,6 +36,8 @@ function getUserInfo() {
 
 onMounted(async () => {
   getUserInfo()
+
+  // 如果需要钩子获取其他信息在这里补充
 })
 
 function handleUpdate() {
