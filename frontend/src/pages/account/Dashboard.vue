@@ -4,6 +4,7 @@ import { ref, computed, onMounted } from 'vue'
 import {router} from '../../router'
 import { userInfo, userInfoUpdate } from '../../api/accounts'
 import { uploadImage } from "../../api/images.ts";
+import type { UpdateInfo } from "../../api/accounts";
 
 const isEditing = ref(false); // 控制编辑状态
 
@@ -20,10 +21,16 @@ const email = ref('')
 const location = ref('')
 
 const isPasswordIdentical = ref(computed(() => password.value == confirmPassword.value))
+const isValidTelephone = computed(() => /^1\d{10}$/.test(telephone.value))
+const isValidEmail = computed(() =>
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.value))
+
 const hasChangedInfo = computed(() =>
   !!password.value || !!name.value || !!avatar.value || !!role.value || !!telephone.value || !!email.value || !!location.value)
+const isLegalTel = computed(() => !telephone.value || isValidTelephone.value)
+const isLegalEmail = computed(() => !email.value || isValidEmail.value)
 const updateDisabled = computed(() => {
-  return !(hasChangedInfo.value && isPasswordIdentical.value)
+  return !(hasChangedInfo.value && isPasswordIdentical.value && isLegalTel.value && isLegalEmail.value)
 })
 
 // 是否改变密码（改变密码需要重新登录）
@@ -31,12 +38,12 @@ const passwordChanged = ref(computed(() => !!password.value && !!confirmPassword
 
 function getUserInfo() {
   userInfo(username).then((res) => {
-    name.value = res.data.result.name
-    avatar.value = res.data.result.avatar
-    role.value = res.data.result.role
-    telephone.value = res.data.result.telephone
-    email.value = res.data.result.email
-    location.value = res.data.result.location
+    name.value = res.data.data.name
+    avatar.value = res.data.data.avatar
+    role.value = res.data.data.role
+    telephone.value = res.data.data.telephone
+    email.value = res.data.data.email
+    location.value = res.data.data.location
   })
 }
 
@@ -63,17 +70,24 @@ function handleFileChange(file: any) {
   });
 }
 
-function handleUpdate() {
-  userInfoUpdate({
+function createUpdateInfo(): UpdateInfo {
+  const updateInfo: UpdateInfo = {
     username: username,
-    password: password.value,
-    name: name.value,
-    avatar: avatar.value,
-    role: role.value,
-    telephone: telephone.value,
-    email: email.value,
-    location: location.value,
-  }).then((res) => {
+  };
+  // 检查每个字段是否填写，只有填写的字段会被添加到 updateInfo 中
+  if (!!password.value) updateInfo.password = password.value;
+  if (!!name.value) updateInfo.name = name.value;
+  if (!!avatar.value) updateInfo.avatar = avatar.value;
+  if (!!role.value) updateInfo.role = role.value;
+  if (!!telephone.value) updateInfo.telephone = telephone.value;
+  if (!!email.value) updateInfo.email = email.value;
+  if (!!location.value) updateInfo.location = location.value;
+
+  return updateInfo;
+}
+
+function handleUpdate() {
+  userInfoUpdate(createUpdateInfo()).then((res) => {
     if(res.data.code == '200') {
       ElMessage({
         customClass: 'customMessage',
@@ -115,7 +129,7 @@ function toggleEdit() {
 </script>
 
 <template>
-  <el-main class="main-container">
+  <el-main class="main-container" v-if="username">
     <el-card class="info-card">
       <div class="card-header">
         <h2>个人信息</h2>
@@ -130,16 +144,19 @@ function toggleEdit() {
           <el-input v-model="name" :disabled="!isEditing" placeholder="请输入姓名" required></el-input>
         </el-form-item>
 
-        <el-form-item label="角色">
-          <el-input v-model="role" :disabled="!isEditing" placeholder="角色" required></el-input>
+        <el-form-item label="身份">
+          <el-select v-model="role" :disabled="!isEditing" placeholder="请选择身份" style="width: 100%" required>
+            <el-option value="CUSTOMER" label="顾客"></el-option>
+            <el-option value="STAFF" label="商家"></el-option>
+          </el-select>
         </el-form-item>
 
         <el-form-item label="电话">
-          <el-input v-model="telephone" :disabled="!isEditing" placeholder="请输入电话"></el-input>
+          <el-input v-model="telephone" :disabled="!isEditing" placeholder="请输入合法电话号码"></el-input>
         </el-form-item>
 
         <el-form-item label="邮箱">
-          <el-input v-model="email" :disabled="!isEditing" placeholder="请输入邮箱"></el-input>
+          <el-input v-model="email" :disabled="!isEditing" placeholder="请输入合法邮箱"></el-input>
         </el-form-item>
 
         <el-form-item label="位置">
