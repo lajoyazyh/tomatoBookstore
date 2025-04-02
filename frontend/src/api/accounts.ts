@@ -29,12 +29,25 @@ export type UpdateInfo = {
 }
 
 // 获取用户详情
-export const userInfo = (username : string) => {
-    return axios.get(`${ACCOUNT_MODULE}/${username}`)
-        .then(res => {
-            return res
-        })
-}
+export const userInfo = (username: string) => {
+    // 从 sessionStorage 中获取 token
+    const token = sessionStorage.getItem('token');
+
+    // 检查 token 是否存在
+    if (!token) {
+        console.error("Token not found in sessionStorage");
+        return Promise.reject(new Error("Token not found"));
+    }
+
+    // 将 token 添加到请求头中
+    return axios.get(`${ACCOUNT_MODULE}/${username}`, {
+        headers: {
+            token: token
+        }
+    }).then(res => {
+        return res;
+    });
+};
 
 // 创建用户
 export const userRegister = (registerInfo: RegisterInfo) => {
