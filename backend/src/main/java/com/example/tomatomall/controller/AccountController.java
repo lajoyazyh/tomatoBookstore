@@ -4,7 +4,9 @@ import com.example.tomatomall.po.Account;
 import com.example.tomatomall.service.AccountService;
 import com.example.tomatomall.vo.AccountVO;
 import com.example.tomatomall.vo.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import com.example.tomatomall.util.TokenUtil;
 
 import javax.annotation.Resource;
 
@@ -15,19 +17,32 @@ public class AccountController {
     @Resource
     AccountService accountService;
 
+    @Autowired
+    private TokenUtil tokenUtil;
+
     /**
      * 获取用户详情
      */
     @GetMapping("/{username}")
-    public Response getUser(@RequestHeader("token") String token, @RequestParam("username") String username) {
-        // token如何使用待完成
-        AccountVO accountVO = accountService.getInformation(username);
-        if(accountVO != null){
-            return Response.buildSuccess(accountVO);
-        }else{
-            return Response.buildFailure("401", null);
-        }
+    public Response getUser(@RequestHeader("token") String token, @PathVariable("username") String username) {
+        try{
+            if(!tokenUtil.verifyToken(token)){
+                return Response.buildFailure("401","未授权");
+            }
+            Account account=tokenUtil.getAccount(token);
+            if(account==null||!account.getUsername().equals(username)){
+                return Response.buildFailure("401","未授权");
+            }
 
+            AccountVO accountVO = accountService.getInformation(username);
+            if(accountVO != null){
+                return Response.buildSuccess(accountVO);
+            }else{
+                return Response.buildFailure("401", "用户不存在");
+            }
+        }catch (Exception e){
+            return Response.buildFailure("401","未授权");
+        }
     }
 
     /**
@@ -49,12 +64,24 @@ public class AccountController {
      */
     @PutMapping()
     public Response updateInformation(@RequestHeader("token") String token, @RequestParam("accountVO") AccountVO accountVO) {
-        // token如何使用待完成
-        Boolean flag = accountService.updateInformation(accountVO);
-        if(!flag){
-            return Response.buildFailure("400", "更新失败：缺少正确的用户名");
-        }else{
-            return Response.buildSuccess("更新成功");
+        try {
+            if(!tokenUtil.verifyToken(token)){
+                return Response.buildFailure("401","未授权");
+            }
+            Account account=tokenUtil.getAccount(token);
+            if(account==null||!account.getUsername().equals(accountVO.getUsername())){
+                return Response.buildFailure("401","未授权");
+            }
+
+            // 更新用户信息
+            Boolean flag = accountService.updateInformation(accountVO);
+            if (!flag) {
+                return Response.buildFailure("400", "更新失败：缺少正确的用户名");
+            } else {
+                return Response.buildSuccess("更新成功");
+            }
+        } catch (Exception e) {
+            return Response.buildFailure("401", "未授权");
         }
     }
 

@@ -7,6 +7,7 @@ import com.example.tomatomall.service.AccountService;
 import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.util.TokenUtil;
 import com.example.tomatomall.vo.AccountVO;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,8 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     SecurityUtil securityUtil;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public String register(AccountVO accountVO) {
@@ -36,15 +39,21 @@ public class AccountServiceImpl implements AccountService {
             // throw TomatoMallException.usernameAlreadyExists();
             return "用户名已存在";
         }
+        //对密码进行加密然后重新存储
+        String newPassword = accountVO.getPassword();
+        String encodePassword =passwordEncoder.encode(newPassword);
+        accountVO.setPassword(encodePassword);
         Account newAccount = accountVO.toPO();
+
         accountRepository.save(newAccount);
         return "注册成功";
     }
 
     @Override
     public String login(String username, String password) {
-        Account account = accountRepository.findByUsernameAndPassword(username, password);
-        if (account == null) {
+        Account account = accountRepository.findByUsername(username);
+        String thispassword = account.getPassword();
+        if (!passwordEncoder.matches(password, thispassword)) {
             // throw TomatoMallException.accountOrPasswordError();
             return "-1";
         }
@@ -68,7 +77,8 @@ public class AccountServiceImpl implements AccountService {
             return false;
         }
         if (accountVO.getPassword()!=null){
-            account.setPassword(accountVO.getPassword());
+            String encodePassword =passwordEncoder.encode(accountVO.getPassword());
+            account.setPassword(encodePassword);
         }
         if (accountVO.getName()!=null){
             account.setName(accountVO.getName());
