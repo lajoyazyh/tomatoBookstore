@@ -6,3 +6,6 @@ export const ACCOUNT_MODULE = `${API_MODULE}/accounts`
 
 // 图片上传
 export const IMAGE_MODULE = `${API_MODULE}/images`
+
+// 商品模块
+export const PRODUCT_MODULE = `${API_MODULE}/products`
