@@ -73,15 +73,15 @@ function handleFileChange(file: any) {
 function createUpdateInfo(): UpdateInfo {
   const updateInfo: UpdateInfo = {
     username: username,
+    name: name.value,
+    avatar: avatar.value,
+    role: role.value,
+    telephone: telephone.value,
+    email: email.value,
+    location: location.value,
   };
-  // 检查每个字段是否填写，只有填写的字段会被添加到 updateInfo 中
+  // 检查只有修改了密码才会提交
   if (!!password.value) updateInfo.password = password.value;
-  if (!!name.value) updateInfo.name = name.value;
-  if (!!avatar.value) updateInfo.avatar = avatar.value;
-  if (!!role.value) updateInfo.role = role.value;
-  if (!!telephone.value) updateInfo.telephone = telephone.value;
-  if (!!email.value) updateInfo.email = email.value;
-  if (!!location.value) updateInfo.location = location.value;
 
   return updateInfo;
 }
