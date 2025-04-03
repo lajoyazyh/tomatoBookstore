@@ -104,6 +104,7 @@ function handleUpdate() {
       })
     }
   })
+  toggleEdit();
 }
 
 function relogin() {
