@@ -63,6 +63,7 @@ public class Account {
         accountVO.setName(this.name);
         accountVO.setAvatar(this.avatar);
         accountVO.setRole(this.role);
+        accountVO.setEmail(this.email);
         accountVO.setTelephone(this.telephone);
         accountVO.setLocation(this.location);
         return accountVO;
