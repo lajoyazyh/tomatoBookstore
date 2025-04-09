@@ -4,7 +4,7 @@ import com.example.tomatomall.po.Product;
 
 import com.example.tomatomall.po.Specification;
 import com.example.tomatomall.repository.ProductRepository;
-import com.example.tomatomall.service.ProductService；
+import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +62,6 @@ public class ProductController {
             return Response.buildFailure("400","商品不存在");
         }
     }
-=======
 
     /**
      * 创建新的商品

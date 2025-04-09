@@ -85,8 +85,7 @@ public class ProductServiceImpl implements ProductService {
         }
         return "更新成功";
     }
-}
- 
+
 
     @Override
     public String register(ProductVO productVO) {
