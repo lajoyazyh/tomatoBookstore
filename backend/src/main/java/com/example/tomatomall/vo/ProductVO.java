@@ -40,6 +40,13 @@ public class ProductVO {
         product.setCover(this.cover);
         product.setDetail(this.detail);
 
+        List<Specification> specifications = getSpecifications();
+        product.setSpecifications(specifications);
+
+        return product;
+    }
+
+    private List<Specification> getSpecifications() {
         List<Specification> specifications = new ArrayList<>();
         if (this.specificationVOs != null) {
             for (SpecificationVO specificationVO : this.specificationVOs) {
@@ -51,8 +58,6 @@ public class ProductVO {
                 specifications.add(specification);
             }
         }
-        product.setSpecifications(specifications);
-
-        return product;
+        return specifications;
     }
 }

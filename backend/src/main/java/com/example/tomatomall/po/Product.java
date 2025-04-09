@@ -57,6 +57,12 @@ public class Product {
         productVO.setCover(this.cover);
         productVO.setDetail(this.detail);
 
+        List<SpecificationVO> specificationVOs = getSpecificationVOS();
+        productVO.setSpecificationVOs(specificationVOs);
+        return productVO;
+    }
+
+    private List<SpecificationVO> getSpecificationVOS() {
         List<SpecificationVO> specificationVOs = new ArrayList<>();
         if (this.specifications != null) {
             for (Specification specification : this.specifications) {
@@ -68,7 +74,20 @@ public class Product {
                 specificationVOs.add(specificationVO);
             }
         }
-        productVO.setSpecificationVOs(specificationVOs);
-        return productVO;
+        return specificationVOs;
+    }
+
+    public void addSpecifications(List<SpecificationVO> specificationVOs){
+        if (specificationVOs != null) {
+            for (SpecificationVO specificationVO : specificationVOs) {
+                Specification specification = new Specification();
+                specification.setId(specificationVO.getId());
+                specification.setItem(specificationVO.getItem());
+                specification.setValue(specificationVO.getValue());
+                specification.setProductId(specificationVO.getProductId());
+                this.specifications.add(specification);
+            }
+        }
+        return;
     }
 }
