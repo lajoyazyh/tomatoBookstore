@@ -9,12 +9,13 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.ArrayList;
+
 @Getter
 @Setter
 @NoArgsConstructor
 
 public class ProductVO {
-    private String id;
+    private Integer id;
 
     private String title;//商品名称
 

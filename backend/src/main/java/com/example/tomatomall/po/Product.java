@@ -9,7 +9,6 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,8 +18,9 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")
-    private String id;
+    private Integer id;
 
+    @Basic
     @Column(name = "title")
     private String title;//商品名称
 
@@ -44,7 +44,7 @@ public class Product {
     @Column(name = "detail")
     private String detail;//商品详细说明
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "productId")
     private List<Specification> specifications; // 商品规格
 
     public ProductVO toVO(){
@@ -88,6 +88,5 @@ public class Product {
                 this.specifications.add(specification);
             }
         }
-        return;
     }
 }

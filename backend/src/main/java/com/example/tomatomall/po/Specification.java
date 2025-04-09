@@ -16,7 +16,7 @@ public class Specification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")
-    private String id;
+    private Integer id;
 
     @Basic
     @Column(name = "item")
@@ -26,12 +26,12 @@ public class Specification {
     @Column(name = "value")
     private String value;//规格内容
 
-    @ManyToOne
-    @JoinColumn(name = "productId", referencedColumnName = "id")
-    private String productId; // 所属商品id
+    @Basic
+    @Column(name = "productId")
+    private Integer productId; // 所属商品id
 
-    public SpecificationVO toVO(){
-        SpecificationVO specificationVO=new SpecificationVO();
+    public SpecificationVO toVO() {
+        SpecificationVO specificationVO = new SpecificationVO();
         specificationVO.setId(this.id);
         specificationVO.setItem(this.item);
         specificationVO.setValue(this.value);

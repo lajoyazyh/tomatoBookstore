@@ -31,7 +31,7 @@ public class ProductController {
      * 获取特定id的商品
      */
     @GetMapping("/{id}")
-    public Response getProduct(@PathVariable(value = "id")String id){
+    public Response getProduct(@PathVariable(value = "id")Integer id){
         ProductVO thisProductVO=productService.getProduct(id);
         if(thisProductVO!=null){
             return Response.buildSuccess(thisProductVO);

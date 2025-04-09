@@ -10,9 +10,9 @@ import lombok.Setter;
 @NoArgsConstructor
 
 public class StockpileVO {
-    private String id;
+    private Integer id;
 
-    private String productId;//所属商品id
+    private Integer productId;//所属商品id
 
     private Integer amount;//商品库存
 

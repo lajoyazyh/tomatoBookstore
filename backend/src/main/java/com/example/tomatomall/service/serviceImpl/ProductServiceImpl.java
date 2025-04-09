@@ -33,14 +33,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductVO getProduct(String id){
-        Product thisProduct=productRepository.findById(id);
+    public ProductVO getProduct(Integer id){
+        Product thisProduct= productRepository.findById(id).get();
         return thisProduct.toVO();
     }
 
     @Override
     public String updateInformation(ProductVO productVO){
-        Product thisProduct=productRepository.findById(productVO.getId());
+        Product thisProduct= productRepository.findById(productVO.getId()).get();
         if(productVO.getTitle()!=null){
             thisProduct.setTitle(productVO.getTitle());
         }
