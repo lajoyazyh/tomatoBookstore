@@ -44,6 +44,8 @@ function getUserInfo() {
     telephone.value = res.data.data.telephone
     email.value = res.data.data.email
     location.value = res.data.data.location
+
+    sessionStorage.setItem('role', res.data.data.role)
   })
 }
 
