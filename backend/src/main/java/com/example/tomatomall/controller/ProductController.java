@@ -35,5 +35,19 @@ public class ProductController {
         return Response.buildFailure("400", "你的后端方法实现错了，再回去沉淀沉淀！");
     }
 
+    /**
+     * 删除商品
+     */
+    @DeleteMapping("/{id}")
+    public  Response delete(@RequestHeader("token") String token, @RequestBody Integer id) {
+        String res = productService.delete(id);
+        if(res == "商品不存在") {
+            return Response.buildFailure("400", res);
+        }else if(res == "删除成功"){
+            return Response.buildSuccess(res);
+        }
+        return Response.buildFailure("400", "商品不存在");
+
+    }
 
 }

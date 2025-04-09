@@ -11,6 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * @Author: ZhuYehang
  * @Date: 2025/4/9
@@ -40,5 +42,17 @@ public class ProductServiceImpl implements ProductService {
 
         productRepository.save(newProduct);
         return "创建成功";
+    }
+
+    @Override
+    public String delete(Integer id) {
+        Optional<Product> product = productRepository.findById(id);
+        if(product == null) {
+            return "商品不存在";
+        }
+
+        productRepository.delete(product);
+        return "删除成功";
+
     }
 }
