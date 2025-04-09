@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.example.tomatomall.util.TokenUtil;
@@ -26,12 +27,13 @@ import java.util.Optional;
  */
 
 @Service
-public class ProductServiceImpl implements ProductService {
+
+public class ProductSreviceImpl implements ProductService {
 
     @Autowired
     ProductRepository productRepository;
 
-   TokenUtil tokenUtil;
+    TokenUtil tokenUtil;
 
     @Autowired
     SecurityUtil securityUtil;
@@ -48,13 +50,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductVO getProduct(Integer id){
+    public ProductVO getProduct(Integer id) {
         Product thisProduct= productRepository.findById(id).get();
         return thisProduct.toVO();
     }
 
     @Override
-    public String updateInformation(ProductVO productVO){
+    public String updateInformation(ProductVO productVO) {
         Product thisProduct= productRepository.findById(productVO.getId()).get();
         if(productVO.getTitle()!=null){
             thisProduct.setTitle(productVO.getTitle());
@@ -86,7 +88,6 @@ public class ProductServiceImpl implements ProductService {
         return "更新成功";
     }
 
-
     @Override
     public String register(ProductVO productVO) {
         Product product = productRepository.findByTitle(productVO.getTitle());
@@ -102,8 +103,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public String delete(Integer id) {
-        Optional<Product> productOptional = productRepository.findById(id);
-        if (!productOptional.isPresent()) {
+        Product product = productRepository.findById(id).get();
+        if (product == null) {
             return "商品不存在";
         }
 
