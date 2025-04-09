@@ -10,4 +10,9 @@ public interface ProductService {
     ProductVO getProduct(String id);
 
     String updateInformation(ProductVO productVO);
+  
+    String register(ProductVO productVO);
+
+    String delete(Integer id);
+ 
 }

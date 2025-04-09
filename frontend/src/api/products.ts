@@ -5,7 +5,7 @@ export type Specification = {
     id: string,
     item: string,
     value: string,      // 规格内容
-    productId: string,
+    productId: string,  // 规格对应商品的id
 }
 
 export type Stockpile = {

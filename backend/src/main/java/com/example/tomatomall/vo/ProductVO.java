@@ -60,4 +60,5 @@ public class ProductVO {
         }
         return specifications;
     }
+
 }

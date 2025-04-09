@@ -13,10 +13,25 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.tomatomall.util.TokenUtil;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
+
+/**
+ * @Author: ZhuYehang&zzc
+ * @Date: 2025/4/9
+ *
+ * 商品增删改查功能实现
+ */
+
 @Service
 public class ProductServiceImpl implements ProductService {
+
     @Autowired
     ProductRepository productRepository;
+
+   TokenUtil tokenUtil;
 
     @Autowired
     SecurityUtil securityUtil;
@@ -69,5 +84,32 @@ public class ProductServiceImpl implements ProductService {
             thisProduct.addSpecifications(productVO.getSpecificationVOs());
         }
         return "更新成功";
+    }
+}
+ 
+
+    @Override
+    public String register(ProductVO productVO) {
+        Product product = productRepository.findByTitle(productVO.getTitle());
+        if(product != null) {
+            return "商品名已存在";
+        }
+
+        Product newProduct = productVO.toPO();
+
+        productRepository.save(newProduct);
+        return "创建成功";
+    }
+
+    @Override
+    public String delete(Integer id) {
+        Optional<Product> product = productRepository.findById(id);
+        if(product == null) {
+            return "商品不存在";
+        }
+
+        productRepository.delete(product);
+        return "删除成功";
+
     }
 }

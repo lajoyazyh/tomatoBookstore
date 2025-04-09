@@ -38,12 +38,19 @@ const passwordChanged = ref(computed(() => !!password.value && !!confirmPassword
 
 function getUserInfo() {
   userInfo(username).then((res) => {
-    name.value = res.data.data.name
-    avatar.value = res.data.data.avatar
-    role.value = res.data.data.role
-    telephone.value = res.data.data.telephone
-    email.value = res.data.data.email
-    location.value = res.data.data.location
+    if (res.data.code == '200') {
+      name.value = res.data.data.name
+      avatar.value = res.data.data.avatar
+      role.value = res.data.data.role
+      telephone.value = res.data.data.telephone
+      email.value = res.data.data.email
+      location.value = res.data.data.location
+
+      sessionStorage.setItem('role', res.data.data.role)
+    }
+    else if (res.data.code == '400') {
+      ElMessage.error(res.data.message)
+    }
   })
 }
 
