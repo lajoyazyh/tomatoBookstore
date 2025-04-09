@@ -31,8 +31,6 @@ public class AccountVO {
 
     private String location;
 
-
-
     private Date createTime;
 
     public Account toPO(){
