@@ -66,7 +66,23 @@ function getStockpileOf(productId: string) {
 }
 
 function updateCurrentStockpile(productId: string) {
+  if (stockpile.value.productId != productId) {
+    ElMessage.error('错误指定商品');
+  }
 
+  updateStockpile({
+    productId: productId,
+    amount: stockpile.value.amount,
+  }).then(res => {
+    if (res.data.code === '200') {
+      ElMessage.success('库存更新成功！');
+      // 更新成功后重新获取库存，方便校对以及防止二次点击更改产生的不一致
+      getStockpileOf(productId);
+    }
+    else if (res.data.code === '400') {
+      ElMessage.error(res.data.msg);
+    }
+  })
 }
 
 </script>
