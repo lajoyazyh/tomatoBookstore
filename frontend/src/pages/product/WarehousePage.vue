@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus';
 import { router } from '../../router'
-import { Specification, getAllProducts, getStockpile, updateStockpile } from "../../api/products.ts";
+import { Specification, getAllProducts, deleteProduct, getStockpile, updateStockpile } from "../../api/products.ts";
 
 const role = sessionStorage.getItem('role');
 
@@ -78,6 +78,22 @@ function updateCurrentStockpile(productId: string) {
       ElMessage.success('库存更新成功！');
       // 更新成功后重新获取库存，方便校对以及防止二次点击更改产生的不一致
       getStockpileOf(productId);
+    }
+    else if (res.data.code === '400') {
+      ElMessage.error(res.data.msg);
+    }
+  })
+}
+
+function removeProduct(productId: string) {
+  if (stockpile.value.productId != productId) {
+    ElMessage.error('错误指定商品');
+  }
+
+  deleteProduct(productId).then((res) => {
+    if (res.data.code === '200') {
+      ElMessage.success('删除当前商品成功！');
+      // 可能这里需要一些善后的逻辑，但是我没想好怎么做
     }
     else if (res.data.code === '400') {
       ElMessage.error(res.data.msg);
