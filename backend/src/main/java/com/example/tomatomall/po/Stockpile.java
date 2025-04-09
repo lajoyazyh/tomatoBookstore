@@ -17,11 +17,11 @@ public class Stockpile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")
-    private String id;
+    private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "productId", referencedColumnName = "id")
-    private String productId; // 所属商品id
+    @Basic
+    @Column(name = "productId")
+    private Integer productId; // 所属商品id
 
     @Basic
     @Column(name = "amount")
