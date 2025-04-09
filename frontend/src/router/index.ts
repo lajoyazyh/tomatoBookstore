@@ -22,6 +22,10 @@ const router = createRouter({
             component: () => import('../pages/product/Detail.vue'),
             meta: { title: '商品详情' }
         }, {
+            path: '/createProduct',
+            component: () => import('../pages/product/Create.vue'),
+            meta: { title: '创建商品' }
+        }, {
             path: '/register',
             component: () => import('../pages/account/Register.vue'),
             meta: { title: '注册' }
