@@ -1,9 +1,9 @@
-<script setup>
+<script setup lang="ts">
 
 </script>
 
 <template>
-  <h1>库存管理</h1>
+
 </template>
 
 <style scoped>

@@ -1,9 +1,10 @@
 package com.example.tomatomall.controller;
 
 import com.example.tomatomall.po.Product;
+
 import com.example.tomatomall.po.Specification;
 import com.example.tomatomall.repository.ProductRepository;
-import com.example.tomatomall.service.ProductService;
+import com.example.tomatomall.service.ProductService；
 import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,13 @@ import javax.annotation.Resource;
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
+
     @Resource
     ProductService productService;
 
+    @Autowired
+    private TokenUtil tokenUtil;
+  
     /**
      * 获取商品列表
      */
@@ -57,4 +62,35 @@ public class ProductController {
             return Response.buildFailure("400","商品不存在");
         }
     }
+=======
+
+    /**
+     * 创建新的商品
+     */
+    @PostMapping()
+    public Response createProduct(@RequestBody ProductVO productVO) {
+        String res = productService.register(productVO);
+        if(res == "商品名已存在") {
+            return Response.buildFailure("400", res);
+        }else if(res == "创建成功"){
+            return Response.buildSuccess(res);
+        }
+        return Response.buildFailure("400", "你的后端方法实现错了，再回去沉淀沉淀！");
+    }
+
+    /**
+     * 删除商品
+     */
+    @DeleteMapping("/{id}")
+    public  Response delete(@RequestHeader("token") String token, @RequestBody Integer id) {
+        String res = productService.delete(id);
+        if(res == "商品不存在") {
+            return Response.buildFailure("400", res);
+        }else if(res == "删除成功"){
+            return Response.buildSuccess(res);
+        }
+        return Response.buildFailure("400", "商品不存在");
+
+    }
+
 }
