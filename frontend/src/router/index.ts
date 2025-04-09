@@ -15,8 +15,12 @@ const router = createRouter({
             meta: { title: '购物车' }
         }, {
             path: '/warehouse',
-            component: () => import('../pages/WarehousePage.vue'),
+            component: () => import('../pages/product/WarehousePage.vue'),
             meta: { title: '库存管理' }
+        }, {
+            path: '/productDetail/:productId',
+            component: () => import('../pages/product/Detail.vue'),
+            meta: { title: '商品详情' }
         }, {
             path: '/register',
             component: () => import('../pages/account/Register.vue'),

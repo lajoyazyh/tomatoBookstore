@@ -35,6 +35,7 @@ function handleLogin() {
 
       userInfo(username.value).then(res => {
         sessionStorage.setItem('username', res.data.data.username)
+        sessionStorage.setItem('role', res.data.data.role)
 
         router.push({path: "/dashboard"})
       })
