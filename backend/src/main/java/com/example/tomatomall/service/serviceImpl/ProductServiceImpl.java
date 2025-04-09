@@ -102,12 +102,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public String delete(Integer id) {
-        Optional<Product> product = productRepository.findById(id);
-        if(product == null) {
+        Optional<Product> productOptional = productRepository.findById(id);
+        if (!productOptional.isPresent()) {
             return "商品不存在";
         }
 
-        productRepository.delete(product);
+        productRepository.deleteById(id);
         return "删除成功";
 
     }
