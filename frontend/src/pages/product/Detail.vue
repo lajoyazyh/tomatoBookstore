@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { router } from '../../router'
-import { UpdateProductInfo, Specification, getTheProduct } from "../../api/products.ts";
+import { UpdateProductInfo, Specification, getTheProduct, updateProductInfo } from "../../api/products.ts";
 import { uploadImage } from "../../api/images.ts";
 
 // 修改商品信息需要STAFF权限
@@ -50,7 +50,7 @@ const updateDisabled = computed(() => {
       !!productInfo.value.id && !!productInfo.value.title);
 })
 
-onMounted(async () => {
+function getProduct() {
   getTheProduct(productId).then((res) => {
     if (res.data.code == '200') {
       productInfo.value.id = productId
@@ -66,6 +66,10 @@ onMounted(async () => {
       ElMessage.error(res.data.message)
     }
   })
+}
+
+onMounted(async () => {
+  getProduct()
 })
 
 function handleFileChange(file: any) {
@@ -115,6 +119,18 @@ function creatUpdateInfo(): UpdateProductInfo {
 
 
   return updateInfo;
+}
+
+function handleUpdate() {
+  updateProductInfo(creatUpdateInfo()).then(res => {
+    if (res.data.code == '200') {
+      ElMessage.success('更新商品信息成功！');
+      // 重新获取商品
+      getProduct()
+    } else {
+      ElMessage.error(res.data.message)
+    }
+  })
 }
 
 
