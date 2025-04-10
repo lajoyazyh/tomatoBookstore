@@ -50,7 +50,7 @@ const updateDisabled = computed(() => {
       !!productInfo.value.id && !!productInfo.value.title);
 })
 
-onMounted(async () => {
+function getProduct() {
   getTheProduct(productId).then((res) => {
     if (res.data.code == '200') {
       productInfo.value.id = productId
@@ -66,6 +66,10 @@ onMounted(async () => {
       ElMessage.error(res.data.message)
     }
   })
+}
+
+onMounted(async () => {
+  getProduct()
 })
 
 function handleFileChange(file: any) {
@@ -121,15 +125,8 @@ function handleUpdate() {
   updateProductInfo(creatUpdateInfo()).then(res => {
     if (res.data.code == '200') {
       ElMessage.success('更新商品信息成功！');
-      // 重新获取商品信息
-      productInfo.value.id = res.data.data.id;
-      productInfo.value.title = res.data.data.title;
-      productInfo.value.price = res.data.data.price;
-      productInfo.value.rate = res.data.rate;
-      productInfo.value.description = res.data.description;
-      productInfo.value.cover = res.data.cover;
-      productInfo.value.detail = res.data.detail;
-      productInfo.value.specifications = res.data.specifications
+      // 重新获取商品
+      getProduct()
     } else {
       ElMessage.error(res.data.message)
     }
