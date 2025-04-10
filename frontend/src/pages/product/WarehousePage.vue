@@ -7,7 +7,7 @@ import { Specification, getAllProducts, deleteProduct, getStockpile, updateStock
 const role = sessionStorage.getItem('role');
 
 const products = ref<Array<{
-  id: string;
+  id: number;
   title: string,
   price: number,
   rate: number,
@@ -17,16 +17,15 @@ const products = ref<Array<{
   specifications?: Specification[],
 }>>([]);
 
+// stockpile 的id好像没用，先写个注释在这
 const stockpile = ref<{
-  id: string,
   amount: number,
   frozen: number,
-  productId: string
+  productId: number
 }>({
-  id: '-1',
   amount: 0,
   frozen: 0,
-  productId: '-1',
+  productId: -1,
 });
 
 onMounted(async () => {
@@ -50,12 +49,11 @@ onMounted(async () => {
   }
 })
 
-function getStockpileOf(productId: string) {
+function getStockpileOf(productId: number) {
   if (stockpile.value.productId == productId) return;
 
   try {
     getStockpile(productId).then((res) => {
-      stockpile.value.id = res.data.data.id;
       stockpile.value.amount = res.data.data.amount;
       stockpile.value.frozen = res.data.frozen;
       stockpile.value.productId = res.data.data.productId;
@@ -65,7 +63,7 @@ function getStockpileOf(productId: string) {
   }
 }
 
-function updateCurrentStockpile(productId: string) {
+function updateCurrentStockpile(productId: number) {
   if (stockpile.value.productId != productId) {
     ElMessage.error('错误指定商品');
   }
@@ -85,7 +83,7 @@ function updateCurrentStockpile(productId: string) {
   })
 }
 
-function removeProduct(productId: string) {
+function removeProduct(productId: number) {
   if (stockpile.value.productId != productId) {
     ElMessage.error('错误指定商品');
   }
