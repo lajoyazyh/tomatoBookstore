@@ -80,6 +80,18 @@ function createProductInfo(): CreateProductInfo {
   return createInfo;
 }
 
+function handleCreateProduct() {
+  createProduct(createProductInfo()).then(res => {
+    if (res.data.code === '200') {
+      ElMessage.success('创建商品成功！');
+      // 跳转详情界面
+      router.push('/productDetail/' + res.data.data.id);
+    } else {
+      ElMessage.error(res.data.msg)
+    }
+  })
+}
+
 </script>
 
 <template>
