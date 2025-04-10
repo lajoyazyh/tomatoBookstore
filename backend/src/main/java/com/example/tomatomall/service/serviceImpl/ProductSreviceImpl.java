@@ -149,4 +149,9 @@ public class ProductSreviceImpl implements ProductService {
         return "库存更新成功";
     }
 
+    @Override
+    public StockpileVO getStock(Integer productId){
+        Stockpile stockpile=stockPileRepository.findByProduceId(productId);
+        return stockpile.toVO();
+    }
 }

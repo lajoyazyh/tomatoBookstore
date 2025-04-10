@@ -1,6 +1,7 @@
 package com.example.tomatomall.service;
 
 import com.example.tomatomall.vo.ProductVO;
+import com.example.tomatomall.vo.StockpileVO;
 
 import java.util.List;
 
@@ -17,4 +18,5 @@ public interface ProductService {
 
     String stockChange(Integer productId, Integer amount);
 
+    StockpileVO getStock(Integer productId);
 }

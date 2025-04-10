@@ -3,10 +3,13 @@ package com.example.tomatomall.controller;
 import com.example.tomatomall.po.Product;
 
 import com.example.tomatomall.po.Specification;
+import com.example.tomatomall.po.Stockpile;
 import com.example.tomatomall.repository.ProductRepository;
+import com.example.tomatomall.repository.StockPileRepository;
 import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.Response;
+import com.example.tomatomall.vo.StockpileVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
@@ -81,7 +84,7 @@ public class ProductController {
      * 删除商品
      */
     @DeleteMapping("/{id}")
-    public  Response delete(@RequestHeader("token") String token, @RequestBody Integer id) {
+    public  Response delete(@RequestHeader("token") String token,@PathVariable(value = "id")Integer id) {
         String res = productService.delete(id);
         if(res == "商品不存在") {
             return Response.buildFailure("400", res);
@@ -96,7 +99,7 @@ public class ProductController {
      * 调整库存
      */
     @PatchMapping("/stockpile/{productId}")
-    public  Response stockChange(@RequestHeader("token") String token, @RequestBody Integer productId, @RequestBody Integer amount) {
+    public Response stockChange(@RequestHeader("token") String token,@PathVariable(value = "productId")Integer productId,@RequestParam(value = "amount")Integer amount) {
         String res = productService.stockChange(productId, amount);
         if(res == "商品不存在") {
             return Response.buildFailure("400", res);
@@ -107,4 +110,12 @@ public class ProductController {
 
     }
 
+    /**
+     * 调整库存
+     */
+    @GetMapping("/stockpile/{productId}")
+    public Response getStock(@PathVariable(value = "productId")Integer productId){
+        StockpileVO thisStockpileVO= productService.getStock(productId);
+        return Response.buildSuccess(thisStockpileVO);
+    }
 }
