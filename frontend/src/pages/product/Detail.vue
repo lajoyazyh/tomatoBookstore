@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { router } from '../../router'
-import { UpdateProductInfo, Specification, getTheProduct } from "../../api/products.ts";
+import { UpdateProductInfo, Specification, getTheProduct, updateProductInfo } from "../../api/products.ts";
 import { uploadImage } from "../../api/images.ts";
 
 // 修改商品信息需要STAFF权限
@@ -115,6 +115,25 @@ function creatUpdateInfo(): UpdateProductInfo {
 
 
   return updateInfo;
+}
+
+function handleUpdate() {
+  updateProductInfo(creatUpdateInfo()).then(res => {
+    if (res.data.code == '200') {
+      ElMessage.success('更新商品信息成功！');
+      // 重新获取商品信息
+      productInfo.value.id = res.data.data.id;
+      productInfo.value.title = res.data.data.title;
+      productInfo.value.price = res.data.data.price;
+      productInfo.value.rate = res.data.rate;
+      productInfo.value.description = res.data.description;
+      productInfo.value.cover = res.data.cover;
+      productInfo.value.detail = res.data.detail;
+      productInfo.value.specifications = res.data.specifications
+    } else {
+      ElMessage.error(res.data.message)
+    }
+  })
 }
 
 
