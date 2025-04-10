@@ -2,10 +2,16 @@ package com.example.tomatomall.service.serviceImpl;
 
 import com.example.tomatomall.exception.TomatoMallException;
 import com.example.tomatomall.po.Product;
+import com.example.tomatomall.po.Specification;
+import com.example.tomatomall.po.Stockpile;
 import com.example.tomatomall.repository.ProductRepository;
+import com.example.tomatomall.repository.SpecificationRepository;
+import com.example.tomatomall.repository.StockPileRepository;
 import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.vo.ProductVO;
+import com.example.tomatomall.vo.SpecificationVO;
+import com.example.tomatomall.vo.StockpileVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +38,8 @@ public class ProductSreviceImpl implements ProductService {
 
     @Autowired
     ProductRepository productRepository;
+    StockPileRepository stockPileRepository;
+    SpecificationRepository specificationRepository;
 
     TokenUtil tokenUtil;
 
@@ -112,4 +120,33 @@ public class ProductSreviceImpl implements ProductService {
         return "删除成功";
 
     }
+
+    @Override
+    public String stockChange(Integer productId, Integer amount) {
+        // 查找对应的库存对象
+        Stockpile stockpile = stockPileRepository.findByProduceId(productId);
+        if (stockpile == null) {
+            return "商品不存在";
+        }
+
+        // 获取当前库存数量
+        Integer currentAmount = stockpile.getAmount();
+
+        // 更新库存数量
+        if (currentAmount >= amount) {
+            stockpile.setAmount(currentAmount - amount);
+        } else {
+            return "库存不足";
+        }
+
+        // 调用 save 方法保存更新（修改原有记录）
+        try {
+            stockPileRepository.save(stockpile);
+        } catch (Exception e) {
+            return "更新库存失败：" + e.getMessage();
+        }
+
+        return "库存更新成功";
+    }
+
 }

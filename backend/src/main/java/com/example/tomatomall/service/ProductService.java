@@ -14,5 +14,7 @@ public interface ProductService {
     String register(ProductVO productVO);
 
     String delete(Integer id);
- 
+
+    String stockChange(Integer productId, Integer amount);
+
 }
