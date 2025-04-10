@@ -17,7 +17,7 @@ server:
 aliyun:
   oss:
     endpoint: oss-cn-shanghai.aliyuncs.com
-    accessKeyId: LTAI5t9f8EGReBw84eti3ioG
-    accessKeySecret: eQbzsO4fo5BNS0EospeRb7rOBzUMOj
-    bucketName: bucketzyh
+    accessKeyId:
+    accessKeySecret:
+    bucketName: 
 
