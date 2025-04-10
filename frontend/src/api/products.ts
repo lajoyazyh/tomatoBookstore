@@ -2,21 +2,21 @@ import { axios } from '../utils/request'
 import { PRODUCT_MODULE } from './_prefix'
 
 export type Specification = {
-    id: string,
+    id: number,
     item: string,
     value: string,      // 规格内容
-    productId: string,  // 规格对应商品的id
+    productId: number,  // 规格对应商品的id
 }
 
 export type Stockpile = {
-    id: string,
-    productId: string,
+    id: number,
+    productId: number,
     amount: number,         // 可售库存
     frozen: number,         // 不售库存
 }
 
 export type UpdateProductInfo = {
-    id: string,
+    id: number,
     title?: string,
     price?: number,         // 不低于0
     rate?: number,          // 0 ~ 10
@@ -37,7 +37,7 @@ export type CreatProductInfo = {
 }
 
 export type UpdateStockpileInfo = {
-    productId: string,
+    productId:  number,
     amount: number,
 }
 
@@ -47,7 +47,7 @@ export const getAllProducts = () => {
             return res
         })
 }
-export const getTheProduct = (id : string) => {
+export const getTheProduct = (id : number) => {
     return axios.get(`${PRODUCT_MODULE}/${id}`)
         .then(res => {
             return res
@@ -67,7 +67,7 @@ export const createProduct = (createProductInfo: CreatProductInfo) => {
             return res
         })
 }
-export const deleteProduct = (id: string) => {
+export const deleteProduct = (id: number) => {
     return axios.delete(`${PRODUCT_MODULE}/${id}`)
         .then(res => {
             return res
@@ -80,7 +80,7 @@ export const updateStockpile = (updateStockpileInfo: UpdateStockpileInfo) => {
             return res
         })
 }
-export const getStockpile = (productId: string) => {
+export const getStockpile = (productId: number) => {
     return axios.get(`${PRODUCT_MODULE}/stockpile/${productId}`)
         .then(res => {
             return res

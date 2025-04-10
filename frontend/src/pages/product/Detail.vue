@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, onMounted, computed} from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { router } from '../../router'
@@ -10,11 +10,11 @@ import { uploadImage } from "../../api/images.ts";
 const role = sessionStorage.getItem('role');
 
 const route = useRoute();
-const productId = String(route.params.productId);
+const productId = Number(route.params.productId);
 
 const currentFile = ref(null) // cover file
 const productInfo = ref<{
-  id: string;             // id 仅仅作为更新的标志，不能修改
+  id: number;             // id 仅仅作为更新的标志，不能修改
   title: string,
   price: number,
   rate: number,
@@ -27,18 +27,21 @@ const productInfo = ref<{
   title: '封面',
   price: 0,
   rate: 0,
+  specifications: []
 });
 const newSpecification = ref<{
-  id: string,
   item: string,
   value: string,
-  productId: string,
+  productId: number,
 }>({
-  id: '-1',
-  item: '条目',
-  value: '描述',
+  item: '',
+  value: '',
   productId: productId,
 });
+
+const addSpecificationDisabled = computed(() => {
+  return !(!!newSpecification.value.item && !!newSpecification.value.value && !!newSpecification.value.productId);
+})
 
 const updateDisabled = computed(() => {
   return !(role == 'STAFF' &&
@@ -80,6 +83,19 @@ function handleFileChange(file: any) {
   }).catch(error => {
     ElMessage.error('文件上传失败：' + error.message);
   });
+}
+
+function addNewSpecification() {
+  // 不允许创建空的规格描述
+  if (addSpecificationDisabled.value) return;
+
+  // 用一个深拷贝更新specifications，避免直接修改
+  const specificationsCopy = JSON.parse(JSON.stringify(productInfo.value.specifications));
+  specificationsCopy.push(newSpecification.value);
+  productInfo.value.specifications = specificationsCopy;
+
+  newSpecification.value.item = '';
+  newSpecification.value.value = '';
 }
 
 function creatUpdateInfo(): UpdateProductInfo {
