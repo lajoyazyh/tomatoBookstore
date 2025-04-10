@@ -26,7 +26,7 @@ export type UpdateProductInfo = {
     specifications?: Specification[],
 }
 
-export type CreatProductInfo = {
+export type CreateProductInfo = {
     title: string,
     price: number,         // 不低于0
     rate: number,          // 0 ~ 10
@@ -60,7 +60,7 @@ export const updateProductInfo = (updateProductInfo: UpdateProductInfo) => {
             return res
         })
 }
-export const createProduct = (createProductInfo: CreatProductInfo) => {
+export const createProduct = (createProductInfo: CreateProductInfo) => {
     return axios.post(`${PRODUCT_MODULE}`, createProductInfo,
         { headers: { 'Content-Type': 'application/json' } })
         .then(res => {
