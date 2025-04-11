@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus';
-// 这里router应该用于创建成功后跳转到对应详情界面
-import { router } from '../../router'
+import { router } from '../../router';
 import { uploadImage } from "../../api/images.ts";
 import { createProduct } from "../../api/products.ts";
 import type { Specification, CreateProductInfo } from "../../api/products.ts";
 
 // 需要STAFF权限
 const role = sessionStorage.getItem('role');
+if (role != 'STAFF') ElMessage.error('您不是管理员，不能创建商品！')
 
 const title = ref('')
 const price = ref(0)
@@ -189,13 +189,13 @@ function handleCreateProduct() {
                 v-model="spec.item"
                 placeholder="规格名称"
                 style="width: 150px; margin-right: 10px"
-                :disabled="true"
+                :disabled="false"
             ></el-input>
             <el-input
                 v-model="spec.value"
                 placeholder="规格值"
                 style="width: 150px; margin-right: 10px"
-                :disabled="true"
+                :disabled="false"
             ></el-input>
             <el-button type="danger" size="small" @click="specifications.splice(index, 1)">
               删除
