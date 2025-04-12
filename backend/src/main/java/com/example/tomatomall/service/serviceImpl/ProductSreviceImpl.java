@@ -64,10 +64,12 @@ public class ProductSreviceImpl implements ProductService {
     @Override
     public ProductVO getProduct(Integer id) {
         Product thisProduct= productRepository.findById(id).get();
-//        List<Specification> specifications = specificationRepository.findByProductId(id);
-//        if(specifications!=null&!specifications.isEmpty()){
-//            thisProduct.addSpecifications(specifications);
-//        }
+        List<Specification> specifications = specificationRepository.findByProductId(id);
+        if(specifications!=null&!specifications.isEmpty()){
+            for(Specification specification:specifications){
+                thisProduct.addSpecification(specification);
+            }
+        }
         return thisProduct.toVO();
     }
 
@@ -113,7 +115,7 @@ public class ProductSreviceImpl implements ProductService {
 
     @Override
     @Transactional
-    public Product register(ProductVO productVO) {
+    public ProductVO register(ProductVO productVO) {
         Product product = productRepository.findByTitle(productVO.getTitle());
         if(product != null) {
             return null;
@@ -132,8 +134,8 @@ public class ProductSreviceImpl implements ProductService {
         stockpile.setProductId(newProduct.getId());
         stockpile.setAmount(0);
         stockpile.setFrozen(0);
-        stockpileRepository.save(stockpile);
-        return newProduct;
+
+        return getProduct(newProduct.getId());
     }
 
     @Override

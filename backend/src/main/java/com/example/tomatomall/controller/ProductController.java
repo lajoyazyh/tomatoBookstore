@@ -71,7 +71,7 @@ public class ProductController {
      */
     @PostMapping()
     public Response createProduct(@RequestBody ProductVO productVO) {
-        Product res = productService.register(productVO);
+        ProductVO res = productService.register(productVO);
         if(res == null) {
             return Response.buildFailure("400", "该商品已存在");
         }else{

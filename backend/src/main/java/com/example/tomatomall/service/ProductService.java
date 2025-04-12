@@ -16,7 +16,7 @@ public interface ProductService {
 
     String updateInformation(ProductVO productVO);
   
-    Product register(ProductVO productVO);
+    ProductVO register(ProductVO productVO);
 
     String delete(Integer id);
 

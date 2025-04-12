@@ -71,7 +71,9 @@ public class Product {
         if (this.specifications == null) {
             this.specifications = new ArrayList<>();
         }
-        this.specifications.add(specification);
+        if(!this.specifications.contains(specification)) {
+            this.specifications.add(specification);
+        }
         specification.setProduct(this); // 确保双向关联一致
     }
 }
