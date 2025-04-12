@@ -37,10 +37,11 @@ public class ProductVO {
         List<Specification> specifications = new ArrayList<>();
         if (this.specificationVOs != null) {
             for (SpecificationVO specificationVO : this.specificationVOs) {
-                specifications.add(specificationVO.toPO());
+                Specification specification = specificationVO.toPO();
+                product.addSpecification(specification); // 使用辅助方法同步双向关联
             }
-            product.setSpecifications(specifications);
         }
+        product.setSpecifications(specifications);
         return product;
     }
 }

@@ -14,16 +14,16 @@ public class SpecificationVO {
     private Integer id;
     private String item;//规格名
     private String value;//规格内容
-    private ProductVO productVO;
+    private Integer productId;
 
     public Specification toPO() {
         Specification specification = new Specification();
         specification.setId(this.id);
         specification.setItem(this.item);
         specification.setValue(this.value);
-        if (this.productVO != null) {
+        if (this.productId != null) {
             Product product = new Product();
-            product.setId(this.productVO.getId());
+            product.setId(this.productId);
             specification.setProduct(product);
         }
         return specification;

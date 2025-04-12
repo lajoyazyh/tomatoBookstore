@@ -1,5 +1,6 @@
 package com.example.tomatomall.po;
 
+import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.SpecificationVO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,17 +29,16 @@ public class Specification {
 
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "productId")
-    private Product product;
+    @JoinColumn(name = "product_id")
+    private Product product; // 关联的商品
+
 
     public SpecificationVO toVO() {
         SpecificationVO specificationVO = new SpecificationVO();
         specificationVO.setId(this.id);
         specificationVO.setItem(this.item);
         specificationVO.setValue(this.value);
-        if (this.product != null) {
-            specificationVO.setProductVO(this.product.toVO());
-        }
+        specificationVO.setProductId(this.product.getId());
         return specificationVO;
     }
 }

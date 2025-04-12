@@ -4,8 +4,6 @@ import com.example.tomatomall.po.Product;
 
 import com.example.tomatomall.po.Specification;
 import com.example.tomatomall.po.Stockpile;
-import com.example.tomatomall.repository.ProductRepository;
-import com.example.tomatomall.repository.StockPileRepository;
 import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.Response;

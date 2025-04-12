@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 
-public interface StockPileRepository extends JpaRepository<Stockpile, Integer> {
+public interface StockpileRepository extends JpaRepository<Stockpile, Integer> {
     Stockpile findByProductId(Integer productId);
 }

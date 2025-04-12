@@ -47,8 +47,8 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Specification> specifications = new ArrayList<>();//商品规格
 
-    public ProductVO toVO(){
-        ProductVO productVO=new ProductVO();
+    public ProductVO toVO() {
+        ProductVO productVO = new ProductVO();
         productVO.setId(this.id);
         productVO.setTitle(this.title);
         productVO.setPrice(this.price);
@@ -57,38 +57,21 @@ public class Product {
         productVO.setCover(this.cover);
         productVO.setDetail(this.detail);
 
-        List<SpecificationVO> specificationVOs = getSpecificationVOS();
-        productVO.setSpecificationVOs(specificationVOs);
-        return productVO;
-    }
-
-    private List<SpecificationVO> getSpecificationVOS() {
         List<SpecificationVO> specificationVOs = new ArrayList<>();
         if (this.specifications != null) {
             for (Specification specification : this.specifications) {
                 specificationVOs.add(specification.toVO());
             }
+            productVO.setSpecificationVOs(specificationVOs);
         }
-        return specificationVOs;
+        return productVO;
     }
 
-    public void addSpecificationVOs(List<SpecificationVO> specificationVOs){
-        if (specificationVOs != null) {
-            for (SpecificationVO specificationVO : specificationVOs) {
-                if(!specifications.contains(specificationVO.toPO())) {
-                    this.specifications.add(specificationVO.toPO());
-                }
-            }
+    public void addSpecification(Specification specification) {
+        if (this.specifications == null) {
+            this.specifications = new ArrayList<>();
         }
-    }
-
-    public void addSpecifications(List<Specification> specifications){
-        if (specifications != null) {
-            for (Specification specification : specifications) {
-                if(!specifications.contains(specification)){
-                    this.specifications.add(specification);
-                }
-            }
-        }
+        this.specifications.add(specification);
+        specification.setProduct(this); // 确保双向关联一致
     }
 }

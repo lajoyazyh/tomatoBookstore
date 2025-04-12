@@ -6,7 +6,7 @@ import com.example.tomatomall.po.Specification;
 import com.example.tomatomall.po.Stockpile;
 import com.example.tomatomall.repository.ProductRepository;
 import com.example.tomatomall.repository.SpecificationRepository;
-import com.example.tomatomall.repository.StockPileRepository;
+import com.example.tomatomall.repository.StockpileRepository;
 import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.vo.ProductVO;
@@ -39,7 +39,7 @@ public class ProductSreviceImpl implements ProductService {
     ProductRepository productRepository;
 
     @Autowired
-    StockPileRepository stockPileRepository;
+    StockpileRepository stockpileRepository;
 
     @Autowired
     SpecificationRepository specificationRepository;
@@ -74,6 +74,7 @@ public class ProductSreviceImpl implements ProductService {
     @Override
     public String updateInformation(ProductVO productVO) {
         Product thisProduct= productRepository.findById(productVO.getId()).get();
+
         if(productVO.getTitle()!=null){
             thisProduct.setTitle(productVO.getTitle());
         }
@@ -99,9 +100,11 @@ public class ProductSreviceImpl implements ProductService {
             thisProduct.setDetail(productVO.getDetail());
         }
         if(productVO.getSpecificationVOs()!=null){
-            thisProduct.addSpecificationVOs(productVO.getSpecificationVOs());
             for(SpecificationVO specificationVO:productVO.getSpecificationVOs()){
-                specificationRepository.save(specificationVO.toPO());
+                Specification specification = specificationVO.toPO();
+                specification.setProduct(thisProduct); // 设置关联的商品对象
+                specificationRepository.save(specification); // 保存规格信息
+                thisProduct.addSpecification(specification);
             }
         }
         productRepository.save(thisProduct);
@@ -115,8 +118,7 @@ public class ProductSreviceImpl implements ProductService {
         if(product != null) {
             return "商品名已存在";
         }
-
-        Product newProduct = productVO.toPO();
+        Product newProduct = productVO.toPO(); // 转换时确保双向关联正确设置
         productRepository.save(newProduct);
         List<SpecificationVO> newSpecificationVOs = productVO.getSpecificationVOs();
         if (newSpecificationVOs != null && !newSpecificationVOs.isEmpty()) {
@@ -126,19 +128,28 @@ public class ProductSreviceImpl implements ProductService {
                 specificationRepository.save(specification); // 保存规格信息
             }
         }
+        Stockpile stockpile=new Stockpile();
+        stockpile.setProductId(newProduct.getId());
+        stockpile.setAmount(0);
+        stockpile.setFrozen(0);
+        stockpileRepository.save(stockpile);
         return "创建成功";
     }
 
     @Override
     public String delete(Integer id) {
         productRepository.deleteById(id);
+        List<Specification> specifications=specificationRepository.findByProductId(id);
+        for(Specification specification:specifications){
+            stockpileRepository.deleteById(specification.getId());
+        }
         return "删除成功";
     }
 
     @Override
     public String stockChange(Integer productId, Integer amount) {
         // 查找对应的库存对象
-        Stockpile stockpile = stockPileRepository.findByProductId(productId);
+        Stockpile stockpile = stockpileRepository.findByProductId(productId);
         if (stockpile == null) {
             return "商品不存在";
         }
@@ -155,7 +166,7 @@ public class ProductSreviceImpl implements ProductService {
 
         // 调用 save 方法保存更新（修改原有记录）
         try {
-            stockPileRepository.save(stockpile);
+            stockpileRepository.save(stockpile);
         } catch (Exception e) {
             return "更新库存失败：" + e.getMessage();
         }
@@ -165,7 +176,7 @@ public class ProductSreviceImpl implements ProductService {
 
     @Override
     public StockpileVO getStock(Integer productId){
-        Stockpile stockpile=stockPileRepository.findByProductId(productId);
+        Stockpile stockpile=stockpileRepository.findByProductId(productId);
         return stockpile.toVO();
     }
 }
