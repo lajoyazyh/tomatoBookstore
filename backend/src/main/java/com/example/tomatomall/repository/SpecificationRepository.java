@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface SpecificationRepository {
+public interface SpecificationRepository extends JpaRepository<Specification, Integer> {
+    List<Specification> findByProductId(Integer productId);
 }

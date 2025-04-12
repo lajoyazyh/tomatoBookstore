@@ -6,7 +6,7 @@ import com.example.tomatomall.po.Specification;
 import com.example.tomatomall.po.Stockpile;
 import com.example.tomatomall.repository.ProductRepository;
 import com.example.tomatomall.repository.SpecificationRepository;
-import com.example.tomatomall.repository.StockPileRepository;
+import com.example.tomatomall.repository.StockpileRepository;
 import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.util.SecurityUtil;
 import com.example.tomatomall.vo.ProductVO;
@@ -17,11 +17,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.example.tomatomall.util.TokenUtil;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -38,9 +37,14 @@ public class ProductSreviceImpl implements ProductService {
 
     @Autowired
     ProductRepository productRepository;
-    StockPileRepository stockPileRepository;
+
+    @Autowired
+    StockpileRepository stockpileRepository;
+
+    @Autowired
     SpecificationRepository specificationRepository;
 
+    @Autowired
     TokenUtil tokenUtil;
 
     @Autowired
@@ -51,7 +55,7 @@ public class ProductSreviceImpl implements ProductService {
         List<Product> allProducts=productRepository.findAll();
         List<ProductVO> allProductVOs=new ArrayList<>();
         for(Product product:allProducts){
-            ProductVO productVO=product.toVO();
+            ProductVO productVO=getProduct(product.getId());
             allProductVOs.add(productVO);
         }
         return allProductVOs;
@@ -60,12 +64,17 @@ public class ProductSreviceImpl implements ProductService {
     @Override
     public ProductVO getProduct(Integer id) {
         Product thisProduct= productRepository.findById(id).get();
+//        List<Specification> specifications = specificationRepository.findByProductId(id);
+//        if(specifications!=null&!specifications.isEmpty()){
+//            thisProduct.addSpecifications(specifications);
+//        }
         return thisProduct.toVO();
     }
 
     @Override
     public String updateInformation(ProductVO productVO) {
         Product thisProduct= productRepository.findById(productVO.getId()).get();
+
         if(productVO.getTitle()!=null){
             thisProduct.setTitle(productVO.getTitle());
         }
@@ -91,40 +100,56 @@ public class ProductSreviceImpl implements ProductService {
             thisProduct.setDetail(productVO.getDetail());
         }
         if(productVO.getSpecificationVOs()!=null){
-            thisProduct.addSpecifications(productVO.getSpecificationVOs());
+            for(SpecificationVO specificationVO:productVO.getSpecificationVOs()){
+                Specification specification = specificationVO.toPO();
+                specification.setProduct(thisProduct); // 设置关联的商品对象
+                specificationRepository.save(specification); // 保存规格信息
+                thisProduct.addSpecification(specification);
+            }
         }
+        productRepository.save(thisProduct);
         return "更新成功";
     }
 
     @Override
+    @Transactional
     public String register(ProductVO productVO) {
         Product product = productRepository.findByTitle(productVO.getTitle());
         if(product != null) {
             return "商品名已存在";
         }
-
-        Product newProduct = productVO.toPO();
-
+        Product newProduct = productVO.toPO(); // 转换时确保双向关联正确设置
         productRepository.save(newProduct);
+        List<SpecificationVO> newSpecificationVOs = productVO.getSpecificationVOs();
+        if (newSpecificationVOs != null && !newSpecificationVOs.isEmpty()) {
+            for (SpecificationVO specificationVO : newSpecificationVOs) {
+                Specification specification = specificationVO.toPO();
+                specification.setProduct(newProduct); // 设置关联的商品对象
+                specificationRepository.save(specification); // 保存规格信息
+            }
+        }
+        Stockpile stockpile=new Stockpile();
+        stockpile.setProductId(newProduct.getId());
+        stockpile.setAmount(0);
+        stockpile.setFrozen(0);
+        stockpileRepository.save(stockpile);
         return "创建成功";
     }
 
     @Override
     public String delete(Integer id) {
-        Product product = productRepository.findById(id).get();
-        if (product == null) {
-            return "商品不存在";
-        }
-
         productRepository.deleteById(id);
+        List<Specification> specifications=specificationRepository.findByProductId(id);
+        for(Specification specification:specifications){
+            stockpileRepository.deleteById(specification.getId());
+        }
         return "删除成功";
-
     }
 
     @Override
     public String stockChange(Integer productId, Integer amount) {
         // 查找对应的库存对象
-        Stockpile stockpile = stockPileRepository.findByProduceId(productId);
+        Stockpile stockpile = stockpileRepository.findByProductId(productId);
         if (stockpile == null) {
             return "商品不存在";
         }
@@ -141,7 +166,7 @@ public class ProductSreviceImpl implements ProductService {
 
         // 调用 save 方法保存更新（修改原有记录）
         try {
-            stockPileRepository.save(stockpile);
+            stockpileRepository.save(stockpile);
         } catch (Exception e) {
             return "更新库存失败：" + e.getMessage();
         }
@@ -149,4 +174,9 @@ public class ProductSreviceImpl implements ProductService {
         return "库存更新成功";
     }
 
+    @Override
+    public StockpileVO getStock(Integer productId){
+        Stockpile stockpile=stockpileRepository.findByProductId(productId);
+        return stockpile.toVO();
+    }
 }
