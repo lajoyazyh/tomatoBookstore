@@ -113,10 +113,10 @@ public class ProductSreviceImpl implements ProductService {
 
     @Override
     @Transactional
-    public String register(ProductVO productVO) {
+    public Product register(ProductVO productVO) {
         Product product = productRepository.findByTitle(productVO.getTitle());
         if(product != null) {
-            return "商品名已存在";
+            return null;
         }
         Product newProduct = productVO.toPO(); // 转换时确保双向关联正确设置
         productRepository.save(newProduct);
@@ -133,7 +133,7 @@ public class ProductSreviceImpl implements ProductService {
         stockpile.setAmount(0);
         stockpile.setFrozen(0);
         stockpileRepository.save(stockpile);
-        return "创建成功";
+        return newProduct;
     }
 
     @Override

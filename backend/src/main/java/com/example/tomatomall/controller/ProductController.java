@@ -71,13 +71,13 @@ public class ProductController {
      */
     @PostMapping()
     public Response createProduct(@RequestBody ProductVO productVO) {
-        String res = productService.register(productVO);
-        if(res == "商品名已存在") {
-            return Response.buildFailure("400", res);
-        }else if(res == "创建成功"){
+        Product res = productService.register(productVO);
+        if(res == null) {
+            return Response.buildFailure("400", "该商品已存在");
+        }else{
             return Response.buildSuccess(res);
         }
-        return Response.buildFailure("400", "你的后端方法实现错了，再回去沉淀沉淀！");
+        //return Response.buildFailure("400", "你的后端方法实现错了，再回去沉淀沉淀！");
     }
 
     /**
