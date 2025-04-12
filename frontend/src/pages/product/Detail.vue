@@ -15,9 +15,9 @@ const productId = Number(route.params.productId);
 const currentFile = ref(null) // cover file
 const productInfo = ref<{
   id: number;             // id 仅仅作为更新的标志，不能修改
-  title?: string,
-  price?: number,
-  rate?: number,
+  title: string,
+  price: number,
+  rate: number,
   description?: string,
   cover?: string,        // 封面url
   detail?: string,
@@ -60,7 +60,7 @@ function getProduct() {
       productInfo.value.description = res.data.data.description
       productInfo.value.cover = res.data.data.cover
       productInfo.value.detail = res.data.data.detail
-      productInfo.value.specifications = res.data.data.specifications
+      productInfo.value.specifications = res.data.data.specifications || []
     }
     else if (res.data.code == '400') {
       ElMessage.error(res.data.msg)
@@ -171,7 +171,7 @@ function handleUpdate() {
         <!-- 编辑按钮，只对STAFF显示 -->
         <div v-if="role === 'STAFF'">
           <el-button type="primary" @click="isEditing = !isEditing">
-            {{ isEditing ? '取消编辑' : '编辑' }}
+            {{ isEditing ? '结束编辑' : '编辑' }}
           </el-button>
         </div>
 
