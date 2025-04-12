@@ -17,11 +17,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.example.tomatomall.util.TokenUtil;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -38,9 +37,14 @@ public class ProductSreviceImpl implements ProductService {
 
     @Autowired
     ProductRepository productRepository;
+
+    @Autowired
     StockPileRepository stockPileRepository;
+
+    @Autowired
     SpecificationRepository specificationRepository;
 
+    @Autowired
     TokenUtil tokenUtil;
 
     @Autowired
@@ -51,7 +55,7 @@ public class ProductSreviceImpl implements ProductService {
         List<Product> allProducts=productRepository.findAll();
         List<ProductVO> allProductVOs=new ArrayList<>();
         for(Product product:allProducts){
-            ProductVO productVO=product.toVO();
+            ProductVO productVO=getProduct(product.getId());
             allProductVOs.add(productVO);
         }
         return allProductVOs;
@@ -60,6 +64,10 @@ public class ProductSreviceImpl implements ProductService {
     @Override
     public ProductVO getProduct(Integer id) {
         Product thisProduct= productRepository.findById(id).get();
+//        List<Specification> specifications = specificationRepository.findByProductId(id);
+//        if(specifications!=null&!specifications.isEmpty()){
+//            thisProduct.addSpecifications(specifications);
+//        }
         return thisProduct.toVO();
     }
 
@@ -91,12 +99,17 @@ public class ProductSreviceImpl implements ProductService {
             thisProduct.setDetail(productVO.getDetail());
         }
         if(productVO.getSpecificationVOs()!=null){
-            thisProduct.addSpecifications(productVO.getSpecificationVOs());
+            thisProduct.addSpecificationVOs(productVO.getSpecificationVOs());
+            for(SpecificationVO specificationVO:productVO.getSpecificationVOs()){
+                specificationRepository.save(specificationVO.toPO());
+            }
         }
+        productRepository.save(thisProduct);
         return "更新成功";
     }
 
     @Override
+    @Transactional
     public String register(ProductVO productVO) {
         Product product = productRepository.findByTitle(productVO.getTitle());
         if(product != null) {
@@ -104,27 +117,28 @@ public class ProductSreviceImpl implements ProductService {
         }
 
         Product newProduct = productVO.toPO();
-
         productRepository.save(newProduct);
+        List<SpecificationVO> newSpecificationVOs = productVO.getSpecificationVOs();
+        if (newSpecificationVOs != null && !newSpecificationVOs.isEmpty()) {
+            for (SpecificationVO specificationVO : newSpecificationVOs) {
+                Specification specification = specificationVO.toPO();
+                specification.setProduct(newProduct); // 设置关联的商品对象
+                specificationRepository.save(specification); // 保存规格信息
+            }
+        }
         return "创建成功";
     }
 
     @Override
     public String delete(Integer id) {
-        Product product = productRepository.findById(id).get();
-        if (product == null) {
-            return "商品不存在";
-        }
-
         productRepository.deleteById(id);
         return "删除成功";
-
     }
 
     @Override
     public String stockChange(Integer productId, Integer amount) {
         // 查找对应的库存对象
-        Stockpile stockpile = stockPileRepository.findByProduceId(productId);
+        Stockpile stockpile = stockPileRepository.findByProductId(productId);
         if (stockpile == null) {
             return "商品不存在";
         }
@@ -151,7 +165,7 @@ public class ProductSreviceImpl implements ProductService {
 
     @Override
     public StockpileVO getStock(Integer productId){
-        Stockpile stockpile=stockPileRepository.findByProduceId(productId);
+        Stockpile stockpile=stockPileRepository.findByProductId(productId);
         return stockpile.toVO();
     }
 }

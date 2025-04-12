@@ -9,6 +9,7 @@ import com.example.tomatomall.repository.StockPileRepository;
 import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.Response;
+import com.example.tomatomall.vo.SpecificationVO;
 import com.example.tomatomall.vo.StockpileVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
@@ -23,6 +24,7 @@ public class ProductController {
 
     @Resource
     ProductService productService;
+
 
     @Autowired
     private TokenUtil tokenUtil;

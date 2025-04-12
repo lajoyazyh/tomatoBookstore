@@ -44,8 +44,8 @@ public class Product {
     @Column(name = "detail")
     private String detail;//商品详细说明
 
-    @OneToMany(mappedBy = "productId")
-    private List<Specification> specifications; // 商品规格
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Specification> specifications = new ArrayList<>();//商品规格
 
     public ProductVO toVO(){
         ProductVO productVO=new ProductVO();
@@ -66,26 +66,28 @@ public class Product {
         List<SpecificationVO> specificationVOs = new ArrayList<>();
         if (this.specifications != null) {
             for (Specification specification : this.specifications) {
-                SpecificationVO specificationVO = new SpecificationVO();
-                specificationVO.setId(specification.getId());
-                specificationVO.setItem(specification.getItem());
-                specificationVO.setValue(specification.getValue());
-                specificationVO.setProductId(specification.getProductId());
-                specificationVOs.add(specificationVO);
+                specificationVOs.add(specification.toVO());
             }
         }
         return specificationVOs;
     }
 
-    public void addSpecifications(List<SpecificationVO> specificationVOs){
+    public void addSpecificationVOs(List<SpecificationVO> specificationVOs){
         if (specificationVOs != null) {
             for (SpecificationVO specificationVO : specificationVOs) {
-                Specification specification = new Specification();
-                specification.setId(specificationVO.getId());
-                specification.setItem(specificationVO.getItem());
-                specification.setValue(specificationVO.getValue());
-                specification.setProductId(specificationVO.getProductId());
-                this.specifications.add(specification);
+                if(!specifications.contains(specificationVO.toPO())) {
+                    this.specifications.add(specificationVO.toPO());
+                }
+            }
+        }
+    }
+
+    public void addSpecifications(List<Specification> specifications){
+        if (specifications != null) {
+            for (Specification specification : specifications) {
+                if(!specifications.contains(specification)){
+                    this.specifications.add(specification);
+                }
             }
         }
     }

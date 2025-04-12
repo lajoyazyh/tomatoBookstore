@@ -26,16 +26,19 @@ public class Specification {
     @Column(name = "value")
     private String value;//规格内容
 
-    @Basic
-    @Column(name = "productId")
-    private Integer productId; // 所属商品id
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "productId")
+    private Product product;
 
     public SpecificationVO toVO() {
         SpecificationVO specificationVO = new SpecificationVO();
         specificationVO.setId(this.id);
         specificationVO.setItem(this.item);
         specificationVO.setValue(this.value);
-        specificationVO.setProductId(this.productId);
+        if (this.product != null) {
+            specificationVO.setProductVO(this.product.toVO());
+        }
         return specificationVO;
     }
 }
