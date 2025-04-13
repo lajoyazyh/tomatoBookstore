@@ -144,7 +144,7 @@ public class ProductSreviceImpl implements ProductService {
         productRepository.deleteById(id);
         List<Specification> specifications=specificationRepository.findByProductId(id);
         for(Specification specification:specifications){
-            stockpileRepository.deleteById(specification.getId());
+            specificationRepository.deleteById(specification.getId());
         }
         return "删除成功";
     }
