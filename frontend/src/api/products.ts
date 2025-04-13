@@ -74,7 +74,7 @@ export const deleteProduct = (id: number) => {
         })
 }
 export const updateStockpile = (updateStockpileInfo: UpdateStockpileInfo) => {
-    return axios.patch(`${PRODUCT_MODULE}/stockpile/${updateStockpileInfo.productId}`, updateStockpileInfo,
+    return axios.patch(`${PRODUCT_MODULE}/stockpile/${updateStockpileInfo.productId}?amount=${updateStockpileInfo.amount}`,
         { headers: { 'Content-Type': 'application/json' } })
         .then(res => {
             return res
