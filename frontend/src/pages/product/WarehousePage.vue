@@ -180,12 +180,7 @@ async function handleManageStock(productId: number) {
           />
         </div>
         <div class="stock-tip">
-          <span>冻结数量：</span>
-          <el-input-number
-              v-model="stockpile.frozen"
-              :min="0"
-              controls-position="right"
-          />
+          <p>冻结数量： {{stockpile.frozen}}</p>
         </div>
       </div>
       <template #footer>
