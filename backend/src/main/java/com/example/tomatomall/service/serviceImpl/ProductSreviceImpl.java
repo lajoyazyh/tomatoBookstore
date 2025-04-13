@@ -78,7 +78,6 @@ public class ProductSreviceImpl implements ProductService {
     public String updateInformation(ProductVO productVO) {
         Product thisProduct= productRepository.findById(productVO.getId()).get();
 
-
         if(productVO.getTitle()!=null){
             thisProduct.setTitle(productVO.getTitle());
         }

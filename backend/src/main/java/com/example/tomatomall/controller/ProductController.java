@@ -4,6 +4,7 @@ import com.example.tomatomall.po.Product;
 
 import com.example.tomatomall.po.Specification;
 import com.example.tomatomall.po.Stockpile;
+import com.example.tomatomall.repository.ProductRepository;
 import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.Response;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.tomatomall.util.TokenUtil;
 
 import javax.annotation.Resource;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
@@ -23,6 +25,8 @@ public class ProductController {
     @Resource
     ProductService productService;
 
+    @Autowired
+    ProductRepository productRepository;
 
     @Autowired
     private TokenUtil tokenUtil;
@@ -40,11 +44,11 @@ public class ProductController {
      */
     @GetMapping("/{id}")
     public Response getProduct(@PathVariable(value = "id")Integer id){
-        ProductVO thisProductVO=productService.getProduct(id);
-        if(thisProductVO!=null){
-            return Response.buildSuccess(thisProductVO);
-        }else{
-            return Response.buildFailure("400","商品不存在");
+        Optional<Product> productOptional = productRepository.findById(id);
+        if (productOptional.isPresent()) {
+            return Response.buildSuccess(productService.getProduct(id));
+        } else {
+            return Response.buildFailure("400", "商品不存在");
         }
     }
 
@@ -53,8 +57,8 @@ public class ProductController {
      */
     @PutMapping
     public Response updateInformation(@RequestBody ProductVO productVO){
-        ProductVO thisProductVO=productService.getProduct(productVO.getId());
-        if(thisProductVO!=null){
+        Optional<Product> productOptional = productRepository.findById(productVO.getId());
+        if(productOptional.isPresent()){
             String res=productService.updateInformation(productVO);
             if(res=="更新成功"){
                 return Response.buildSuccess(res);
