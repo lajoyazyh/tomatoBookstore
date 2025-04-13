@@ -47,6 +47,7 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Specification> specifications = new ArrayList<>();//商品规格
 
+
     public ProductVO toVO() {
         ProductVO productVO = new ProductVO();
         productVO.setId(this.id);
@@ -62,7 +63,7 @@ public class Product {
             for (Specification specification : this.specifications) {
                 specificationVOs.add(specification.toVO());
             }
-            productVO.setSpecificationVOs(specificationVOs);
+            productVO.setSpecifications(specificationVOs);
         }
         return productVO;
     }
@@ -71,7 +72,9 @@ public class Product {
         if (this.specifications == null) {
             this.specifications = new ArrayList<>();
         }
-        this.specifications.add(specification);
+        if(!this.specifications.contains(specification)) {
+            this.specifications.add(specification);
+        }
         specification.setProduct(this); // 确保双向关联一致
     }
 }

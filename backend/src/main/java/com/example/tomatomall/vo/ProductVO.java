@@ -22,7 +22,7 @@ public class ProductVO {
     private String description;//商品描述
     private String cover;//商品封面url
     private String detail;//商品详细说明
-    private List<SpecificationVO> specificationVOs;
+    private List<SpecificationVO> specifications;
 
     public Product toPO(){
         Product product=new Product();
@@ -35,8 +35,8 @@ public class ProductVO {
         product.setDetail(this.detail);
 
         List<Specification> specifications = new ArrayList<>();
-        if (this.specificationVOs != null) {
-            for (SpecificationVO specificationVO : this.specificationVOs) {
+        if (this.specifications != null) {
+            for (SpecificationVO specificationVO : this.specifications) {
                 Specification specification = specificationVO.toPO();
                 product.addSpecification(specification); // 使用辅助方法同步双向关联
             }

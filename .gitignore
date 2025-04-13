@@ -10,6 +10,19 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+# 忽略单个文件
+file.txt
+
+# 忽略 IntelliJ IDEA 配置文件
+.idea/
+*.iml
+
+# 忽略编译生成的文件
+target/
+
+# 忽略临时文件
+*.tmp
+
 # Package Files #
 *.jar
 *.war

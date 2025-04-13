@@ -4,6 +4,7 @@ import com.example.tomatomall.po.Product;
 
 import com.example.tomatomall.po.Specification;
 import com.example.tomatomall.po.Stockpile;
+import com.example.tomatomall.repository.ProductRepository;
 import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.Response;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.tomatomall.util.TokenUtil;
 
 import javax.annotation.Resource;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
@@ -23,6 +25,8 @@ public class ProductController {
     @Resource
     ProductService productService;
 
+    @Autowired
+    ProductRepository productRepository;
 
     @Autowired
     private TokenUtil tokenUtil;
@@ -40,11 +44,11 @@ public class ProductController {
      */
     @GetMapping("/{id}")
     public Response getProduct(@PathVariable(value = "id")Integer id){
-        ProductVO thisProductVO=productService.getProduct(id);
-        if(thisProductVO!=null){
-            return Response.buildSuccess(thisProductVO);
-        }else{
-            return Response.buildFailure("400","商品不存在");
+        Optional<Product> productOptional = productRepository.findById(id);
+        if (productOptional.isPresent()) {
+            return Response.buildSuccess(productService.getProduct(id));
+        } else {
+            return Response.buildFailure("400", "商品不存在");
         }
     }
 
@@ -53,8 +57,8 @@ public class ProductController {
      */
     @PutMapping
     public Response updateInformation(@RequestBody ProductVO productVO){
-        ProductVO thisProductVO=productService.getProduct(productVO.getId());
-        if(thisProductVO!=null){
+        Optional<Product> productOptional = productRepository.findById(productVO.getId());
+        if(productOptional.isPresent()){
             String res=productService.updateInformation(productVO);
             if(res=="更新成功"){
                 return Response.buildSuccess(res);
@@ -71,13 +75,13 @@ public class ProductController {
      */
     @PostMapping()
     public Response createProduct(@RequestBody ProductVO productVO) {
-        String res = productService.register(productVO);
-        if(res == "商品名已存在") {
-            return Response.buildFailure("400", res);
-        }else if(res == "创建成功"){
+        ProductVO res = productService.register(productVO);
+        if(res == null) {
+            return Response.buildFailure("400", "该商品已存在");
+        }else{
             return Response.buildSuccess(res);
         }
-        return Response.buildFailure("400", "你的后端方法实现错了，再回去沉淀沉淀！");
+        //return Response.buildFailure("400", "你的后端方法实现错了，再回去沉淀沉淀！");
     }
 
     /**
@@ -101,12 +105,12 @@ public class ProductController {
     @PatchMapping("/stockpile/{productId}")
     public Response stockChange(@RequestHeader("token") String token,@PathVariable(value = "productId")Integer productId,@RequestParam(value = "amount")Integer amount) {
         String res = productService.stockChange(productId, amount);
-        if(res == "商品不存在") {
+        if(res.equals("商品不存在")) {
             return Response.buildFailure("400", res);
-        }else if(res == "调整库存成功"){
+        }else if(res.equals("调整库存成功")){
             return Response.buildSuccess(res);
         }
-        return Response.buildFailure("400", "商品不存在");
+        return Response.buildFailure("400", res);
 
     }
 
