@@ -77,6 +77,7 @@ public class ProductSreviceImpl implements ProductService {
     public String updateInformation(ProductVO productVO) {
         Product thisProduct= productRepository.findById(productVO.getId()).get();
 
+
         if(productVO.getTitle()!=null){
             thisProduct.setTitle(productVO.getTitle());
         }
@@ -101,8 +102,8 @@ public class ProductSreviceImpl implements ProductService {
         if(productVO.getDetail()!=null){
             thisProduct.setDetail(productVO.getDetail());
         }
-        if(productVO.getSpecificationVOs()!=null){
-            for(SpecificationVO specificationVO:productVO.getSpecificationVOs()){
+        if(productVO.getSpecifications()!=null){
+            for(SpecificationVO specificationVO:productVO.getSpecifications()){
                 Specification specification = specificationVO.toPO();
                 specification.setProduct(thisProduct); // 设置关联的商品对象
                 specificationRepository.save(specification); // 保存规格信息
@@ -122,7 +123,7 @@ public class ProductSreviceImpl implements ProductService {
         }
         Product newProduct = productVO.toPO(); // 转换时确保双向关联正确设置
         productRepository.save(newProduct);
-        List<SpecificationVO> newSpecificationVOs = productVO.getSpecificationVOs();
+        List<SpecificationVO> newSpecificationVOs = productVO.getSpecifications();
         if (newSpecificationVOs != null && !newSpecificationVOs.isEmpty()) {
             for (SpecificationVO specificationVO : newSpecificationVOs) {
                 Specification specification = specificationVO.toPO();

@@ -62,7 +62,7 @@ public class Product {
             for (Specification specification : this.specifications) {
                 specificationVOs.add(specification.toVO());
             }
-            productVO.setSpecificationVOs(specificationVOs);
+            productVO.setSpecifications(specificationVOs);
         }
         return productVO;
     }
