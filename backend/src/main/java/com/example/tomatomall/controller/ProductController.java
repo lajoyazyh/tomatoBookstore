@@ -107,7 +107,7 @@ public class ProductController {
         String res = productService.stockChange(productId, amount);
         if(res.equals("商品不存在")) {
             return Response.buildFailure("400", res);
-        }else if(res.equals("调整库存成功")){
+        }else if(res.equals("库存更新成功")){
             return Response.buildSuccess(res);
         }
         return Response.buildFailure("400", res);
