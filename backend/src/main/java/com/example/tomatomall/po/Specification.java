@@ -28,7 +28,7 @@ public class Specification {
     private String value;//规格内容
 
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product; // 关联的商品
 

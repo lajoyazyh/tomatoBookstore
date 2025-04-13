@@ -74,6 +74,7 @@ public class ProductSreviceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public String updateInformation(ProductVO productVO) {
         Product thisProduct= productRepository.findById(productVO.getId()).get();
 
@@ -102,6 +103,8 @@ public class ProductSreviceImpl implements ProductService {
         if(productVO.getDetail()!=null){
             thisProduct.setDetail(productVO.getDetail());
         }
+        specificationRepository.deleteByProductId(thisProduct.getId());
+        thisProduct.setSpecifications(new ArrayList<>());
         if(productVO.getSpecifications()!=null){
             for(SpecificationVO specificationVO:productVO.getSpecifications()){
                 Specification specification = specificationVO.toPO();
