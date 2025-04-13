@@ -109,7 +109,7 @@ public class ProductSreviceImpl implements ProductService {
             for(SpecificationVO specificationVO:productVO.getSpecifications()){
                 Specification specification = specificationVO.toPO();
                 specification.setProduct(thisProduct); // 设置关联的商品对象
-                specificationRepository.save(specification); // 保存规格信息
+                //specificationRepository.save(specification); // 保存规格信息
                 thisProduct.addSpecification(specification);
             }
         }
