@@ -101,12 +101,12 @@ public class ProductController {
     @PatchMapping("/stockpile/{productId}")
     public Response stockChange(@RequestHeader("token") String token,@PathVariable(value = "productId")Integer productId,@RequestParam(value = "amount")Integer amount) {
         String res = productService.stockChange(productId, amount);
-        if(res == "商品不存在") {
+        if(res.equals("商品不存在")) {
             return Response.buildFailure("400", res);
-        }else if(res == "调整库存成功"){
+        }else if(res.equals("调整库存成功")){
             return Response.buildSuccess(res);
         }
-        return Response.buildFailure("400", "商品不存在");
+        return Response.buildFailure("400", res);
 
     }
 

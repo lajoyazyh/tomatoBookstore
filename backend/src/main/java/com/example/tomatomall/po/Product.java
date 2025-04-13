@@ -47,6 +47,7 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Specification> specifications = new ArrayList<>();//商品规格
 
+
     public ProductVO toVO() {
         ProductVO productVO = new ProductVO();
         productVO.setId(this.id);

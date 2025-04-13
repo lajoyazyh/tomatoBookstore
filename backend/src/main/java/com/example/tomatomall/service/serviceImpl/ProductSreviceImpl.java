@@ -135,6 +135,7 @@ public class ProductSreviceImpl implements ProductService {
         stockpile.setProductId(newProduct.getId());
         stockpile.setAmount(0);
         stockpile.setFrozen(0);
+        stockpileRepository.save(stockpile);
 
         return getProduct(newProduct.getId());
     }
@@ -153,6 +154,7 @@ public class ProductSreviceImpl implements ProductService {
     public String stockChange(Integer productId, Integer amount) {
         // 查找对应的库存对象
         Stockpile stockpile = stockpileRepository.findByProductId(productId);
+
         if (stockpile == null) {
             return "商品不存在";
         }
@@ -160,12 +162,7 @@ public class ProductSreviceImpl implements ProductService {
         // 获取当前库存数量
         Integer currentAmount = stockpile.getAmount();
 
-        // 更新库存数量
-        if (currentAmount >= amount) {
-            stockpile.setAmount(currentAmount - amount);
-        } else {
-            return "库存不足";
-        }
+        stockpile.setAmount(amount);
 
         // 调用 save 方法保存更新（修改原有记录）
         try {
