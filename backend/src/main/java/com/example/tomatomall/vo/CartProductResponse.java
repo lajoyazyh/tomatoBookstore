@@ -15,7 +15,7 @@ import lombok.Setter;
 
 public class CartProductResponse {
     private Integer cartItemId;
-    private Integer userId;
+    //private Integer userId;
     private Integer productId;
     private String title;
     private BigDecimal price;
@@ -33,13 +33,13 @@ public class CartProductResponse {
         this.cartItemId = cartItemId;
     }
 
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
+//    public Integer getUserId() {
+//        return userId;
+//    }
+//
+//    public void setUserId(Integer userId) {
+//        this.userId = userId;
+//    }
 
     public Integer getProductId() {
         return productId;

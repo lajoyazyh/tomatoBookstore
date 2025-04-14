@@ -79,7 +79,7 @@ public class CartServiceImpl implements  CartService {
         // 创建返回的 DTO 对象
         CartProductResponse response = new CartProductResponse();
         response.setCartItemId(cartItem.getCartItemId());
-        response.setUserId(userId);
+//        response.setUserId(userId);
         response.setProductId(productId);
         response.setTitle(product.getTitle());
         response.setPrice(product.getPrice());
