@@ -63,7 +63,7 @@ public class CartController {
      * 修改购物车商品数量
      */
     @PatchMapping("/{cartItemId}")
-    public Response changeProductAmount(@RequestHeader("token") String token, @RequestParam Integer cartItemId, @RequestParam Integer quantity) {
+    public Response changeProductAmount(@RequestHeader("token") String token, @PathVariable Integer cartItemId, @RequestParam Integer quantity) {
         String res = cartService.changeProductAmount(cartItemId, quantity);
         if(res.equals("修改数量成功")) {
             return Response.buildSuccess(res);

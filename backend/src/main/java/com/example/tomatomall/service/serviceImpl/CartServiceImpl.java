@@ -72,6 +72,12 @@ public class CartServiceImpl implements  CartService {
             throw new IllegalArgumentException("该商品已存在");
         }
 
+        // 检查商品数量是否超过库存
+        Integer cartProductId = cartItem.getProduct().getId();
+        if(quantity > stockpileRepository.findByProductId(cartProductId).getAmount()) {
+            throw new IllegalArgumentException("超出库存数量");
+        }
+
         // 创建新的购物车条目
         cartItem = new Cart();
         cartItem.setAccount(accountRepository.findById(userId).orElse(null)); // 设置用户
@@ -96,29 +102,29 @@ public class CartServiceImpl implements  CartService {
 
     @Override
     public String deleteProduct(Integer cartItemId) {
-        Cart cart = cartRepository.findById(cartItemId).get();
-        if(cart == null) {
+        Cart cartItem = cartRepository.findById(cartItemId).get();
+        if(cartItem == null) {
             return "购物车商品不存在";
         }
 
-        cartRepository.delete(cart);
+        cartRepository.delete(cartItem);
         return "删除成功";
     }
 
     @Override
     public String changeProductAmount(Integer cartItemId, Integer quantity) {
-        Cart cart = cartRepository.findById(cartItemId).get();
-        if(cart == null) {
+        Cart cartItem = cartRepository.findById(cartItemId).get();
+        if(cartItem == null) {
             return "购物车商品不存在";
         }
 
-        Integer productId = cart.getProduct().getId();
+        Integer productId = cartItem.getProduct().getId();
         if(quantity > stockpileRepository.findByProductId(productId).getAmount()) {
             return "超出库存数量";
         }
 
-        cart.setQuantity(quantity);
-        cartRepository.save(cart);
+        cartItem.setQuantity(quantity);
+        cartRepository.save(cartItem);
         return "修改数量成功";
     }
 }
