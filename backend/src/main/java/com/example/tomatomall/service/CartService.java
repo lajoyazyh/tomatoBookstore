@@ -6,4 +6,6 @@ public interface CartService {
     CartProductResponse addProduct(String token, Integer productId, Integer quantity);
 
     String deleteProduct(Integer cartItemId);
+
+    String changeProductAmount(Integer cartItemId, Integer quantity);
 }

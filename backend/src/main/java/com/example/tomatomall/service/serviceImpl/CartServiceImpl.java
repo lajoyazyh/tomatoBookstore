@@ -42,6 +42,9 @@ public class CartServiceImpl implements  CartService {
     AccountRepository accountRepository;
 
     @Autowired
+    StockpileRepository stockpileRepository;
+
+    @Autowired
     TokenUtil tokenUtil;
 
     @Autowired
@@ -100,5 +103,22 @@ public class CartServiceImpl implements  CartService {
 
         cartRepository.delete(cart);
         return "删除成功";
+    }
+
+    @Override
+    public String changeProductAmount(Integer cartItemId, Integer quantity) {
+        Cart cart = cartRepository.findById(cartItemId).get();
+        if(cart == null) {
+            return "购物车商品不存在";
+        }
+
+        Integer productId = cart.getProduct().getId();
+        if(quantity > stockpileRepository.findByProductId(productId).getAmount()) {
+            return "超出库存数量";
+        }
+
+        cart.setQuantity(quantity);
+        cartRepository.save(cart);
+        return "修改数量成功";
     }
 }
