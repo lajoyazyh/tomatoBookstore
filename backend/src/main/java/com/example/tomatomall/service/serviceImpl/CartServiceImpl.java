@@ -73,7 +73,7 @@ public class CartServiceImpl implements  CartService {
         }
 
         // 检查商品数量是否超过库存
-        Integer cartProductId = cartItem.getProduct().getId();
+        Integer cartProductId = product.getId();
         if(quantity > stockpileRepository.findByProductId(cartProductId).getAmount()) {
             throw new IllegalArgumentException("超出库存数量");
         }
