@@ -145,10 +145,15 @@ public class ProductSreviceImpl implements ProductService {
     @Override
     public String delete(Integer id) {
         productRepository.deleteById(id);
+
         List<Specification> specifications=specificationRepository.findByProductId(id);
         for(Specification specification:specifications){
             specificationRepository.deleteById(specification.getId());
         }
+
+        Stockpile stockpile = stockpileRepository.findByProductId(id);
+        stockpileRepository.delete(stockpile);
+
         return "删除成功";
     }
 
