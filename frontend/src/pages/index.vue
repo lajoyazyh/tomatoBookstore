@@ -1,4 +1,11 @@
 <script setup>
+import {ElMessage} from "element-plus";
+import {router} from '../router'
+
+if (!sessionStorage.getItem('token')) {
+  ElMessage.error("未登录！");
+  router.push('/login');
+}
 
 </script>
 
