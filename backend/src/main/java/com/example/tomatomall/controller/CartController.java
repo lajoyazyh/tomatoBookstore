@@ -5,11 +5,7 @@ import com.example.tomatomall.repository.CartRepository;
 import com.example.tomatomall.repository.ProductRepository;
 import com.example.tomatomall.service.CartService;
 import com.example.tomatomall.service.ProductService;
-import com.example.tomatomall.vo.CartProductResponse;
-import com.example.tomatomall.vo.CartAllResponse;
-import com.example.tomatomall.vo.CartVO;
-import com.example.tomatomall.vo.ProductVO;
-import com.example.tomatomall.vo.Response;
+import com.example.tomatomall.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +31,9 @@ public class CartController {
      * 加入商品到购物车
      */
     @PostMapping()
-    public Response addProduct(@RequestHeader("token") String token, @RequestBody Integer productId, @RequestBody Integer quantity) {
+    public Response addProduct(@RequestHeader("token") String token, @RequestBody addProductPara para) {
         try {
-            CartProductResponse res = cartService.addProduct(token, productId, quantity);
+            CartProductResponse res = cartService.addProduct(token, para.getProductId(), para.getQuantity());
             return Response.buildSuccess(res);
         } catch (IllegalArgumentException e) {
             return Response.buildFailure("400", e.getMessage());
@@ -81,10 +77,14 @@ public class CartController {
      */
     @GetMapping()
     public Response getCartAll(@RequestHeader("token") String token) {
-        CartAllResponse res = cartService.getCartAll(token);
-
-
-        return Response.buildFailure("400", "你的后端方法实现错了，再回去沉淀沉淀！");
+        try {
+            CartAllResponse res = cartService.getCartAll(token);
+            return Response.buildSuccess(res);
+        } catch (IllegalArgumentException e) {
+            return Response.buildFailure("400", e.getMessage());
+        } catch (Exception e) {
+            return Response.buildFailure("500", "服务器错误");
+        }
     }
 
 }

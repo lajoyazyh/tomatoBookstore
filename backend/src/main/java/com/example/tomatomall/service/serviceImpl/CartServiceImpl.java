@@ -137,10 +137,11 @@ public class CartServiceImpl implements  CartService {
         if (userId == null) {
             throw new IllegalArgumentException("无效的令牌");
         }
+
         List<Cart> CartList = cartRepository.findByUserId(userId);
-        List<CartProductResponse> CartProductResList = Collections.emptyList();
-        Integer total = 0;
-        Double totalAmount = 0.0;
+        List<CartProductResponse> CartProductResList = new ArrayList<>(Collections.emptyList());
+        int total = 0;
+        double totalAmount = 0.0;
 
         for(Cart cartItem : CartList){
             // 创建返回的 DTO 对象
@@ -163,7 +164,8 @@ public class CartServiceImpl implements  CartService {
             CartProductResList.add(response);
         }
 
-        CartAllResponse cartAllResponse = null;
+        CartAllResponse cartAllResponse = new CartAllResponse();
+
         cartAllResponse.setItems(CartProductResList);
         cartAllResponse.setTotal(total);
         cartAllResponse.setTotalAmount(totalAmount);

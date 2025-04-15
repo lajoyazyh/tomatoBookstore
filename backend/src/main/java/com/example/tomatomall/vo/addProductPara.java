@@ -11,27 +11,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Getter
 @Setter
 @NoArgsConstructor
 
-public class CartAllResponse {
-    List<CartProductResponse> items;
-    Integer total;
-    Double totalAmount;
+public class addProductPara {
+    Integer productId;
+    Integer quantity;
 
     // Getters and Setters
 
-
-    public void setItems(List<CartProductResponse> items) {
-        this.items = items;
-    }
-
-    public void setTotal(Integer total) {
-        this.total = total;
-    }
-
-    public void setTotalAmount(Double totalAmount) {
-        this.totalAmount = totalAmount;
-    }
 }
