@@ -6,6 +6,7 @@ import com.example.tomatomall.repository.ProductRepository;
 import com.example.tomatomall.service.CartService;
 import com.example.tomatomall.service.ProductService;
 import com.example.tomatomall.vo.CartProductResponse;
+import com.example.tomatomall.vo.CartAllResponse;
 import com.example.tomatomall.vo.CartVO;
 import com.example.tomatomall.vo.ProductVO;
 import com.example.tomatomall.vo.Response;
@@ -75,5 +76,15 @@ public class CartController {
         return Response.buildFailure("400", "你的后端方法实现错了，再回去沉淀沉淀！");
     }
 
+    /**
+     * 获取购物车商品列表
+     */
+    @GetMapping()
+    public Response getCartAll(@RequestHeader("token") String token) {
+        CartAllResponse res = cartService.getCartAll(token);
+
+
+        return Response.buildFailure("400", "你的后端方法实现错了，再回去沉淀沉淀！");
+    }
 
 }

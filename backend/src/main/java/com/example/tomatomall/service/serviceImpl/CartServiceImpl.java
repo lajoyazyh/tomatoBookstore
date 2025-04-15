@@ -7,6 +7,7 @@ import com.example.tomatomall.po.Product;
 import com.example.tomatomall.repository.*;
 import com.example.tomatomall.service.CartService;
 import com.example.tomatomall.util.SecurityUtil;
+import com.example.tomatomall.vo.CartAllResponse;
 import com.example.tomatomall.vo.CartVO;
 import com.example.tomatomall.vo.CartProductResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.example.tomatomall.util.TokenUtil;
@@ -88,7 +90,6 @@ public class CartServiceImpl implements  CartService {
         // 创建返回的 DTO 对象
         CartProductResponse response = new CartProductResponse();
         response.setCartItemId(cartItem.getCartItemId());
-//        response.setUserId(userId);
         response.setProductId(productId);
         response.setTitle(product.getTitle());
         response.setPrice(product.getPrice());
@@ -126,5 +127,47 @@ public class CartServiceImpl implements  CartService {
         cartItem.setQuantity(quantity);
         cartRepository.save(cartItem);
         return "修改数量成功";
+    }
+
+    @Override
+    public CartAllResponse getCartAll(String token) {
+
+        // 解析 token 获取用户 ID
+        Integer userId = tokenUtil.getAccount(token).getId();
+        if (userId == null) {
+            throw new IllegalArgumentException("无效的令牌");
+        }
+        List<Cart> CartList = cartRepository.findByUserId(userId);
+        List<CartProductResponse> CartProductResList = Collections.emptyList();
+        Integer total = 0;
+        Double totalAmount = 0.0;
+
+        for(Cart cartItem : CartList){
+            // 创建返回的 DTO 对象
+            Product product = cartItem.getProduct();
+            Integer productId = product.getId();
+            Integer quantity = cartItem.getQuantity();
+
+            CartProductResponse response = new CartProductResponse();
+            response.setCartItemId(cartItem.getCartItemId());
+            response.setProductId(productId);
+            response.setTitle(product.getTitle());
+            response.setPrice(product.getPrice());
+            response.setDescription(product.getDescription());
+            response.setCover(product.getCover());
+            response.setDetail(product.getDetail());
+            response.setQuantity(quantity);
+
+            total += 1;
+            totalAmount += product.getPrice().doubleValue() * quantity.doubleValue();
+            CartProductResList.add(response);
+        }
+
+        CartAllResponse cartAllResponse = null;
+        cartAllResponse.setItems(CartProductResList);
+        cartAllResponse.setTotal(total);
+        cartAllResponse.setTotalAmount(totalAmount);
+
+        return cartAllResponse;
     }
 }
