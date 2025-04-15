@@ -1,0 +1,36 @@
+package com.example.tomatomall.vo;
+
+import com.example.tomatomall.po.Order;
+import com.example.tomatomall.po.ShippingAddress;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class OrderVO {
+    private Integer id;
+    private String orderId;
+    private Integer userId;
+    private BigDecimal totalAmount;
+    private String paymentMethod;
+    private String status;
+    private Date createTime;
+    private ShippingAddress shippingAddress;
+    public Order toPO(){
+        Order order=new Order();
+        order.setId(this.id);
+        order.setOrderId(this.orderId);
+        order.setUserId(this.userId);
+        order.setTotalAmount(this.totalAmount);
+        order.setPaymentMethod(this.paymentMethod);
+        order.setStatus(this.status);
+        order.setCreateTime(this.createTime);
+        order.setShippingAddress(this.shippingAddress);
+        return order;
+    }
+}
