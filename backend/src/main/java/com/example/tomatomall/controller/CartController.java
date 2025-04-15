@@ -45,5 +45,19 @@ public class CartController {
         }
     }
 
+    /**
+     * 删除购物车商品
+     */
+    @DeleteMapping()
+    public Response deleteProduct(@RequestHeader("token") String token, @RequestParam Integer cartItemId) {
+        String res = cartService.deleteProduct(cartItemId);
+        if(res.equals("删除成功")) {
+            return Response.buildSuccess(res);
+        }else if (res.equals("购物车商品不存在")) {
+            return Response.buildFailure("400", "购物车商品不存在");
+        }
+        return Response.buildFailure("400", "你的后端方法实现错了，再回去沉淀沉淀！");
+    }
+
 
 }

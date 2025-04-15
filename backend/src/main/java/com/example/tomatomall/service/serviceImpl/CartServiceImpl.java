@@ -90,4 +90,15 @@ public class CartServiceImpl implements  CartService {
 
         return response;
     }
+
+    @Override
+    public String deleteProduct(Integer cartItemId) {
+        Cart cart = cartRepository.findById(cartItemId).get();
+        if(cart == null) {
+            return "购物车商品不存在";
+        }
+
+        cartRepository.delete(cart);
+        return "删除成功";
+    }
 }
