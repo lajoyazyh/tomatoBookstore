@@ -1,5 +1,6 @@
 package com.example.tomatomall.service;
 
+import com.example.tomatomall.vo.CartAllResponse;
 import com.example.tomatomall.vo.CartProductResponse;
 
 public interface CartService {
@@ -8,4 +9,6 @@ public interface CartService {
     String deleteProduct(Integer cartItemId);
 
     String changeProductAmount(Integer cartItemId, Integer quantity);
+
+    CartAllResponse getCartAll(String token);
 }
