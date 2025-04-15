@@ -35,7 +35,7 @@ public class CartController {
      * 加入商品到购物车
      */
     @PostMapping()
-    public Response addProduct(@RequestHeader("token") String token, @RequestParam Integer productId, @RequestParam Integer quantity) {
+    public Response addProduct(@RequestHeader("token") String token, @RequestBody Integer productId, @RequestBody Integer quantity) {
         try {
             CartProductResponse res = cartService.addProduct(token, productId, quantity);
             return Response.buildSuccess(res);
@@ -64,7 +64,7 @@ public class CartController {
      * 修改购物车商品数量
      */
     @PatchMapping("/{cartItemId}")
-    public Response changeProductAmount(@RequestHeader("token") String token, @PathVariable Integer cartItemId, @RequestParam Integer quantity) {
+    public Response changeProductAmount(@RequestHeader("token") String token, @PathVariable Integer cartItemId, @RequestBody Integer quantity) {
         String res = cartService.changeProductAmount(cartItemId, quantity);
         if(res.equals("修改数量成功")) {
             return Response.buildSuccess(res);
