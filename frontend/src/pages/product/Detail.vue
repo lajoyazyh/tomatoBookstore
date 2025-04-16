@@ -18,7 +18,7 @@ const newCartItemInfo = ref<{
   quantity: number,
 }>({
   productId: productId,
-  quantity: 0,
+  quantity: 1,
 })
 
 const currentFile = ref(null) // cover file
@@ -47,10 +47,6 @@ const newSpecification = ref<{
   value: '',
   productId: productId,
 });
-
-const createCartItemDisabled = computed(() => {
-  return newCartItemInfo.value.quantity > 0;
-})
 
 const addSpecificationDisabled = computed(() => {
   return !(!!newSpecification.value.item && !!newSpecification.value.value && !!newSpecification.value.productId);
@@ -229,7 +225,7 @@ function handleUpdate() {
         </div>
         <!-- 添加商品到购物车按钮，只对CUSTOMER显示 -->
         <div v-if="role === 'CUSTOMER'" style="margin-top: 20px; text-align: center;">
-          <el-button type="warning" @click="handleAddToCart" :disabled="createCartItemDisabled">
+          <el-button type="warning" @click="handleAddToCart">
             添加到购物车
           </el-button>
         </div>
