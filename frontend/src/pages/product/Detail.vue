@@ -218,7 +218,7 @@ function handleUpdate() {
         </div>
 
         <!-- 编辑按钮，只对STAFF显示 -->
-        <div v-if="role === 'STAFF'">
+        <div v-if="role === 'STAFF'"style="margin-top: 20px; text-align: center;">
           <el-button type="primary" @click="isEditing = !isEditing">
             {{ isEditing ? '结束编辑' : '编辑' }}
           </el-button>

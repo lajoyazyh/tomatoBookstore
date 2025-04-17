@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import {ElMessage} from "element-plus";
 import {router} from '../router'
 

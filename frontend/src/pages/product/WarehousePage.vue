@@ -34,15 +34,15 @@ onMounted(async () => {
   try {
     const response = await getAllProducts();
     if (response.data.code === '200') {
-      products.value = response.data.data.map((store: any) => ({
-        id: store.id,
-        title: store.title,
-        price: store.price,
-        rate: store.rate,
-        description: store.description,
-        cover: store.cover,
-        detail: store.detail,
-        specifications: store.specifications
+      products.value = response.data.data.map((product: any) => ({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        rate: product.rate,
+        description: product.description,
+        cover: product.cover,
+        detail: product.detail,
+        specifications: product.specifications
       }));
     }
   } catch (error) {
