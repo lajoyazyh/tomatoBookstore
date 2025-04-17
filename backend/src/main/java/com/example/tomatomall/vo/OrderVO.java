@@ -12,7 +12,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class OrderVO {
-    private String orderId;
+    private Integer orderId;
     private Integer userId;
     private BigDecimal totalAmount;
     private String paymentMethod;
@@ -22,7 +22,6 @@ public class OrderVO {
     public Order toPO(){
         Order order=new Order();
         order.setOrderId(this.orderId);
-        order.setUserId(this.userId);
         order.setTotalAmount(this.totalAmount);
         order.setPaymentMethod(this.paymentMethod);
         order.setStatus(this.status);

@@ -20,36 +20,43 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
-    private String orderId;
+    private Integer orderId;
 
-    @Column(name = "user_id")
-    private Integer userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    private Account account; // 关联用户表（users 表）
 
-    @Column(name = "total_amount")
+    @Basic
+    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
-    @Column(name = "payment_method")
+    @Basic
+    @Column(name = "payment_method", nullable = false, length = 50)
     private String paymentMethod;
 
-    @Column(name = "status")
-    private String status;
+    @Basic
+    @Column(name = "status", nullable = false, length = 20)
+    private String status = "PENDING"; // 订单支付状态（PENDING, SUCCESS, FAILED, TIMEOUT）
 
-    @Column(name = "create_time")
+    @Basic
+    @Column(name = "create_time", updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date createTime;
 
-    @Transient //  不映射到数据库列
-    private ShippingAddress shippingAddress;  //  Order 包含 ShippingAddress
+    @Transient // 不映射到数据库列
+    private ShippingAddress shippingAddress;  // 虚拟字段：发货地址
 
-    //  转换为 OrderVO
+    // 转换为 VO（视图对象）
     public OrderVO toVO() {
         OrderVO orderVO = new OrderVO();
-        orderVO.setOrderId(this.orderId);
-        orderVO.setUserId(this.userId);
+        orderVO.setUserId(this.account.getId()); // 提取 account 的主键 ID
         orderVO.setTotalAmount(this.totalAmount);
         orderVO.setPaymentMethod(this.paymentMethod);
         orderVO.setStatus(this.status);
         orderVO.setCreateTime(this.createTime);
-        orderVO.setShippingAddress(this.shippingAddress); // 设置 ShippingAddress
+        orderVO.setShippingAddress(this.shippingAddress); // 附加虚拟字段
         return orderVO;
     }
+
+
 }

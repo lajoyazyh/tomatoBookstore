@@ -47,7 +47,7 @@ public class OrderController {
     private static final String PRODUCT_CODE = "FAST_INSTANT_TRADE_PAY";
 
     @PostMapping("/{orderId}/pay")
-    public Map<String, Object> payOrder(@PathVariable String orderId) {
+    public Map<String, Object> payOrder(@PathVariable Integer orderId) {
         Order order = orderRepository.findByOrderId(orderId);
         if (order == null) {
             Map<String, Object> errorResponse = new HashMap<>();
