@@ -1,7 +1,6 @@
 package com.example.tomatomall.vo;
 
 import com.example.tomatomall.po.Order;
-import com.example.tomatomall.po.ShippingAddress;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +12,6 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class OrderVO {
-    private Integer id;
     private String orderId;
     private Integer userId;
     private BigDecimal totalAmount;
@@ -23,7 +21,6 @@ public class OrderVO {
     private ShippingAddress shippingAddress;
     public Order toPO(){
         Order order=new Order();
-        order.setId(this.id);
         order.setOrderId(this.orderId);
         order.setUserId(this.userId);
         order.setTotalAmount(this.totalAmount);

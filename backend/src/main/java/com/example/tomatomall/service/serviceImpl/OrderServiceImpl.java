@@ -1,10 +1,8 @@
 // OrderServiceImpl.java
 package com.example.tomatomall.service.serviceImpl;
 
-import com.example.tomatomall.exception.TomatoMallException;
 import com.example.tomatomall.po.Cart;
 import com.example.tomatomall.po.Order;
-import com.example.tomatomall.po.ShippingAddress;
 import com.example.tomatomall.po.Stockpile;
 import com.example.tomatomall.repository.CartRepository;
 import com.example.tomatomall.repository.OrderRepository;
@@ -12,7 +10,7 @@ import com.example.tomatomall.repository.ProductRepository;
 import com.example.tomatomall.repository.StockpileRepository;
 import com.example.tomatomall.service.OrderService;
 import com.example.tomatomall.util.TokenUtil;
-import com.example.tomatomall.vo.OrderVO;
+import com.example.tomatomall.vo.ShippingAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,10 +52,15 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("购物车商品不存在");
         }
 
-        // 3. 验证用户是否一致
+        // 3. 验证用户是否一致, 并获取用户ID
+        Integer userId = null;
         for (Cart cart : carts) {
             if (!cart.getAccount().getUsername().equals(username)) {
                 throw new IllegalArgumentException("用户不一致");
+            }
+            // 从token中获取的username 和 cart 中的username 是一致的，这里只需要获取一次
+            if (userId == null) {
+                userId = cart.getAccount().getId();
             }
         }
 
@@ -73,13 +76,11 @@ public class OrderServiceImpl implements OrderService {
 
         // 5. 创建订单
         Order order = new Order();
-        order.setOrderId(UUID.randomUUID().toString());
-        order.setUserId(carts.get(0).getAccount().getId()); // 从第一个购物车项获取userId， 假设一个订单属于一个用户
+        order.setUserId(userId); // 使用上面获取的userId
         order.setTotalAmount(totalAmount);
         order.setPaymentMethod(paymentMethod);
         order.setStatus("PENDING"); // 初始状态为待支付
         order.setCreateTime(new Date());
-        order.setShippingAddress(shippingAddress);  //设置收货地址
         orderRepository.save(order);
 
         // 6.  删除购物车中已下单的商品  这里先不删除，后面支付成功再删除
@@ -88,12 +89,4 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
-    @Override
-    public OrderVO getOrderById(Integer id) {
-        Order order = orderRepository.findById(id).orElse(null);
-        if (order == null) {
-            return null;
-        }
-        return order.toVO(order);
-    }
 }

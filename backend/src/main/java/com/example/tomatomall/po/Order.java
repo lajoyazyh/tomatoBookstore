@@ -1,7 +1,7 @@
-// Order.java
 package com.example.tomatomall.po;
 
 import com.example.tomatomall.vo.OrderVO;
+import com.example.tomatomall.vo.ShippingAddress;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,38 +19,37 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "order_id")
+    private String orderId;
 
-    @Column(name = "orderId")
-    private String orderId; // 订单ID
-
-    @Column(name = "userId")
-    private Integer userId; // 用户ID
+    @Column(name = "user_id")
+    private Integer userId;
 
     @Column(name = "total_amount")
-    private BigDecimal totalAmount; // 订单总金额
+    private BigDecimal totalAmount;
 
     @Column(name = "payment_method")
-    private String paymentMethod; // 支付方式
+    private String paymentMethod;
 
     @Column(name = "status")
-    private String status; // 订单状态：PENDING, PAID, SHIPPED, COMPLETED, CANCELED
+    private String status;
 
     @Column(name = "create_time")
-    private Date createTime; // 创建时间
+    private Date createTime;
 
-    @Embedded
-    private ShippingAddress shippingAddress; // 收货地址
-    public OrderVO toVO(Order order){
-        OrderVO orderVO=new OrderVO();
-        orderVO.setId(order.getId());
-        orderVO.setOrderId(order.getOrderId());
-        orderVO.setUserId(order.getUserId());
-        orderVO.setTotalAmount(order.getTotalAmount());
-        orderVO.setPaymentMethod(order.getPaymentMethod());
-        orderVO.setStatus(order.getStatus());
-        orderVO.setCreateTime(order.getCreateTime());
-        orderVO.setShippingAddress(order.getShippingAddress());
+    @Transient //  不映射到数据库列
+    private ShippingAddress shippingAddress;  //  Order 包含 ShippingAddress
+
+    //  转换为 OrderVO
+    public OrderVO toVO() {
+        OrderVO orderVO = new OrderVO();
+        orderVO.setOrderId(this.orderId);
+        orderVO.setUserId(this.userId);
+        orderVO.setTotalAmount(this.totalAmount);
+        orderVO.setPaymentMethod(this.paymentMethod);
+        orderVO.setStatus(this.status);
+        orderVO.setCreateTime(this.createTime);
+        orderVO.setShippingAddress(this.shippingAddress); // 设置 ShippingAddress
         return orderVO;
     }
 }
