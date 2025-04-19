@@ -1,13 +1,13 @@
 import { axios } from '../utils/request'
 import { ORDER_MODULE } from "./_prefix.ts";
 
-type addressInfo = {
+export type addressInfo = {
     name: string,
     telephone: string,
-    postCode?: string,
+    postCode: string,
     address: string,
 }
-type checkoutOrderInfo = {
+export type checkoutOrderInfo = {
     cartItemIds: number[],
     shipping_address: addressInfo,
     payment_method: string,
