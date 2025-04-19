@@ -19,6 +19,7 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 @RestController
@@ -74,7 +75,7 @@ public class OrderController {
 
         String outTradeNo = String.valueOf(order.getOrderId());
         String totalAmount = String.valueOf(order.getTotalAmount());
-        String paymentMethod = order.getPayment_method();
+        String paymentMethod = order.getPaymentMethod();
         String subject = "TomatoMall订单支付";
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
@@ -166,24 +167,20 @@ public class OrderController {
     public void handleAlipayNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
         PrintWriter out = response.getWriter();
 
-        // 1. 解析支付宝回调参数
-        Map<String, String> params = new HashMap<>();
-        try {
-            Map<String, String[]> requestParams = request.getParameterMap();
-            for (String name : requestParams.keySet()) {
-                String[] values = requestParams.get(name);
-                String valueStr = "";
-                for (int i = 0; i < values.length; i++) {
-                    valueStr = (i == values.length - 1) ? valueStr + values[i] : valueStr + values[i] + ",";
-                }
-                params.put(name, valueStr);
+        //获取支付宝POST过来反馈信息，将异步通知中收到的待验证所有参数都存放到map中
+        Map< String , String > params = new HashMap < String , String > ();
+        Map requestParams = request.getParameterMap();
+        for(Iterator iter = requestParams.keySet().iterator(); iter.hasNext();){
+            String name = (String)iter.next();
+            String[] values = (String [])requestParams.get(name);
+            String valueStr = "";
+            for(int i = 0;i < values.length;i ++ ){
+                valueStr =  (i==values.length-1)?valueStr + values [i]:valueStr + values[i] + ",";
             }
-        } catch (Exception e) {
-            System.err.println("Failed to parse Alipay notify parameters: " + e.getMessage());
-            out.print("fail");
-            return;
+            //乱码解决，这段代码在出现乱码时使用。
+            //valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
+            params.put (name,valueStr);
         }
-
         // 打印接收到的所有参数，用于调试
         System.out.println("Alipay Notify Parameters:");
         for (Map.Entry<String, String> entry : params.entrySet()) {
@@ -192,14 +189,14 @@ public class OrderController {
 
         // 2. 验证支付宝签名(这里!!!!!!!!)
         boolean signVerified = true;
-//        try {
-//            signVerified = AlipaySignature.rsaCheckV1(params, alipayPublicKey, "UTF-8", "RSA2");
-//        } catch (AlipayApiException e) {
-//            System.err.println("Alipay signature verification failed: " + e.getMessage());
-//            e.printStackTrace(); // 打印完整的异常堆栈
-//            out.print("fail");
-//            return;
-//        }
+        try {
+            signVerified = AlipaySignature.rsaCheckV1(params, alipayPublicKey, "UTF-8", "RSA2");
+        } catch (AlipayApiException e) {
+            System.err.println("Alipay signature verification failed: " + e.getMessage());
+            e.printStackTrace(); // 打印完整的异常堆栈
+            out.print("fail");
+            return;
+        }
 
         // 3. 处理业务逻辑
         if (signVerified) {
