@@ -1,5 +1,5 @@
 import { axios } from '../utils/request'
-import { ORDER_MODULE } from "./_prefix.ts";
+import {CART_MODULE, ORDER_MODULE} from "./_prefix.ts";
 
 export type addressInfo = {
     name: string,
@@ -14,7 +14,7 @@ export type checkoutOrderInfo = {
 }
 
 export const checkoutOrder = (orderInfo: checkoutOrderInfo) => {
-    return axios.post(`${ORDER_MODULE}/checkout`, orderInfo)
+    return axios.post(`${CART_MODULE}/checkout`, orderInfo)
         .then(res => {
             return res
         })
