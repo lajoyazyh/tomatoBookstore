@@ -32,7 +32,7 @@ public class Order {
 
     @Basic
     @Column(name = "payment_method", nullable = false, length = 50)
-    private String paymentMethod;
+    private String payment_method;
 
     @Basic
     @Column(name = "status", nullable = false, length = 20)
@@ -51,7 +51,7 @@ public class Order {
         OrderVO orderVO = new OrderVO();
         orderVO.setUserId(this.account.getId()); // 提取 account 的主键 ID
         orderVO.setTotalAmount(this.totalAmount);
-        orderVO.setPaymentMethod(this.paymentMethod);
+        orderVO.setPaymentMethod(this.payment_method);
         orderVO.setStatus(this.status);
         orderVO.setCreateTime(this.createTime);
         orderVO.setShippingAddress(this.shippingAddress); // 附加虚拟字段
