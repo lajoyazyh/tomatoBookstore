@@ -32,7 +32,7 @@ export const updateCartItem = (updateCartItemInfo: updateCartItemInfo) => {
 }
 
 export const getCart = () => {
-    return axios.get(`${CART_MODULE}/cart`)
+    return axios.get(`${CART_MODULE}`)
         .then(res => {
             return res
         })
