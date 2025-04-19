@@ -190,7 +190,7 @@ public class OrderController {
             System.out.println(entry.getKey() + " = " + entry.getValue());
         }
 
-        // 2. 验证支付宝签名
+        // 2. 验证支付宝签名(这里!!!!!!!!)
         boolean signVerified = true;
 //        try {
 //            signVerified = AlipaySignature.rsaCheckV1(params, alipayPublicKey, "UTF-8", "RSA2");
