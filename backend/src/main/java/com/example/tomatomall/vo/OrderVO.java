@@ -23,7 +23,7 @@ public class OrderVO {
         Order order=new Order();
         order.setOrderId(this.orderId);
         order.setTotalAmount(this.totalAmount);
-        order.setPaymentMethod(this.paymentMethod);
+        order.setPayment_method(this.paymentMethod);
         order.setStatus(this.status);
         order.setCreateTime(this.createTime);
         order.setShippingAddress(this.shippingAddress);

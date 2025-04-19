@@ -1,13 +1,8 @@
-// OrderServiceImpl.java
 package com.example.tomatomall.service.serviceImpl;
 
-import com.example.tomatomall.po.Account;
-import com.example.tomatomall.po.Cart;
-import com.example.tomatomall.po.Order;
-import com.example.tomatomall.po.Stockpile;
+import com.example.tomatomall.po.*;
 import com.example.tomatomall.repository.*;
 import com.example.tomatomall.service.OrderService;
-import com.example.tomatomall.util.TokenUtil;
 import com.example.tomatomall.vo.ShippingAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,13 +31,13 @@ public class OrderServiceImpl implements OrderService {
     private StockpileRepository stockpileRepository;
 
     @Autowired
-    private TokenUtil tokenUtil;
+    private CartOrderRelationRepository cartOrderRelationRepository;
 
 
     @Override
     @Transactional
-    public Order createOrder(String username, List<Integer> cartItemIds, ShippingAddress shippingAddress, String paymentMethod) {
-        // 1.  验证cartItemIds是否为空
+    public Order createOrder(String username, List<Integer> cartItemIds, ShippingAddress shippingAddress, String payment_method) {
+        // 1. 验证cartItemIds是否为空
         if (cartItemIds == null || cartItemIds.isEmpty()) {
             throw new IllegalArgumentException("cartItemIds不能为空");
         }
@@ -54,15 +49,18 @@ public class OrderServiceImpl implements OrderService {
 
         // 3. 验证用户是否一致, 并获取用户ID
         Integer userId = null;
+        Account account = accountRepository.findByUsername(username);
+        if (account == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+        userId = account.getId();
+
         for (Cart cart : carts) {
-            if (!cart.getAccount().getUsername().equals(username)) {
-                throw new IllegalArgumentException("用户不一致");
-            }
-            // 从token中获取的username 和 cart 中的username 是一致的，这里只需要获取一次
-            if (userId == null) {
-                userId = cart.getAccount().getId();
+            if (!cart.getAccount().getId().equals(userId)) {
+                throw new IllegalArgumentException("购物车中包含其他用户的商品");
             }
         }
+
 
         // 4. 验证库存，计算订单总金额
         BigDecimal totalAmount = BigDecimal.ZERO;
@@ -77,21 +75,23 @@ public class OrderServiceImpl implements OrderService {
         // 5. 创建订单
         Order order = new Order();
         order.setTotalAmount(totalAmount);
-        order.setPaymentMethod(paymentMethod);
+        order.setPayment_method(payment_method);
         order.setStatus("PENDING"); // 初始状态为待支付
         order.setCreateTime(new Date());
-
-        // 6. 根据 userId 查询 Account 对象并设置到 order 中
-        Account account = accountRepository.findById(userId).get();
-        order.setAccount(account);
-
+        order.setAccount(accountRepository.findById(userId).orElseThrow(() -> new RuntimeException("用户不存在")));
         orderRepository.save(order);
+
+        // 6. 创建订单和购物车项的关联关系, 并保存
+        for (Cart cart : carts) {
+            CartOrderRelation cartOrderRelation = new CartOrderRelation();
+            cartOrderRelation.setCart(cart);
+            cartOrderRelation.setOrder(order);
+            cartOrderRelationRepository.save(cartOrderRelation); // 保存关联关系
+        }
 
         return order;
 
     }
-
-
 
     @Override
     @Transactional
@@ -118,36 +118,38 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus("SUCCESS");
         orderRepository.save(order);
 
-//        // 5. 扣减库存并处理关联表
-//        List<CartsOrdersRelation> relations = cartsOrdersRelationRepository.findByOrderId(orderId); // 查询关联表
-//
-//        if (relations != null && !relations.isEmpty()) {
-//            for (CartsOrdersRelation relation : relations) {
-//                Integer cartItemId = relation.getCartitemId();
-//                //  根据 cartItemId  扣减库存
-//                //  这里你需要根据你的 CartRepository 来查询到 Cart
-//                //  然后获取 productId 和 quantity
-//                //  以下代码仅为示例，你需要根据你的实际情况修改
-//                //  ！！！  这里需要修改  ！！！
-//                //  示例：
-//                // Cart cart = cartRepository.findById(cartItemId).orElse(null);
-//                // if (cart != null) {
-//                //     Integer productId = cart.getProduct().getId();
-//                //     Integer quantity = cart.getQuantity();
-//                //     Stockpile stockpile = stockpileRepository.findByProductId(productId);
-//                //     if (stockpile == null || stockpile.getAmount() < quantity) {
-//                //         throw new RuntimeException("订单 " + orderId + " 商品 " + productId + " 库存不足");
-//                //     }
-//                //     stockpile.setAmount(stockpile.getAmount() - quantity);
-//                //     stockpileRepository.save(stockpile);
-//                // }
-//                //  删除关联表中的记录
-//                CartsOrdersRelationRepository.delete(relation);
-//            }
-//            System.out.println("成功处理订单" + orderId + "，并扣减库存和删除关联表记录");
-//        } else {
-//            System.out.println("订单" + orderId + "没有关联的购物车项");
-//        }
+        // 5. 扣减库存, 并删除 CartOrderRelation
+        List<CartOrderRelation> cartOrderRelations = cartOrderRelationRepository.findByOrder(order); // 根据order查询关联关系
+        if (cartOrderRelations != null && !cartOrderRelations.isEmpty()) {
+            for (CartOrderRelation relation : cartOrderRelations) {
+                Cart cart = relation.getCart();
+                Product product = cart.getProduct();
+                Integer quantity = cart.getQuantity();
+
+                Stockpile stockpile = stockpileRepository.findByProductId(product.getId());
+                if (stockpile == null || stockpile.getAmount() < quantity) {
+                    throw new RuntimeException("订单 " + orderId + " 商品 " + product.getTitle() + " 库存不足");
+                }
+                stockpile.setAmount(stockpile.getAmount() - quantity);
+                stockpileRepository.save(stockpile);
+                cartOrderRelationRepository.delete(relation); // 删除关联关系
+                System.out.println("订单" + orderId + "扣减商品" + product.getTitle() + "库存" + quantity + "成功");
+                cartRepository.delete(cart); //删除购物车中的商品
+            }
+        }
+    }
+
+    @Override
+    public void closeOrder(String orderId) {
+        try {
+            Integer orderIdInt = Integer.parseInt(orderId);
+            Order order = orderRepository.findById(orderIdInt).orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+            order.setStatus("CLOSED");
+            orderRepository.save(order);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid order ID: " + orderId);
+        }
     }
 
 }
+

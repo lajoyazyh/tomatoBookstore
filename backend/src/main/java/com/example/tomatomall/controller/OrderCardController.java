@@ -30,7 +30,7 @@ public class OrderCardController {
     static class OrderRequest {
         private List<Integer> cartItemIds;
         private ShippingAddress shippingAddress;
-        private String paymentMethod;
+        private String payment_method;
     }
 
     /**
@@ -48,16 +48,16 @@ public class OrderCardController {
         String username = tokenUtil.getAccount(token).getUsername();
         List<Integer> cartItemIds = orderRequest.getCartItemIds();
         ShippingAddress shippingAddress = orderRequest.getShippingAddress();
-        String paymentMethod = orderRequest.getPaymentMethod();
+        String payment_method = orderRequest.getPayment_method();
 
-        Order order = orderService.createOrder(username, cartItemIds, shippingAddress, paymentMethod);
+        Order order = orderService.createOrder(username, cartItemIds, shippingAddress, payment_method);
 
         //  构建符合期望返回结构的 Map
         Map<String, Object> result = new HashMap<>();
         result.put("orderId", order.getOrderId());
         result.put("username", username);
         result.put("totalAmount", order.getTotalAmount());
-        result.put("paymentMethod", order.getPaymentMethod());
+        result.put("paymentMethod", order.getPayment_method());
         result.put("createTime", order.getCreateTime());
         result.put("status", order.getStatus());
 
