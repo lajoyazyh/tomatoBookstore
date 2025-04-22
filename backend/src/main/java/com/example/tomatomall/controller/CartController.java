@@ -116,7 +116,7 @@ public class CartController {
     @PostMapping("/checkout")
     public Response<Map<String, Object>> checkout(
             @RequestHeader("token") String token,
-            @RequestBody OrderCardController.OrderRequest orderRequest) {
+            @RequestBody OrderRequest orderRequest) {
         //  从token中获取用户名
         String username = tokenUtil.getAccount(token).getUsername();
         List<Integer> cartItemIds = orderRequest.getCartItemIds();
