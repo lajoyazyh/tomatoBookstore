@@ -20,7 +20,7 @@ const cartItems = ref<item[]>([]);
 const address = ref<addressInfo>({
   name: '',
   telephone: '',
-  postCode: '',
+  postcode: '',
   address: '',
 });
 const checkout = ref<checkoutOrderInfo>({
@@ -73,6 +73,7 @@ function makeCheckout() {
 }
 function handleOrder() {
   makeCheckout();
+  console.log(checkout.value.cartItemIds,  checkout.value.shipping_address, checkout.value.payment_method);
   checkoutOrder(checkout.value).then(res => {
     if (res.data.code === '200') {
       orderId.value = res.data.data.orderId;
@@ -143,7 +144,7 @@ function showCheckoutConfirmation() {
 
         // 更新address的值
         address.value.telephone = telephoneInput.value;
-        address.value.postCode = postCodeInput.value;
+        address.value.postcode = postCodeInput.value;
         address.value.address = addressTextarea.value;
 
         // 验证逻辑
@@ -151,7 +152,7 @@ function showCheckoutConfirmation() {
           ElMessage.error('请输入有效的手机号码');
           return;
         }
-        if (!/^\d{6}$/.test(address.value.postCode)) {
+        if (!/^\d{6}$/.test(address.value.postcode)) {
           ElMessage.error('请输入有效的邮政编码');
           return;
         }
@@ -178,7 +179,7 @@ function showCheckoutConfirmation() {
     if (nameInput && telephoneInput && postCodeInput && addressTextarea) {
       nameInput.value = address.value.name;
       telephoneInput.value = address.value.telephone;
-      postCodeInput.value = address.value.postCode;
+      postCodeInput.value = address.value.postcode;
       addressTextarea.value = address.value.address;
 
       // 绑定input事件实时更新address
@@ -189,7 +190,7 @@ function showCheckoutConfirmation() {
         address.value.telephone = (e.target as HTMLInputElement).value;
       });
       postCodeInput.addEventListener('input', (e) => {
-        address.value.postCode = (e.target as HTMLInputElement).value;
+        address.value.postcode = (e.target as HTMLInputElement).value;
       });
       addressTextarea.addEventListener('input', (e) => {
         address.value.address = (e.target as HTMLTextAreaElement).value;
