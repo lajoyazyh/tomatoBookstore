@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import {ref, onMounted} from 'vue'
-import { deleteProduct, updateCartItem, getCart } from "../api/cart.ts";
-import { checkoutOrder, payForOrder } from "../api/orders.ts";
-import type { addressInfo, checkoutOrderInfo } from "../api/orders.ts";
+import { deleteProduct, updateCartItem, getCart } from "../../api/cart.ts";
+import { checkoutOrder, payForOrder } from "../../api/orders.ts";
+import type { addressInfo, checkoutOrderInfo } from "../../api/orders.ts";
 import { ElMessage, ElMessageBox } from "element-plus";
+import {router} from "../../router";
 
 type item = {
   cartItemId: number,
@@ -75,16 +76,7 @@ function handleOrder() {
   checkoutOrder(checkout.value).then(res => {
     if (res.data.code === '200') {
       orderId.value = res.data.data.orderId;
-    } else {
-      ElMessage.error(res.data.msg);
-    }
-  })
-}
-function handlePay() {
-  handleOrder();
-  payForOrder(orderId.value).then(res => {
-    if (res.data.code === '200') {
-      ElMessage.success('支付成功');
+      router.push('/orders');
     } else {
       ElMessage.error(res.data.msg);
     }
@@ -141,7 +133,7 @@ function showCheckoutConfirmation() {
     dangerouslyUseHTMLString: true,
     showCancelButton: true,
     cancelButtonText: '取消',
-    confirmButtonText: '确认支付',
+    confirmButtonText: '确认订单',
     beforeClose: (action, instance, done) => {
       if (action === 'confirm') {
         // 提交前手动获取最新值（确保同步）
@@ -168,7 +160,7 @@ function showCheckoutConfirmation() {
           return;
         }
         done();
-        handlePay();
+        handleOrder()
       } else {
         done();
       }
