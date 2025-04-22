@@ -19,6 +19,12 @@ export const checkoutOrder = (orderInfo: checkoutOrderInfo) => {
             return res
         })
 }
+export const getOrders = () => {
+    return axios.get(`${ORDER_MODULE}`)
+        .then(res => {
+            return res
+        })
+}
 export const payForOrder = (orderId: number) => {
     return axios.post(`${ORDER_MODULE}/${orderId}/pay`)
         .then(res => {
