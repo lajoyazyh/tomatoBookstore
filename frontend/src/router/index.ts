@@ -39,7 +39,7 @@ const router = createRouter({
             meta: { title: '个人信息' }
         }, {
             path: '/advertisement',
-            component: () => import('../pages/Advertisement.vue'),
+            component: () => import('../pages/advertising/Advertisement.vue'),
             meta: { title: '广告' }
         }
     ]

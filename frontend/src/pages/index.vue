@@ -6,7 +6,7 @@ if (!sessionStorage.getItem('token')) {
   ElMessage.error("未登录！");
   router.push('/login');
 }
-
+router.push({path: "/advertisement"})
 </script>
 
 <template>
