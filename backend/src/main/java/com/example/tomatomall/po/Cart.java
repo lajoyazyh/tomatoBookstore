@@ -18,15 +18,15 @@ public class Cart {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "cartItemId", columnDefinition = "COMMENT '购物车商品ID'")
+    @Column(name = "cart_item_id", columnDefinition = "COMMENT '购物车商品ID'")
     private Integer cartItemId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", referencedColumnName = "id", nullable = false, columnDefinition = "COMMENT '用户id，关联用户表'")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, columnDefinition = "COMMENT '用户id，关联用户表'")
     private Account account; // 关联用户表
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "productId", referencedColumnName = "id", nullable = false, columnDefinition = "COMMENT '商品id，关联商品表'")
+    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false, columnDefinition = "COMMENT '商品id，关联商品表'")
     private Product product; // 关联商品表
 
     @Basic
