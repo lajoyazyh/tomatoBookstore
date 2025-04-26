@@ -4,7 +4,7 @@ import {CART_MODULE, ORDER_MODULE} from "./_prefix.ts";
 export type addressInfo = {
     name: string,
     telephone: string,
-    postCode: string,
+    postcode: string,
     address: string,
 }
 export type checkoutOrderInfo = {
@@ -15,6 +15,12 @@ export type checkoutOrderInfo = {
 
 export const checkoutOrder = (orderInfo: checkoutOrderInfo) => {
     return axios.post(`${CART_MODULE}/checkout`, orderInfo)
+        .then(res => {
+            return res
+        })
+}
+export const getOrders = () => {
+    return axios.get(`${ORDER_MODULE}`)
         .then(res => {
             return res
         })

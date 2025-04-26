@@ -5,6 +5,7 @@ import com.example.tomatomall.vo.CartVO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Comment;
 
 import javax.persistence.*;
 
@@ -18,19 +19,19 @@ public class Cart {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "cartItemId", columnDefinition = "COMMENT '购物车商品ID'")
+    @Column(name = "cart_item_id")
     private Integer cartItemId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", referencedColumnName = "id", nullable = false, columnDefinition = "COMMENT '用户id，关联用户表'")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private Account account; // 关联用户表
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "productId", referencedColumnName = "id", nullable = false, columnDefinition = "COMMENT '商品id，关联商品表'")
+    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
     private Product product; // 关联商品表
 
     @Basic
-    @Column(name = "quantity", nullable = false, columnDefinition = "COMMENT '商品数量，默认为1'")
+    @Column(name = "quantity", nullable = false)
     private Integer quantity = 1; // 商品数量，默认为1
 
     public CartVO toVO() {
