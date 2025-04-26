@@ -3,17 +3,38 @@ package com.example.tomatomall.service.serviceImpl;
 import com.example.tomatomall.po.*;
 import com.example.tomatomall.repository.*;
 import com.example.tomatomall.service.OrderService;
-import com.example.tomatomall.vo.ShippingAddress;
+import com.example.tomatomall.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.example.tomatomall.util.TokenUtil;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import com.example.tomatomall.exception.TomatoMallException;
+import com.example.tomatomall.po.Account;
+import com.example.tomatomall.po.Product;
+import com.example.tomatomall.repository.*;
+import com.example.tomatomall.service.CartService;
+import com.example.tomatomall.util.SecurityUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import com.example.tomatomall.util.TokenUtil;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 @Service
 public class OrderServiceImpl implements OrderService {
+
+    @Autowired
+    TokenUtil tokenUtil;
 
     @Autowired
     private OrderRepository orderRepository;
@@ -150,6 +171,35 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Invalid order ID: " + orderId);
         }
     }
+    @Override
+    public List<Order> getOrders(String token) {
+        // 解析 token 获取用户 ID
+        Integer userId = tokenUtil.getAccount(token).getId();
+        if (userId == null) {
+            throw new IllegalArgumentException("无效的令牌");
+        }
+
+        // 根据 userId 查找用户的所有订单
+        List<Order> orderList = orderRepository.findByUserId(userId);
+        if (orderList == null || orderList.isEmpty()) {
+            throw new IllegalArgumentException("没有找到订单");
+        }
+
+        // 将订单转换为 OrderVO
+        List<Order> orderVOList = new ArrayList<>();
+        for (Order order : orderList) {
+            OrderVO orderVO = new OrderVO();
+            orderVO.setOrderId(order.getOrderId());
+            orderVO.setUserId(order.getAccount().getId());
+            orderVO.setTotalAmount(order.getTotalAmount());
+            orderVO.setPaymentMethod(order.getPayment_method());
+            orderVO.setStatus(order.getStatus());
+            orderVO.setCreateTime(order.getCreateTime());
+        }
+
+        return orderVOList;
+    }
+
 
 }
 

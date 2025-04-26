@@ -20,6 +20,7 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -57,20 +58,31 @@ public class OrderController {
     @Autowired
     private OrderRepository orderRepository;
 
-    /**
-     * 创建订单并返回支付表单
-     * @param orderId  订单ID
-     * @return  包含支付表单数据的Map
-     */
+
+    @GetMapping()
+    public Response getOrders(@RequestHeader("token") String token) {
+        try {
+            // 使用 token 获取用户的订单列表
+            List<Order> orders = orderService.getOrders(token);
+            return Response.buildSuccess(orders);
+        } catch (IllegalArgumentException e) {
+            // 处理非法参数异常，如用户不存在等
+            return Response.buildFailure("400", e.getMessage());
+        } catch (Exception e) {
+            // 处理其他服务器错误
+            return Response.buildFailure("500", "服务器错误");
+        }
+    }
+
     @PostMapping("/{orderId}/pay")
-    public Response payOrder(@PathVariable Integer orderId) {
+    public Map<String, Object> payOrder(@PathVariable Integer orderId) {
         //  根据订单ID查询订单
         Order order = orderRepository.findByOrderId(orderId); // 确保OrderService有getOrderById方法
         if (order == null) {
-//            Map<String, Object> errorResponse = new HashMap<>();
-//            errorResponse.put("code", 400);
-//            errorResponse.put("msg", "Order not found");
-            return Response.buildFailure("400", "Order not found");
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("code", 400);
+            errorResponse.put("msg", "Order not found");
+            return errorResponse;
         }
 
         String outTradeNo = String.valueOf(order.getOrderId());
@@ -119,11 +131,11 @@ public class OrderController {
         responseData.put("paymentMethod", paymentMethod);
         responseData.put("orderId", outTradeNo);
 
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("code", 200);
-//        response.put("data", responseData);
-//        response.put("msg", null);
-        return Response.buildSuccess(responseData);
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 200);
+        response.put("data", responseData);
+        response.put("msg", null);
+        return response;
     }
 
     /**
@@ -164,7 +176,7 @@ public class OrderController {
      * @throws IOException  IO异常
      */
     @PostMapping("/notify")
-    public Response handleAlipayNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void handleAlipayNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
         PrintWriter out = response.getWriter();
 
         // 1. 解析支付宝回调参数
@@ -182,7 +194,7 @@ public class OrderController {
         } catch (Exception e) {
             System.err.println("Failed to parse Alipay notify parameters: " + e.getMessage());
             out.print("fail");
-            return Response.buildFailure("400", "fail");
+            return;
         }
 
         // 打印接收到的所有参数，用于调试
@@ -219,23 +231,19 @@ public class OrderController {
                 try {
                     orderService.handlePaymentSuccess(Integer.parseInt(orderId), tradeNo, totalAmount);
                     out.print("success");
-                    return Response.buildSuccess("success");
                 } catch (Exception e) {
                     System.err.println("Error occurred while handling order: " + orderId + ": " + e.getMessage());
                     e.printStackTrace();
                     out.print("fail");
-                    return Response.buildFailure("400", "fail");
                 }
             } else if ("TRADE_CLOSED".equals(tradeStatus)) {
                 try{
                     orderService.closeOrder(orderId);
                     out.print("success");
-                    return Response.buildSuccess("success");
                 } catch(Exception e){
                     System.err.println("Error occurred while closing order: " + orderId + ": " + e.getMessage());
                     e.printStackTrace();
                     out.print("fail");
-                    return Response.buildFailure("400", "fail");
                 }
 
             } else {
@@ -245,12 +253,9 @@ public class OrderController {
         } else {
             System.err.println("Alipay signature verification failed!哭了");
             out.print("fail");
-            return Response.buildSuccess("success");
         }
         out.flush();
         out.close();
-
-        return Response.buildFailure("400", "后端方法实现错了");
     }
 }
 
