@@ -58,7 +58,6 @@ public class OrderController {
     @Autowired
     private OrderRepository orderRepository;
 
-
     @GetMapping()
     public Response getOrders(@RequestHeader("token") String token) {
         try {
@@ -73,16 +72,20 @@ public class OrderController {
             return Response.buildFailure("500", "服务器错误");
         }
     }
-
+    /**
+     * 创建订单并返回支付表单
+     * @param orderId  订单ID
+     * @return  包含支付表单数据的Map
+     */
     @PostMapping("/{orderId}/pay")
-    public Map<String, Object> payOrder(@PathVariable Integer orderId) {
+    public Response payOrder(@PathVariable Integer orderId) {
         //  根据订单ID查询订单
         Order order = orderRepository.findByOrderId(orderId); // 确保OrderService有getOrderById方法
         if (order == null) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("code", 400);
-            errorResponse.put("msg", "Order not found");
-            return errorResponse;
+//            Map<String, Object> errorResponse = new HashMap<>();
+//            errorResponse.put("code", 400);
+//            errorResponse.put("msg", "Order not found");
+            return Response.buildFailure("400", "Order not found");
         }
 
         String outTradeNo = String.valueOf(order.getOrderId());
@@ -131,11 +134,11 @@ public class OrderController {
         responseData.put("paymentMethod", paymentMethod);
         responseData.put("orderId", outTradeNo);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("data", responseData);
-        response.put("msg", null);
-        return response;
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("code", 200);
+//        response.put("data", responseData);
+//        response.put("msg", null);
+        return Response.buildSuccess(responseData);
     }
 
     /**
@@ -176,7 +179,7 @@ public class OrderController {
      * @throws IOException  IO异常
      */
     @PostMapping("/notify")
-    public void handleAlipayNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public Response handleAlipayNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
         PrintWriter out = response.getWriter();
 
         // 1. 解析支付宝回调参数
@@ -194,7 +197,7 @@ public class OrderController {
         } catch (Exception e) {
             System.err.println("Failed to parse Alipay notify parameters: " + e.getMessage());
             out.print("fail");
-            return;
+            return Response.buildFailure("400", "fail");
         }
 
         // 打印接收到的所有参数，用于调试
@@ -231,19 +234,23 @@ public class OrderController {
                 try {
                     orderService.handlePaymentSuccess(Integer.parseInt(orderId), tradeNo, totalAmount);
                     out.print("success");
+                    return Response.buildSuccess("success");
                 } catch (Exception e) {
                     System.err.println("Error occurred while handling order: " + orderId + ": " + e.getMessage());
                     e.printStackTrace();
                     out.print("fail");
+                    return Response.buildFailure("400", "fail");
                 }
             } else if ("TRADE_CLOSED".equals(tradeStatus)) {
                 try{
                     orderService.closeOrder(orderId);
                     out.print("success");
+                    return Response.buildSuccess("success");
                 } catch(Exception e){
                     System.err.println("Error occurred while closing order: " + orderId + ": " + e.getMessage());
                     e.printStackTrace();
                     out.print("fail");
+                    return Response.buildFailure("400", "fail");
                 }
 
             } else {
@@ -253,9 +260,11 @@ public class OrderController {
         } else {
             System.err.println("Alipay signature verification failed!哭了");
             out.print("fail");
+            return Response.buildSuccess("success");
         }
         out.flush();
         out.close();
+
+        return Response.buildFailure("400", "后端方法实现错了");
     }
 }
-
