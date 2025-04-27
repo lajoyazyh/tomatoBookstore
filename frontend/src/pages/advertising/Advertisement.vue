@@ -7,10 +7,17 @@ import {
   updateAdvertisementsInfo,
   deleteAdvertisement
 } from '../../api/advertisement.ts';
-import type { advertiseInfo } from "../../api/advertisement.ts";
 import { uploadImage } from "../../api/images.ts";
 
-const advertisements = ref<advertiseInfo[]>([]);
+const role = sessionStorage.getItem('role');
+
+const advertisements = ref<Array<{
+  id: number;
+  title: string;
+  content?: string,
+  image_url?: string,
+  product_id: number,
+}>>([]);
 const editingAds = ref<Record<number, boolean>>({});
 
 onMounted(async () => {
@@ -26,30 +33,30 @@ onMounted(async () => {
     ElMessage.error('获取广告信息失败');
   }
 
-  // 写入样例数据
-  advertisements.value = [
-    {
-      id: 1,
-      title: '广告1',
-      content: '这是广告1的内容',
-      image_url: 'https://example.com/image1.jpg',
-      product_id: 101
-    },
-    {
-      id: 2,
-      title: '广告2',
-      content: '这是广告2的内容',
-      image_url: 'https://example.com/image2.jpg',
-      product_id: 102
-    },
-    {
-      id: 3,
-      title: '广告3',
-      content: '这是广告3的内容',
-      image_url: 'https://example.com/image3.jpg',
-      product_id: 103
-    }
-  ];
+  // // 写入样例数据
+  // advertisements.value = [
+  //   {
+  //     id: 1,
+  //     title: '广告1',
+  //     content: '这是广告1的内容',
+  //     image_url: 'https://example.com/image1.jpg',
+  //     product_id: 101
+  //   },
+  //   {
+  //     id: 2,
+  //     title: '广告2',
+  //     content: '这是广告2的内容',
+  //     image_url: 'https://example.com/image2.jpg',
+  //     product_id: 102
+  //   },
+  //   {
+  //     id: 3,
+  //     title: '广告3',
+  //     content: '这是广告3的内容',
+  //     image_url: 'https://example.com/image3.jpg',
+  //     product_id: 103
+  //   }
+  // ];
 });
 
 const handleUpdateAdvertisement = async (ad: any) => {

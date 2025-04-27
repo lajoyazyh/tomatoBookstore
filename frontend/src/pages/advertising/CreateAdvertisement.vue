@@ -4,7 +4,7 @@ import { ElMessage, ElMessageBox, ElForm, ElFormItem, ElInput, ElInputNumber, El
 import { router } from '../../router';
 import { createAdvertisement, createAdvertiseInfo, updateAdvertiseInfo} from '../../api/advertisement';
 import { uploadImage } from '../../api/images';
-import type {CreateProductInfo} from "@/api/products.ts";
+
 
 // 需要 STAFF 权限
 const role = sessionStorage.getItem('role');
