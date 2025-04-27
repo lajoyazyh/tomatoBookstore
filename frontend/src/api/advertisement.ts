@@ -2,7 +2,7 @@ import { axios } from '../utils/request'
 import {ADVERTISE_MODULE} from "./_prefix.ts";
 
 export type advertiseInfo = {
-    id: number,
+    // id: number,
     title: string,
     content?: string,
     image_url?: string,
@@ -11,7 +11,7 @@ export type advertiseInfo = {
 
 //获取所有广告信息
 export const getAllAdvertisement = () => {
-    return axios.get(`${ADVERTISE_MODULE}/getAllAdvertisement`)
+    return axios.get(`${ADVERTISE_MODULE}`)
         .then(res => {
             return res
         })

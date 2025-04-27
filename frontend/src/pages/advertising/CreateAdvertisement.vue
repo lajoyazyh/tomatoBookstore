@@ -1,19 +1,18 @@
 <script setup lang="ts">
-import {ElForm, ElFormItem, ElMessage, ElMessageBox} from "element-plus"
-import {ref, computed, onMounted} from 'vue'
-
-import {
-  getAllAdvertisement,
-  createAdvertisement,
-  updateAdvertisementsInfo,
-  deleteAdvertisement
-} from '../../api/advertisement.ts';
-import type {advertiseInfo} from "../../api/advertisement.ts";
+import { ref, computed } from 'vue';
+import { ElMessage, ElMessageBox, ElForm, ElFormItem, ElInput, ElInputNumber, ElUpload, ElButton, ElCard } from 'element-plus';
 import { router } from '../../router';
+import { createAdvertisement } from '../../api/advertisement';
+import { uploadImage } from '../../api/images';
 
+// 需要 STAFF 权限
+const role = sessionStorage.getItem('role');
+if (role !== 'STAFF') {
+  ElMessage.error('您不是管理员，不能创建广告！');
+  router.push('/advertisements'); // 非管理员直接跳转回广告列表页
+}
 
-const advertisements = ref<advertiseInfo[]>([]);
-const newAd = ref<advertiseInfo>({
+const newAd = ref({
   id: 0,
   title: '',
   content: '',
@@ -21,43 +20,136 @@ const newAd = ref<advertiseInfo>({
   product_id: 0
 });
 
-const handleCreateAdvertisement = async () => {
-  try {
-    const response = await createAdvertisement(newAd.value);
-    if (response.data.code === '200') {
-      alert('广告创建成功');
-      newAd.value = { id: 0, title: '', content: '', image_url: '', product_id: 0 }; // 清空表单
-      router.push('/advertisements');
+const currentFile = ref(null); // 用于存储当前上传的文件
+
+const hasTitle = computed(() => !!newAd.value.title);
+// const hasContent = computed(() => !!newAd.value.content);
+// const hasImage = computed(() => !!newAd.value.image_url);
+const hasValidProductId = computed(() => !!newAd.value.product_id && newAd.value.product_id > 0);
+
+const createDisabled = computed(() => {
+  return !(role === 'STAFF' && hasTitle.value && hasValidProductId.value);
+});
+
+function handleFileChange(file: any) {
+  const formData = new FormData();
+  formData.append('file', file.raw);
+
+  uploadImage(formData).then(res => {
+    if (res.data.code === '000') {
+      newAd.value.image_url = res.data.result; // 存储上传的图片 URL
+      currentFile.value = file; // 存储当前文件
+      ElMessage.success('文件上传成功！');
     } else {
-      alert(response.data.msg);
+      ElMessage.error(res.data.msg || '文件上传失败，请稍后再试！');
     }
-  } catch (error) {
-    console.error('创建广告失败', error);
+  }).catch(error => {
+    ElMessage.error('文件上传失败：' + error.message);
+  });
+}
+
+function handleCreateAdvertisement() {
+  if (createDisabled.value) {
+    ElMessage.error('请确保所有必填字段都已正确填写！');
+    return;
   }
-};
 
-
-
+  createAdvertisement(newAd.value).then(res => {
+    if (res.data.code === '200') {
+      ElMessage.success('广告创建成功！');
+      newAd.value = { id: 0, title: '', content: '', image_url: '', product_id: 0 }; // 清空表单
+      router.push('/advertisements'); // 创建成功后跳转到广告列表页
+    } else {
+      ElMessage.error(res.data.msg);
+    }
+  }).catch(error => {
+    ElMessage.error('创建广告失败：' + error.message);
+  });
+}
 </script>
 
 <template>
-  <div class="advertisement-form">
-    <h1>新建广告</h1>
-    <form @submit.prevent="handleCreateAdvertisement">
-      <input v-model="newAd.title" placeholder="标题" required />
-      <input v-model="newAd.content" placeholder="内容" />
-      <input v-model="newAd.image_url" placeholder="图片URL" />
-      <input v-model="newAd.product_id" type="number" placeholder="产品ID" required />
-      <button type="submit">创建广告</button>
-    </form>
-  </div>
+  <div class="advertisement-container">
+    <el-card class="box-card">
+      <template #header>
+        <div class="card-header">
+          <span>创建广告</span>
+        </div>
+      </template>
 
-  <div class="advertisement-back">
-    <router-link to="/advertisement">
-      <button>返回</button>
-    </router-link>
-  </div>
+      <el-form label-width="120px">
+        <!-- 广告标题 -->
+        <el-form-item label="广告标题" :required="true">
+          <el-input
+              v-model="newAd.title"
+              placeholder="请输入广告标题"
+              clearable
+              style="width: 100%"
+              :disabled="!role || role !== 'STAFF'"
+          ></el-input>
+        </el-form-item>
 
+        <!-- 广告内容 -->
+        <el-form-item label="广告内容" :required="false">
+          <el-input
+              v-model="newAd.content"
+              type="textarea"
+              placeholder="请输入广告内容"
+              :rows="3"
+              style="width: 100%"
+              :disabled="!role || role !== 'STAFF'"
+          ></el-input>
+        </el-form-item>
+
+        <!-- 广告图片 -->
+        <el-form-item label="广告图片" :required="false">
+          <el-upload
+              class="upload-demo"
+              :auto-upload="false"
+              :show-file-list="false"
+              :on-change="handleFileChange"
+              accept="image/*"
+          >
+            <el-button type="primary">点击上传</el-button>
+            <template #tip>
+              <div class="el-upload__tip">只能上传图片文件</div>
+            </template>
+          </el-upload>
+          <div v-if="newAd.image_url" class="cover-preview">
+            <el-image :src="newAd.image_url" fit="cover" style="width: 100px; height: 100px"></el-image>
+          </div>
+        </el-form-item>
+
+        <!-- 关联产品ID -->
+        <el-form-item label="关联产品ID" :required="true">
+          <el-input-number
+              v-model="newAd.product_id"
+              :min="1"
+              placeholder="请输入关联产品ID"
+              style="width: 100%"
+              :disabled="!role || role !== 'STAFF'"
+          ></el-input-number>
+        </el-form-item>
+
+        <!-- 提交按钮 -->
+        <el-form-item>
+          <el-button
+              type="primary"
+              :disabled="createDisabled"
+              @click="handleCreateAdvertisement"
+              style="width: 100%"
+              :loading="createDisabled"
+          >
+            创建广告
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <div class="advertisement-back">
+      <el-button @click="router.push('/advertisements')">返回广告列表</el-button>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -67,79 +159,25 @@ const handleCreateAdvertisement = async () => {
   padding: 20px;
 }
 
-.advertisement-list {
+.box-card {
   margin-bottom: 20px;
 }
 
-.advertisement-item {
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cover-preview {
+  margin-top: 10px;
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: #f9f9f9;
-}
-
-.ad-image {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  margin-right: 20px;
-}
-
-.ad-info {
-  flex-grow: 1;
-}
-
-.advertisement-form {
-  background-color: #f9f9f9;
-  padding: 20px;
-  border-radius: 4px;
-}
-
-.advertisement-form h3 {
-  margin-top: 0;
-}
-
-.advertisement-form form {
-  display: flex;
-  flex-direction: column;
-}
-
-.advertisement-form input {
-  margin-bottom: 10px;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.advertisement-form button {
-  padding: 8px 16px;
-  background-color: #3b93ce;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
 }
 
 .advertisement-back {
   display: flex;
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中（如果需要） */
-  height: 100%; /* 根据需要调整高度 */
-}
-
-.advertisement-back button {
-  padding: 8px 16px;
-  background-color: #8e8c8c;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.advertisement-form button:hover {
-  background-color: #3b93ce;
+  justify-content: center;
+  margin-top: 20px;
 }
 </style>
