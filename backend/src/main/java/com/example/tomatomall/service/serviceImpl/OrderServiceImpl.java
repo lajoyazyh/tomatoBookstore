@@ -160,7 +160,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
     @Override
-    public List<OrderAllResponse> getOrders(String token) {
+    public OrderResponse getOrders(String token) {
         // 解析 token 获取用户 ID
         Integer userId = tokenUtil.getAccount(token).getId();
         if (userId == null) {
@@ -198,7 +198,9 @@ public class OrderServiceImpl implements OrderService {
 
         }
         System.out.println(orderAllResponseList.get(0).getOrderId());
-        return orderAllResponseList;
+        OrderResponse orderResponse = new OrderResponse();
+        orderResponse.setOrders(orderAllResponseList);
+        return orderResponse;
     }
 
 
