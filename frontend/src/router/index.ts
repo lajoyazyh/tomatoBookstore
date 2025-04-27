@@ -41,6 +41,7 @@ const router = createRouter({
             path: '/dashboard',
             component: () => import('../pages/account/Dashboard.vue'),
             meta: { title: '个人信息' }
+
         }, {
             path: '/advertisement',
             component: () => import('../pages/advertising/Advertisement.vue'),
@@ -50,6 +51,7 @@ const router = createRouter({
             component: () => import('../pages/advertising/CreateAdvertisement.vue'),
             meta: { title: '广告' }
         }
+
     ]
 })
 

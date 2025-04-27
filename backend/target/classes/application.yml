@@ -29,7 +29,7 @@ alipay:
   alipayPublicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgw5ne8DcVvSoegeDjwcru/LghpvQEm648yHQwG8Uz6cSALqtvvQHAJIBdmyUCiG6d6SEOpJ8oarfO8QhmXEc6X6yTxIQeP6zrFlYAbXpAWV7lT35y/5IsMifkoOnreSGobgKY0S8AuWRHjUjeGbr65PxvqVmzZ5Ss26GxjHOaA4+LdTzlE3uaIIWh9imfXQeqxTcKNzmbkC2TVv3oYFXDcdFddwx2VooPx+XaBvyvSUCPFRyc5mf5B/0HNOix+sR5RpLkMJIfpyQWZXRT/NtmC8xSEpSdJfjODsMSa2R04ZtxrvSOxyay7b5BKa808Gt4YCu0zOobU0ZKNXUgPjIhwIDAQAB
   notifyUrl: http://vkqd3u.natappfree.cc/alipay/notify
   serverUrl: https://openapi-sandbox.dl.alipaydev.com/gateway.do
-  returnUrl:  http://vkqd3u.natappfree.cc/alipay/returnUrl
+  returnUrl: http://vkqd3u.natappfree.cc/alipay/returnUrl
   charset: utf-8
   signType: RSA2
 
