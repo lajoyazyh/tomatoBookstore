@@ -35,23 +35,33 @@ onMounted(async () => {
 function handlePayment(orderId: number) {
   payForOrder(orderId).then(res => {
     if (res.data.code === '200') {
-      const pfm = res.data.data.paymentForm;
-      // 创建隐藏的容器用于放置支付表单
+      const pfm = res.data.data?.paymentForm;
+      if (!pfm) {
+        ElMessage.error('支付表单不存在');
+        return;
+      }
+
       const container = document.createElement('div');
       container.style.display = 'none';
       container.innerHTML = pfm;
       document.body.appendChild(container);
 
-      // 提交
       const form = container.querySelector('form');
       if (form) {
         form.submit();
+        document.body.removeChild(container); // 提交后清理掉，防止页面堆垃圾
+      } else {
+        ElMessage.error('支付表单格式错误');
       }
     } else {
-      ElMessage.error(res.data.msg);
+      ElMessage.error(res.data.msg || '支付请求失败');
     }
+  }).catch(err => {
+    ElMessage.error('网络异常，请稍后重试');
+    console.error('支付接口异常', err);
   })
 }
+
 
 // 转换支付状态和支付方式
 function getStatusText(status: string): string {
