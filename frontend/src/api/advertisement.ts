@@ -1,8 +1,15 @@
 import { axios } from '../utils/request'
 import {ADVERTISE_MODULE} from "./_prefix.ts";
 
-export type advertiseInfo = {
-    // id: number,
+export type updateAdvertiseInfo = {
+    id: number,
+    title: string,
+    content?: string,
+    image_url?: string,
+    product_id: number
+}
+
+export type createAdvertiseInfo = {
     title: string,
     content?: string,
     image_url?: string,
@@ -18,7 +25,7 @@ export const getAllAdvertisement = () => {
 }
 
 //更新广告信息
-export const updateAdvertisementsInfo = (updateAdvertiseInfo: advertiseInfo) => {
+export const updateAdvertisementsInfo = (updateAdvertiseInfo: updateAdvertiseInfo) => {
     return axios.put(`${ADVERTISE_MODULE}`, updateAdvertisementsInfo,
         { headers: {'Content-Type': 'application/json' } })
         .then(res => {
@@ -27,7 +34,7 @@ export const updateAdvertisementsInfo = (updateAdvertiseInfo: advertiseInfo) => 
 }
 
 //创建广告
-export const createAdvertisement = (createAdvertiseInfo: advertiseInfo) => {
+export const createAdvertisement = (createAdvertiseInfo: createAdvertiseInfo) => {
     return axios.post(`${ADVERTISE_MODULE}`, createAdvertiseInfo,
         { headers: {'Content-Type': 'application/json' } })
         .then(res => {

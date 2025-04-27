@@ -2,8 +2,9 @@
 import { ref, computed } from 'vue';
 import { ElMessage, ElMessageBox, ElForm, ElFormItem, ElInput, ElInputNumber, ElUpload, ElButton, ElCard } from 'element-plus';
 import { router } from '../../router';
-import { createAdvertisement } from '../../api/advertisement';
+import { createAdvertisement, createAdvertiseInfo, updateAdvertiseInfo} from '../../api/advertisement';
 import { uploadImage } from '../../api/images';
+import type {CreateProductInfo} from "@/api/products.ts";
 
 // 需要 STAFF 权限
 const role = sessionStorage.getItem('role');
@@ -12,20 +13,24 @@ if (role !== 'STAFF') {
   router.push('/advertisements'); // 非管理员直接跳转回广告列表页
 }
 
-const newAd = ref({
-  id: 0,
-  title: '',
-  content: '',
-  image_url: '',
-  product_id: 0
-});
+// const newAd = ref({
+//   title: '',
+//   content: '',
+//   image_url: '',
+//   product_id: 0
+// });
+
+const title = ref('')
+const content = ref('')
+const image_url = ref('')
+const product_id = ref(0)
 
 const currentFile = ref(null); // 用于存储当前上传的文件
 
-const hasTitle = computed(() => !!newAd.value.title);
+const hasTitle = computed(() => !!title);
 // const hasContent = computed(() => !!newAd.value.content);
 // const hasImage = computed(() => !!newAd.value.image_url);
-const hasValidProductId = computed(() => !!newAd.value.product_id && newAd.value.product_id > 0);
+const hasValidProductId = computed(() => !!product_id && product_id.value > 0);
 
 const createDisabled = computed(() => {
   return !(role === 'STAFF' && hasTitle.value && hasValidProductId.value);
@@ -37,7 +42,7 @@ function handleFileChange(file: any) {
 
   uploadImage(formData).then(res => {
     if (res.data.code === '000') {
-      newAd.value.image_url = res.data.result; // 存储上传的图片 URL
+      image_url.value = res.data.result; // 存储上传的图片 URL
       currentFile.value = file; // 存储当前文件
       ElMessage.success('文件上传成功！');
     } else {
@@ -48,16 +53,25 @@ function handleFileChange(file: any) {
   });
 }
 
+function createAdvertisementInfo(): createAdvertiseInfo {
+  const createInfo: createAdvertiseInfo = {
+    title: title.value,
+    content: content.value,
+    image_url: image_url.value,
+    product_id: product_id.value
+  }
+  return createInfo;
+}
+
 function handleCreateAdvertisement() {
   if (createDisabled.value) {
     ElMessage.error('请确保所有必填字段都已正确填写！');
     return;
   }
 
-  createAdvertisement(newAd.value).then(res => {
+  createAdvertisement(createAdvertisementInfo()).then(res => {
     if (res.data.code === '200') {
       ElMessage.success('广告创建成功！');
-      newAd.value = { id: 0, title: '', content: '', image_url: '', product_id: 0 }; // 清空表单
       router.push('/advertisements'); // 创建成功后跳转到广告列表页
     } else {
       ElMessage.error(res.data.msg);
@@ -81,7 +95,7 @@ function handleCreateAdvertisement() {
         <!-- 广告标题 -->
         <el-form-item label="广告标题" :required="true">
           <el-input
-              v-model="newAd.title"
+              v-model="title"
               placeholder="请输入广告标题"
               clearable
               style="width: 100%"
@@ -92,7 +106,7 @@ function handleCreateAdvertisement() {
         <!-- 广告内容 -->
         <el-form-item label="广告内容" :required="false">
           <el-input
-              v-model="newAd.content"
+              v-model="content"
               type="textarea"
               placeholder="请输入广告内容"
               :rows="3"
@@ -115,15 +129,15 @@ function handleCreateAdvertisement() {
               <div class="el-upload__tip">只能上传图片文件</div>
             </template>
           </el-upload>
-          <div v-if="newAd.image_url" class="cover-preview">
-            <el-image :src="newAd.image_url" fit="cover" style="width: 100px; height: 100px"></el-image>
+          <div v-if="image_url" class="cover-preview">
+            <el-image :src="image_url" fit="cover" style="width: 100px; height: 100px"></el-image>
           </div>
         </el-form-item>
 
         <!-- 关联产品ID -->
         <el-form-item label="关联产品ID" :required="true">
           <el-input-number
-              v-model="newAd.product_id"
+              v-model="product_id"
               :min="1"
               placeholder="请输入关联产品ID"
               style="width: 100%"
