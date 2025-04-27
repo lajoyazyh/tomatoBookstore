@@ -35,8 +35,18 @@ onMounted(async () => {
 function handlePayment(orderId: number) {
   payForOrder(orderId).then(res => {
     if (res.data.code === '200') {
-      // 直接跳转到外部支付链接
-      window.location.href = res.data.data.paymentForm;
+      const pfm = res.data.data.paymentForm;
+      // 创建隐藏的容器用于放置支付表单
+      const container = document.createElement('div');
+      container.style.display = 'none';
+      container.innerHTML = pfm;
+      document.body.appendChild(container);
+
+      // 提交
+      const form = container.querySelector('form');
+      if (form) {
+        form.submit();
+      }
     } else {
       ElMessage.error(res.data.msg);
     }
