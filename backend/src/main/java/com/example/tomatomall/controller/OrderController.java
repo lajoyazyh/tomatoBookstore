@@ -29,8 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.Character.FORMAT;
-
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -86,62 +84,47 @@ public class OrderController {
      * @return  包含支付表单数据的Map
      */
     @PostMapping("/{orderId}/pay")
-    public Response payOrder(@PathVariable Integer orderId, HttpServletResponse httpResponse) throws Exception {
+    public Response payOrder(@PathVariable Integer orderId) {
+        // 根据订单ID查询订单
         Order order = orderRepository.findByOrderId(orderId);
         if (order == null) {
             return Response.buildFailure("400", "Order not found");
         }
 
+        // 创建 AlipayClient
         AlipayClient alipayClient = new DefaultAlipayClient(serverUrl, appId,
                 privateKey, FORMAT_JSON, CHARSET_UTF8, alipayPublicKey, signType);
 
+        // 创建 AlipayTradePagePayRequest
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
         request.setNotifyUrl(notifyUrl);
         request.setReturnUrl(returnUrl);
 
+        // 构建业务参数
         JSONObject bizContent = new JSONObject();
         bizContent.put("out_trade_no", String.valueOf(order.getOrderId()));
         bizContent.put("total_amount", String.valueOf(order.getTotalAmount()));
         bizContent.put("subject", "TomatoMall订单支付");
         bizContent.put("product_code", PRODUCT_CODE);
         request.setBizContent(bizContent.toString());
+        // 调用 SDK 生成支付表单
+        String form = "";
+        try {
+            form = alipayClient.pageExecute(request).getBody();
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+            return Response.buildFailure("500", "Failed to generate Alipay payment form");
+        }
 
-        String form = alipayClient.pageExecute(request).getBody();
-
-        httpResponse.setContentType("text/html;charset=" + CHARSET_UTF8);
-        httpResponse.getWriter().write(form);
-        httpResponse.getWriter().flush();
-        httpResponse.getWriter().close();
-
+        // 构建响应数据
         Map<String, Object> responseData = new HashMap<>();
-        responseData.put("orderId", order.getOrderId());
-        responseData.put("totalAmount", order.getTotalAmount());
-        responseData.put("paymentMethod", "Alipay"); // 或者从订单中获取
-        // 注意：这里不再需要包含 paymentForm，因为表单已经直接输出到 HttpServletResponse
+        responseData.put("paymentForm", form);
+        responseData.put("orderId", String.valueOf(order.getOrderId()));
+        responseData.put("totalAmount", String.valueOf(order.getTotalAmount()));
+        responseData.put("paymentMethod", order.getPayment_method() != null ? order.getPayment_method() : "Alipay"); // 从订单获取支付方式
 
         return Response.buildSuccess(responseData);
     }
-
-    private String buildFormData(Map<String, String> params) {
-        StringBuilder formContent = new StringBuilder();
-        formContent.append("<form name=\"punchout_form\" method=\"post\" action=\"").append(serverUrl).append("?charset=").append(CHARSET_UTF8);
-
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            formContent.append("&").append(key).append("=").append(value); // 不再进行 URL 编码
-        }
-        formContent.append("\">");
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            formContent.append("<input type=\"hidden\" name=\"").append(key).append("\" value=\"").append(value).append("\">");
-        }
-        formContent.append("<input type=\"submit\" value=\"立即支付\">");
-        formContent.append("</form>");
-        return formContent.toString();
-    }
-
 
     /**
      * 处理支付宝异步通知
@@ -152,70 +135,77 @@ public class OrderController {
     @PostMapping("/notify")
     public void handleAlipayNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
         PrintWriter out = response.getWriter();
+
+        // 1. 解析支付宝回调参数
         Map<String, String> params = new HashMap<>();
         try {
             Map<String, String[]> requestParams = request.getParameterMap();
             for (String name : requestParams.keySet()) {
                 String[] values = requestParams.get(name);
-                String valueStr = String.join(",", values);
+                String valueStr = "";
+                for (int i = 0; i < values.length; i++) {
+                    valueStr = (i == values.length - 1) ? valueStr + values[i] : valueStr + values[i] + ",";
+                }
                 params.put(name, valueStr);
             }
-            System.out.println("Alipay Notify Parameters: " + params); // 记录接收到的参数
         } catch (Exception e) {
             System.err.println("Failed to parse Alipay notify parameters: " + e.getMessage());
             out.print("fail");
-            return;
         }
 
+
+        // 2. 验证支付宝签名(这里!!!!!!!!)
         boolean signVerified = false;
         try {
-            signVerified = AlipaySignature.rsaCheckV1(params, alipayPublicKey, "UTF-8", signType); // 启用签名验证
-            System.out.println("Alipay Signature Verification Result: " + signVerified); // 记录验签结果
+            signVerified = AlipaySignature.rsaCheckV1(params, alipayPublicKey, "UTF-8", "RSA2");
         } catch (AlipayApiException e) {
             System.err.println("Alipay signature verification failed: " + e.getMessage());
+            e.printStackTrace(); // 打印完整的异常堆栈
             out.print("fail");
-            return;
         }
 
+        // 3. 处理业务逻辑
         if (signVerified) {
+            System.out.println("Alipay signature verification success!");
             String orderId = params.get("out_trade_no");
             String tradeStatus = params.get("trade_status");
             String totalAmount = params.get("total_amount");
-            String tradeNo = params.get("trade_no");
+            String tradeNo = params.get("trade_no"); // 支付宝交易号
 
-            System.out.println("Order ID: " + orderId + ", Trade Status: " + tradeStatus + ", Total Amount: " + totalAmount + ", Trade No: " + tradeNo);
+            System.out.println("Order ID: " + orderId);
+            System.out.println("Trade Status: " + tradeStatus);
+            System.out.println("Total Amount: " + totalAmount);
+            System.out.println("Trade No: " + tradeNo);
 
             if ("TRADE_SUCCESS".equals(tradeStatus) || "TRADE_FINISHED".equals(tradeStatus)) {
                 try {
-                    orderService.handlePaymentSuccess(Integer.parseInt(orderId), tradeNo, totalAmount); // 处理支付成功的业务逻辑
-                    out.print("success"); // 返回纯文本 "success"
-                    return;
+                    orderService.handlePaymentSuccess(Integer.parseInt(orderId), tradeNo, totalAmount);
+                    out.print("success");
                 } catch (Exception e) {
-                    System.err.println("Error occurred while handling payment success for order " + orderId + ": " + e.getMessage());
+                    System.err.println("Error occurred while handling order: " + orderId + ": " + e.getMessage());
                     e.printStackTrace();
-                    out.print("fail"); // 返回纯文本 "fail"
-                    return;
+                    out.print("fail");
                 }
             } else if ("TRADE_CLOSED".equals(tradeStatus)) {
-                try {
-                    orderService.closeOrder(orderId); // 处理交易关闭的业务逻辑
-                    out.print("success"); // 返回纯文本 "success"
-                    return;
-                } catch (Exception e) {
-                    System.err.println("Error occurred while closing order " + orderId + ": " + e.getMessage());
+                try{
+                    orderService.closeOrder(orderId);
+                    out.print("success");
+                } catch(Exception e){
+                    System.err.println("Error occurred while closing order: " + orderId + ": " + e.getMessage());
                     e.printStackTrace();
-                    out.print("fail"); // 返回纯文本 "fail"
-                    return;
+                    out.print("fail");
                 }
+
             } else {
                 System.out.println("Received unknown trade status: " + tradeStatus + " for orderId: " + orderId);
-                out.print("success"); // 对于其他状态，也返回 success，避免支付宝重试
-                return;
+                out.print("success"); // 避免支付宝重复通知
             }
         } else {
-            System.err.println("Alipay signature verification failed!");
-            out.print("fail"); // 返回纯文本 "fail"
-            return;
+            System.err.println("Alipay signature verification failed!哭了");
+            out.print("fail");
         }
+        out.flush();
+        out.close();
+
     }
 }
