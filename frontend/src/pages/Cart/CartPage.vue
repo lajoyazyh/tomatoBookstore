@@ -73,7 +73,6 @@ function makeCheckout() {
 }
 function handleOrder() {
   makeCheckout();
-  console.log(checkout.value.cartItemIds,  checkout.value.shipping_address, checkout.value.payment_method);
   checkoutOrder(checkout.value).then(res => {
     if (res.data.code === '200') {
       orderId.value = res.data.data.orderId;
