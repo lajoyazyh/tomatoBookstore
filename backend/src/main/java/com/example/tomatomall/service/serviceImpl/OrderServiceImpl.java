@@ -3,6 +3,7 @@ package com.example.tomatomall.service.serviceImpl;
 import com.example.tomatomall.po.*;
 import com.example.tomatomall.repository.*;
 import com.example.tomatomall.service.OrderService;
+import com.example.tomatomall.util.DateUtil;
 import com.example.tomatomall.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,24 +13,11 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-import com.example.tomatomall.exception.TomatoMallException;
 import com.example.tomatomall.po.Account;
 import com.example.tomatomall.po.Product;
-import com.example.tomatomall.repository.*;
-import com.example.tomatomall.service.CartService;
-import com.example.tomatomall.util.SecurityUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-import com.example.tomatomall.util.TokenUtil;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 @Service
 public class OrderServiceImpl implements OrderService {
 
@@ -172,7 +160,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
     @Override
-    public List<Order> getOrders(String token) {
+    public List<OrderAllResponse> getOrders(String token) {
         // 解析 token 获取用户 ID
         Integer userId = tokenUtil.getAccount(token).getId();
         if (userId == null) {
@@ -186,19 +174,33 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // 将订单转换为 OrderVO
-        List<Order> orderVOList = new ArrayList<>();
+        List<OrderAllResponse> orderAllResponseList = new ArrayList<>();
+        //System.out.println(orderList.get(0).getOrderId());
         for (Order order : orderList) {
-            OrderVO orderVO = new OrderVO();
-            orderVO.setOrderId(order.getOrderId());
-            orderVO.setUserId(order.getAccount().getId());
-            orderVO.setTotalAmount(order.getTotalAmount());
-            orderVO.setPaymentMethod(order.getPayment_method());
-            orderVO.setStatus(order.getStatus());
-            orderVO.setCreateTime(order.getCreateTime());
-        }
+            OrderAllResponse orderAllResponse = new OrderAllResponse();
+//            System.out.println(order.getOrderId());
+//            System.out.println(order.getTotalAmount());
+//            System.out.println(order.getPayment_method());
+//            System.out.println(order.getStatus());
+//            System.out.println(order.getCreateTime());
+            orderAllResponse.setOrderId(order.getOrderId());
+            orderAllResponse.setTotalAmount(order.getTotalAmount());
+            orderAllResponse.setPaymentMethod(order.getPayment_method());
+            orderAllResponse.setStatus(order.getStatus());
+            orderAllResponse.setCreateTime(DateUtil.formatDate(order.getCreateTime()));
+            orderAllResponseList.add(orderAllResponse);
 
-        return orderVOList;
+//            System.out.println(orderAllResponse.getOrderId());
+//            System.out.println(orderAllResponse.getTotalAmount());
+//            System.out.println(orderAllResponse.getPaymentMethod());
+//            System.out.println(orderAllResponse.getStatus());
+//            System.out.println(orderAllResponse.getCreateTime());
+
+        }
+        System.out.println(orderAllResponseList.get(0).getOrderId());
+        return orderAllResponseList;
     }
+
 
 
 }

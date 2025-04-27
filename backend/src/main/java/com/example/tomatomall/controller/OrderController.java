@@ -6,6 +6,7 @@ import com.alipay.api.internal.util.AlipaySignature;
 import com.example.tomatomall.po.Order;
 import com.example.tomatomall.repository.OrderRepository;
 import com.example.tomatomall.service.OrderService;
+import com.example.tomatomall.vo.OrderAllResponse;
 import com.example.tomatomall.vo.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,8 +63,8 @@ public class OrderController {
     public Response getOrders(@RequestHeader("token") String token) {
         try {
             // 使用 token 获取用户的订单列表
-            List<Order> orders = orderService.getOrders(token);
-            return Response.buildSuccess(orders);
+            List<OrderAllResponse> orderAllResponse = orderService.getOrders(token);
+            return Response.buildSuccess(orderAllResponse);
         } catch (IllegalArgumentException e) {
             // 处理非法参数异常，如用户不存在等
             return Response.buildFailure("400", e.getMessage());
