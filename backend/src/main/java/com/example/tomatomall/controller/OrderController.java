@@ -105,7 +105,7 @@ public class OrderController {
         bizContent.put("out_trade_no", String.valueOf(order.getOrderId()));
         bizContent.put("total_amount", String.valueOf(order.getTotalAmount()));
         bizContent.put("subject", "TomatoMall订单支付");
-        bizContent.put("product_code", PRODUCT_CODE);
+        bizContent.put("product_code","FAST_INSTANT_TRADE_PAY");
         request.setBizContent(bizContent.toString());
         // 调用 SDK 生成支付表单
         String form = "";
@@ -172,10 +172,10 @@ public class OrderController {
             String totalAmount = params.get("total_amount");
             String tradeNo = params.get("trade_no"); // 支付宝交易号
 
-            System.out.println("Order ID: " + orderId);
-            System.out.println("Trade Status: " + tradeStatus);
-            System.out.println("Total Amount: " + totalAmount);
-            System.out.println("Trade No: " + tradeNo);
+//            System.out.println("Order ID: " + orderId);
+//            System.out.println("Trade Status: " + tradeStatus);
+//            System.out.println("Total Amount: " + totalAmount);
+//            System.out.println("Trade No: " + tradeNo);
 
             if ("TRADE_SUCCESS".equals(tradeStatus) || "TRADE_FINISHED".equals(tradeStatus)) {
                 try {
