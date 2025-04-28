@@ -11,7 +11,7 @@ import { uploadImage } from '../../api/images';
 const role = sessionStorage.getItem('role');
 if (role !== 'STAFF') {
   ElMessage.error('您不是管理员，不能创建广告！');
-  router.push('/advertisements'); // 非管理员直接跳转回广告列表页
+  router.push('/advertisement'); // 非管理员直接跳转回广告列表页
 }
 
 // const newAd = ref({
@@ -28,7 +28,7 @@ const productId = ref(0)
 
 const currentFile = ref(null); // 用于存储当前上传的文件
 
-const hasTitle = computed(() => !!title);
+const hasTitle = computed(() => title.value.length > 0);
 // const hasContent = computed(() => !!newAd.value.content);
 // const hasImage = computed(() => !!newAd.value.image_url);
 const hasValidProductId = computed(() => !!productId && productId.value > 0);
@@ -76,7 +76,7 @@ function handleCreateAdvertisement() {
   createAdvertisement(adInfo).then(res => {
     if (res.data.code === '200') {
       ElMessage.success('广告创建成功！');
-      router.push('/advertisements'); // 创建成功后跳转到广告列表页
+      router.push('/advertisement'); // 创建成功后跳转到广告列表页
     } else {
       ElMessage.error(res.data.msg);
     }
@@ -165,7 +165,7 @@ function handleCreateAdvertisement() {
     </el-card>
 
     <div class="advertisement-back">
-      <el-button @click="router.push('/advertisements')">返回广告列表</el-button>
+      <el-button @click="router.push('/advertisement')">返回广告列表</el-button>
     </div>
   </div>
 </template>

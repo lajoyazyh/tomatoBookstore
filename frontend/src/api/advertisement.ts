@@ -26,7 +26,7 @@ export const getAllAdvertisement = () => {
 
 //更新广告信息
 export const updateAdvertisementsInfo = (updateAdvertiseInfo: updateAdvertiseInfo) => {
-    return axios.put(`${ADVERTISE_MODULE}`, updateAdvertisementsInfo,
+    return axios.put(`${ADVERTISE_MODULE}`, updateAdvertiseInfo,
         { headers: {'Content-Type': 'application/json' } })
         .then(res => {
             return res
