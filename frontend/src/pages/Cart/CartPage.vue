@@ -52,6 +52,10 @@ onMounted(async () => {
   }
 })
 
+function goToOrders() {
+  router.push("/orders");
+}
+
 const deleteCartItem = (item: item) => {
   deleteProduct(item.cartItemId).then(() => {
     ElMessage.success('商品已从购物车中删除');
@@ -73,7 +77,6 @@ function makeCheckout() {
 }
 function handleOrder() {
   makeCheckout();
-  console.log(checkout.value.cartItemIds,  checkout.value.shipping_address, checkout.value.payment_method);
   checkoutOrder(checkout.value).then(res => {
     if (res.data.code === '200') {
       orderId.value = res.data.data.orderId;
@@ -202,7 +205,10 @@ function showCheckoutConfirmation() {
 
 <template>
   <div class="cart-container">
-    <h2>购物车</h2>
+    <div class="nav-bar">
+      <h2>购物车</h2>
+      <button class="view-orders-btn" @click="goToOrders">查看订单</button>
+    </div>
 
     <div v-if="cartItems.length > 0" class="cart-items">
       <div class="cart-item" v-for="item in cartItems" :key="item.cartItemId">
@@ -250,7 +256,27 @@ function showCheckoutConfirmation() {
 .cart-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 50px;
+}
+
+.nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.view-orders-btn {
+  background-color: #4a56e2;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.view-orders-btn:hover {
+  background-color: #3a46d5;
 }
 
 h2 {

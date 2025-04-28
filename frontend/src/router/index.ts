@@ -50,6 +50,7 @@ const router = createRouter({
             component: () => import('../pages/advertising/CreateAdvertisement.vue'),
             meta: { title: '广告' }
         }
+
     ]
 })
 
