@@ -3,17 +3,26 @@ package com.example.tomatomall.service.serviceImpl;
 import com.example.tomatomall.po.*;
 import com.example.tomatomall.repository.*;
 import com.example.tomatomall.service.OrderService;
-import com.example.tomatomall.vo.ShippingAddress;
+import com.example.tomatomall.util.DateUtil;
+import com.example.tomatomall.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.example.tomatomall.util.TokenUtil;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import com.example.tomatomall.po.Account;
+import com.example.tomatomall.po.Product;
+
+import java.util.ArrayList;
+
 @Service
 public class OrderServiceImpl implements OrderService {
+
+    @Autowired
+    TokenUtil tokenUtil;
 
     @Autowired
     private OrderRepository orderRepository;
@@ -150,6 +159,51 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Invalid order ID: " + orderId);
         }
     }
+    @Override
+    public OrderResponse getOrders(String token) {
+        // 解析 token 获取用户 ID
+        Integer userId = tokenUtil.getAccount(token).getId();
+        if (userId == null) {
+            throw new IllegalArgumentException("无效的令牌");
+        }
+
+        // 根据 userId 查找用户的所有订单
+        List<Order> orderList = orderRepository.findByUserId(userId);
+        if (orderList == null || orderList.isEmpty()) {
+            throw new IllegalArgumentException("没有找到订单");
+        }
+
+        // 将订单转换为 OrderVO
+        List<OrderAllResponse> orderAllResponseList = new ArrayList<>();
+        //System.out.println(orderList.get(0).getOrderId());
+        for (Order order : orderList) {
+            OrderAllResponse orderAllResponse = new OrderAllResponse();
+//            System.out.println(order.getOrderId());
+//            System.out.println(order.getTotalAmount());
+//            System.out.println(order.getPayment_method());
+//            System.out.println(order.getStatus());
+//            System.out.println(order.getCreateTime());
+            orderAllResponse.setOrderId(order.getOrderId());
+            orderAllResponse.setTotalAmount(order.getTotalAmount());
+            orderAllResponse.setPaymentMethod(order.getPayment_method());
+            orderAllResponse.setStatus(order.getStatus());
+            orderAllResponse.setCreateTime(DateUtil.formatDate(order.getCreateTime()));
+            orderAllResponseList.add(orderAllResponse);
+
+//            System.out.println(orderAllResponse.getOrderId());
+//            System.out.println(orderAllResponse.getTotalAmount());
+//            System.out.println(orderAllResponse.getPaymentMethod());
+//            System.out.println(orderAllResponse.getStatus());
+//            System.out.println(orderAllResponse.getCreateTime());
+
+        }
+        System.out.println(orderAllResponseList.get(0).getOrderId());
+        OrderResponse orderResponse = new OrderResponse();
+        orderResponse.setOrders(orderAllResponseList);
+        return orderResponse;
+    }
+
+
 
 }
 
