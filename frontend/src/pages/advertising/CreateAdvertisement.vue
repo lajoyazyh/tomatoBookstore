@@ -2,7 +2,8 @@
 import { ref, computed } from 'vue';
 import { ElMessage, ElMessageBox, ElForm, ElFormItem, ElInput, ElInputNumber, ElUpload, ElButton, ElCard } from 'element-plus';
 import { router } from '../../router';
-import { createAdvertisement, createAdvertiseInfo, updateAdvertiseInfo} from '../../api/advertisement';
+import { createAdvertisement} from '../../api/advertisement';
+import type {createAdvertiseInfo, updateAdvertiseInfo} from '../../api/advertisement';
 import { uploadImage } from '../../api/images';
 
 
@@ -22,15 +23,15 @@ if (role !== 'STAFF') {
 
 const title = ref('')
 const content = ref('')
-const image_url = ref('')
-const product_id = ref(0)
+const imageUrl = ref('')
+const productId = ref(0)
 
 const currentFile = ref(null); // 用于存储当前上传的文件
 
 const hasTitle = computed(() => !!title);
 // const hasContent = computed(() => !!newAd.value.content);
 // const hasImage = computed(() => !!newAd.value.image_url);
-const hasValidProductId = computed(() => !!product_id && product_id.value > 0);
+const hasValidProductId = computed(() => !!productId && productId.value > 0);
 
 const createDisabled = computed(() => {
   return !(role === 'STAFF' && hasTitle.value && hasValidProductId.value);
@@ -42,7 +43,7 @@ function handleFileChange(file: any) {
 
   uploadImage(formData).then(res => {
     if (res.data.code === '000') {
-      image_url.value = res.data.result; // 存储上传的图片 URL
+      imageUrl.value = res.data.result; // 存储上传的图片 URL
       currentFile.value = file; // 存储当前文件
       ElMessage.success('文件上传成功！');
     } else {
@@ -57,8 +58,8 @@ function createAdvertisementInfo(): createAdvertiseInfo {
   const createInfo: createAdvertiseInfo = {
     title: title.value,
     content: content.value,
-    image_url: image_url.value,
-    product_id: product_id.value
+    imageUrl: imageUrl.value,
+    productId: productId.value
   }
   return createInfo;
 }
@@ -69,7 +70,10 @@ function handleCreateAdvertisement() {
     return;
   }
 
-  createAdvertisement(createAdvertisementInfo()).then(res => {
+  const adInfo = createAdvertisementInfo();
+  console.log('广告信息:', adInfo); // 输出广告信息，确保 product_id 不为空
+
+  createAdvertisement(adInfo).then(res => {
     if (res.data.code === '200') {
       ElMessage.success('广告创建成功！');
       router.push('/advertisements'); // 创建成功后跳转到广告列表页
@@ -129,15 +133,15 @@ function handleCreateAdvertisement() {
               <div class="el-upload__tip">只能上传图片文件</div>
             </template>
           </el-upload>
-          <div v-if="image_url" class="cover-preview">
-            <el-image :src="image_url" fit="cover" style="width: 100px; height: 100px"></el-image>
+          <div v-if="imageUrl" class="cover-preview">
+            <el-image :src="imageUrl" fit="cover" style="width: 100px; height: 100px"></el-image>
           </div>
         </el-form-item>
 
         <!-- 关联产品ID -->
         <el-form-item label="关联产品ID" :required="true">
           <el-input-number
-              v-model="product_id"
+              v-model="productId"
               :min="1"
               placeholder="请输入关联产品ID"
               style="width: 100%"

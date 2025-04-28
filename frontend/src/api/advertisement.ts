@@ -5,15 +5,15 @@ export type updateAdvertiseInfo = {
     id: number,
     title: string,
     content?: string,
-    image_url?: string,
-    product_id: number
+    imageUrl?: string,
+    productId: number
 }
 
 export type createAdvertiseInfo = {
     title: string,
     content?: string,
-    image_url?: string,
-    product_id: number
+    imageUrl?: string,
+    productId: number
 }
 
 //获取所有广告信息
