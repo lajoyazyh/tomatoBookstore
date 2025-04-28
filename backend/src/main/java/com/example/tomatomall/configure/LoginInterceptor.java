@@ -30,8 +30,9 @@ public class LoginInterceptor implements HandlerInterceptor {
         // 获取请求路径
         String requestURI = request.getRequestURI();
 
-        // 排除路径
-        if (requestURI.contains("/accounts") || requestURI.contains("/advertisement")) {
+        // 排除 /register 路径
+        if (requestURI.contains("/accounts")
+        ) {
             return true; // 放行
         }
 
