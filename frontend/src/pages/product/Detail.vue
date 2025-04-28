@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { UpdateProductInfo, Specification, getTheProduct, updateProductInfo } from "../../api/products.ts";
+import { addNewProduct } from "../../api/cart.ts";
 import { uploadImage } from "../../api/images.ts";
 
 // 修改商品信息需要STAFF权限
@@ -11,6 +12,14 @@ const isEditing = ref(false);
 
 const route = useRoute();
 const productId = Number(route.params.productId);
+
+const newCartItemInfo = ref<{
+  productId: number,
+  quantity: number,
+}>({
+  productId: productId,
+  quantity: 1,
+})
 
 const currentFile = ref(null) // cover file
 const productInfo = ref<{
@@ -71,6 +80,46 @@ function getProduct() {
 onMounted(async () => {
   getProduct()
 })
+
+// 新增：处理添加到购物车的弹窗
+function handleAddToCart() {
+  ElMessageBox.prompt(
+      '请输入添加到购物车的数量',
+      '添加到购物车',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /^[1-9]\d*$/, // 验证输入是否为正整数
+        inputErrorMessage: '请输入有效的数量',
+        inputValue: newCartItemInfo.value.quantity.toString(), // 确保初始值为字符串
+      }
+  ).then(({ value }) => {
+    // 确保输入值是数字
+    const quantity = parseInt(value);
+    if (isNaN(quantity)) {
+      ElMessage.error('请输入有效的数量');
+      return;
+    }
+    newCartItemInfo.value.quantity = quantity;
+    addCartItem();
+  }).catch(() => {
+    ElMessage.info('已取消添加到购物车');
+  });
+}
+
+function addCartItem() {
+  try {
+    addNewProduct(newCartItemInfo.value).then((res) => {
+      if (res.data.code == '200') {
+        ElMessage.success('添加商品成功！')
+      } else {
+        ElMessage.error(res.data.msg)
+      }
+    })
+  } catch (error) {
+    ElMessage.error('添加商品失败！')
+  }
+}
 
 function handleFileChange(file: any) {
   const formData = new FormData();
@@ -169,9 +218,15 @@ function handleUpdate() {
         </div>
 
         <!-- 编辑按钮，只对STAFF显示 -->
-        <div v-if="role === 'STAFF'">
+        <div v-if="role === 'STAFF'"style="margin-top: 20px; text-align: center;">
           <el-button type="primary" @click="isEditing = !isEditing">
             {{ isEditing ? '结束编辑' : '编辑' }}
+          </el-button>
+        </div>
+        <!-- 添加商品到购物车按钮，只对CUSTOMER显示 -->
+        <div v-if="role === 'CUSTOMER'" style="margin-top: 20px; text-align: center;">
+          <el-button type="warning" @click="handleAddToCart">
+            添加到购物车
           </el-button>
         </div>
 

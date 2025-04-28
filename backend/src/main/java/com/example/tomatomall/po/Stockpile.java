@@ -20,7 +20,7 @@ public class Stockpile {
     private Integer id;
 
     @Basic
-    @Column(name = "productId")
+    @Column(name = "product_Id")
     private Integer productId; // 所属商品id
 
     @Basic

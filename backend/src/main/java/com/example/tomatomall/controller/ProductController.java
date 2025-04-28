@@ -115,7 +115,7 @@ public class ProductController {
     }
 
     /**
-     * 调整库存
+     * 获取库存
      */
     @GetMapping("/stockpile/{productId}")
     public Response getStock(@PathVariable(value = "productId")Integer productId){
