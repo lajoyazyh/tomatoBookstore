@@ -1,25 +1,32 @@
 import { axios } from '../utils/request'
 import {ADVERTISE_MODULE} from "./_prefix.ts";
 
-export type advertiseInfo = {
+export type updateAdvertiseInfo = {
     id: number,
     title: string,
     content?: string,
-    image_url?: string,
-    product_id: number
+    imageUrl?: string,
+    productId: number
+}
+
+export type createAdvertiseInfo = {
+    title: string,
+    content?: string,
+    imageUrl?: string,
+    productId: number
 }
 
 //获取所有广告信息
 export const getAllAdvertisement = () => {
-    return axios.get(`${ADVERTISE_MODULE}/getAllAdvertisement`)
+    return axios.get(`${ADVERTISE_MODULE}`)
         .then(res => {
             return res
         })
 }
 
 //更新广告信息
-export const updateAdvertisementsInfo = (updateAdvertiseInfo: advertiseInfo) => {
-    return axios.put(`${ADVERTISE_MODULE}`, updateAdvertisementsInfo,
+export const updateAdvertisementsInfo = (updateAdvertiseInfo: updateAdvertiseInfo) => {
+    return axios.put(`${ADVERTISE_MODULE}`, updateAdvertiseInfo,
         { headers: {'Content-Type': 'application/json' } })
         .then(res => {
             return res
@@ -27,7 +34,7 @@ export const updateAdvertisementsInfo = (updateAdvertiseInfo: advertiseInfo) => 
 }
 
 //创建广告
-export const createAdvertisement = (createAdvertiseInfo: advertiseInfo) => {
+export const createAdvertisement = (createAdvertiseInfo: createAdvertiseInfo) => {
     return axios.post(`${ADVERTISE_MODULE}`, createAdvertiseInfo,
         { headers: {'Content-Type': 'application/json' } })
         .then(res => {
