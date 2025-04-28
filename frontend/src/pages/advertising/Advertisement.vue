@@ -115,7 +115,7 @@ const handleDelete = async (id: number) => {
             <el-button v-if="role === 'STAFF'" type="primary" @click="ad.isEditing = true">
               编辑
             </el-button>
-            <el-button type="danger" @click="handleDelete(ad.id)">删除</el-button>
+            <el-button v-if="role === 'STAFF'" type="danger" @click="handleDelete(ad.id)">删除</el-button>
           </div>
         </div>
 
