@@ -10,8 +10,6 @@ import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.example.tomatomall.po.Order;
 import com.example.tomatomall.repository.OrderRepository;
 import com.example.tomatomall.service.OrderService;
-import com.example.tomatomall.vo.OrderAllResponse;
-import com.example.tomatomall.vo.OrderResponse;
 import com.example.tomatomall.vo.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,21 +19,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/orders")
-public class OrderController {
-
-    @Autowired
-    private OrderService orderService;
+@RequestMapping("/alipay")
+public class AlipayController {
 
     @Value("${alipay.appId}")
     private String appId;
@@ -58,82 +48,22 @@ public class OrderController {
     @Value("${alipay.alipayPublicKey}")
     private String alipayPublicKey;
 
-    private static final String ALIPAY_TRADE_PAGE_PAY = "alipay.trade.page.pay";
-    private static final String CHARSET_UTF8 = "utf-8";
-    private static final String FORMAT_JSON = "JSON";
+    private static final String FORMAT = "JSON";
     private static final String PRODUCT_CODE = "FAST_INSTANT_TRADE_PAY";
+    private static final String CHARSET_UTF8 = "utf-8";
+
     @Autowired
     private OrderRepository orderRepository;
 
-    @GetMapping()
-    public Response getOrders(@RequestHeader("token") String token) {
-        try {
-            // 使用 token 获取用户的订单列表
-            OrderResponse orderResponse = orderService.getOrders(token);
-            return Response.buildSuccess(orderResponse);
-        } catch (IllegalArgumentException e) {
-            // 处理非法参数异常，如用户不存在等
-            return Response.buildFailure("400", e.getMessage());
-        } catch (Exception e) {
-            // 处理其他服务器错误
-            return Response.buildFailure("500", "服务器错误");
-        }
-    }
-    /**
-     * 创建订单并返回支付表单
-     * @param orderId  订单ID
-     * @return  包含支付表单数据的Map
-     */
-    @PostMapping("/{orderId}/pay")
-    public Response payOrder(@PathVariable Integer orderId) {
-        // 根据订单ID查询订单
-        Order order = orderRepository.findByOrderId(orderId);
-        if (order == null) {
-            return Response.buildFailure("400", "Order not found");
-        }
-
-        // 创建 AlipayClient
-        AlipayClient alipayClient = new DefaultAlipayClient(serverUrl, appId,
-                privateKey, FORMAT_JSON, CHARSET_UTF8, alipayPublicKey, signType);
-
-        // 创建 AlipayTradePagePayRequest
-        AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
-        request.setNotifyUrl(notifyUrl);
-        request.setReturnUrl(returnUrl);
-
-        // 构建业务参数
-        JSONObject bizContent = new JSONObject();
-        bizContent.put("out_trade_no", String.valueOf(order.getOrderId()));
-        bizContent.put("total_amount", String.valueOf(order.getTotalAmount()));
-        bizContent.put("subject", "TomatoMall订单支付");
-        bizContent.put("product_code","FAST_INSTANT_TRADE_PAY");
-        request.setBizContent(bizContent.toString());
-        // 调用 SDK 生成支付表单
-        String form = "";
-        try {
-            form = alipayClient.pageExecute(request).getBody();
-        } catch (AlipayApiException e) {
-            e.printStackTrace();
-            return Response.buildFailure("500", "Failed to generate Alipay payment form");
-        }
-
-        // 构建响应数据
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("paymentForm", form);
-        responseData.put("orderId", String.valueOf(order.getOrderId()));
-        responseData.put("totalAmount", String.valueOf(order.getTotalAmount()));
-        responseData.put("paymentMethod", order.getPayment_method() != null ? order.getPayment_method() : "Alipay"); // 从订单获取支付方式
-
-        return Response.buildSuccess(responseData);
-    }
-
+    @Autowired
+    private OrderService orderService;
     /**
      * 处理支付宝异步通知
      * @param request   HttpServletRequest
      * @param response  HttpServletResponse
      * @throws IOException  IO异常
      */
-    @PostMapping("/alipay/notify")
+    @PostMapping("/notify")
     public void handleAlipayNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
         PrintWriter out = response.getWriter();
 
@@ -195,5 +125,14 @@ public class OrderController {
         out.flush();
         out.close();
 
+    }
+
+    /**
+     * 支付宝同步跳转接口
+     * @return 支付成功页面
+     */
+    @GetMapping("/returnUrl")
+    public String returnUrl() {
+        return "支付成功了，请稍后查看订单状态。";
     }
 }
