@@ -144,6 +144,10 @@ public class ProductSreviceImpl implements ProductService {
 
     @Override
     public String delete(Integer id) {
+        Optional<Product> thisProduct=productRepository.findById(id);
+        if(!thisProduct.isPresent()){
+            return "商品不存在";
+        }
         productRepository.deleteById(id);
 
         List<Specification> specifications=specificationRepository.findByProductId(id);
