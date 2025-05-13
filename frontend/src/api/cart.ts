@@ -25,17 +25,10 @@ export const deleteProduct = (cartItemId: number) => {
 }
 
 export const updateCartItem = (updateCartItemInfo: updateCartItemInfo) => {
-    return axios.patch(
-        `${CART_MODULE}/${updateCartItemInfo.cartItemId}`,
-        updateCartItemInfo.quantity,
-        {
-            headers: {
-                'Content-Type': 'application/json', // 推荐加上，显式声明发送 JSON
-            },
-        }
-    ).then(res => {
-        return res
-    })
+    return axios.patch(`${CART_MODULE}/${updateCartItemInfo.cartItemId}?quantity=${updateCartItemInfo.quantity}`)
+        .then(res => {
+            return res
+        })
 }
 
 export const getCart = () => {
