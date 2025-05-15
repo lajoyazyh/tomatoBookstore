@@ -10,7 +10,7 @@ const router = createRouter({
             component: () => import('../pages/index.vue'),
             meta: { title: '首页' }
         }, {
-            path: '/cart',
+            path: '/Cart',
             component: () => import('../pages/Cart/CartPage.vue'),
             meta: { title: '购物车' }
         }, {
@@ -49,8 +49,11 @@ const router = createRouter({
             path: '/createAdvertisement',
             component: () => import('../pages/advertising/CreateAdvertisement.vue'),
             meta: { title: '广告' }
-        }
-
+        }, {
+                path: '/:pathMatch(.*)',
+                component: () => import('../pages/default/404.vue'),
+                meta: { title: '404-页面未找到' }
+        } // 未定义的路径
     ]
 })
 

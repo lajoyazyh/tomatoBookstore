@@ -71,7 +71,7 @@ function getProduct() {
       productInfo.value.detail = res.data.data.detail
       productInfo.value.specifications = res.data.data.specifications || []
     }
-    else if (res.data.code == '400') {
+    else {
       ElMessage.error(res.data.msg)
     }
   })
