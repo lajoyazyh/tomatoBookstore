@@ -6,20 +6,6 @@
   </div>
 </template>
 
-<script setup>
-import { onMounted } from 'vue';
-
-onMounted(() => {
-  // 检查页面是否已经刷新过
-  if (!sessionStorage.getItem('alreadyRefreshed')) {
-    sessionStorage.setItem('alreadyRefreshed', 'true');
-    window.location.reload();
-  } else {
-    sessionStorage.removeItem('alreadyRefreshed');
-  }
-});
-</script>
-
 <style scoped>
 .not-found {
   text-align: center;
