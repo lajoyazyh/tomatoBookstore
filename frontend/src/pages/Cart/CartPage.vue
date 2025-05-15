@@ -78,6 +78,7 @@ function makeCheckout() {
 function handleOrder() {
   makeCheckout();
   checkoutOrder(checkout.value).then(res => {
+    console.log(res);
     if (res.data.code === '200') {
       orderId.value = res.data.data.orderId;
       router.push('/orders');
