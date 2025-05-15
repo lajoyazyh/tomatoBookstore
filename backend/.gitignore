@@ -1,0 +1,12 @@
+# 默认忽略的文件
+/shelf/
+/workspace.xml
+application.yml
+# 忽略 application.yml 文件
+backend/src/main/resources/application.yml
+
+# 忽略其他常见的文件和目录
+target/
+*.class
+*.log
+*.iml

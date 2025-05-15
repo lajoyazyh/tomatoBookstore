@@ -18,6 +18,7 @@ public class OrderVO {
     private String paymentMethod;
     private String status;
     private Date createTime;
+    private Boolean commented = false; // 是否已评论
     private ShippingAddress shippingAddress;
     public Order toPO(){
         Order order=new Order();
@@ -26,7 +27,9 @@ public class OrderVO {
         order.setPayment_method(this.paymentMethod);
         order.setStatus(this.status);
         order.setCreateTime(this.createTime);
+        order.setCommented(this.commented);
         order.setShippingAddress(this.shippingAddress);
         return order;
     }
+
 }
