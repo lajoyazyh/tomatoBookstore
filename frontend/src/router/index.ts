@@ -48,7 +48,7 @@ const router = createRouter({
         }, {
             path: '/createAdvertisement',
             component: () => import('../pages/advertising/CreateAdvertisement.vue'),
-            meta: { title: '创建广告' }
+            meta: { title: '广告' }
         }, {
                 path: '/:pathMatch(.*)',
                 component: () => import('../pages/default/404.vue'),
