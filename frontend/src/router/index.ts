@@ -10,12 +10,12 @@ const router = createRouter({
             component: () => import('../pages/index.vue'),
             meta: { title: '首页' }
         }, {
-            path: '/Cart',
-            component: () => import('../pages/Cart/CartPage.vue'),
+            path: '/cart',
+            component: () => import('../pages/cart/CartPage.vue'),
             meta: { title: '购物车' }
         }, {
             path: '/orders',
-            component: () => import('../pages/Cart/Order.vue'),
+            component: () => import('../pages/cart/Order.vue'),
             meta: { title: '订单' }
         }, {
             path: '/warehouse',
