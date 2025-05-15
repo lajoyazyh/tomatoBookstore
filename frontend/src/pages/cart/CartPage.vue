@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref, onMounted} from 'vue'
 import { deleteProduct, updateCartItem, getCart } from "../../api/cart.ts";
-import { checkoutOrder, payForOrder } from "../../api/orders.ts";
+import { checkoutOrder } from "../../api/orders.ts";
 import type { addressInfo, checkoutOrderInfo } from "../../api/orders.ts";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {router} from "../../router";

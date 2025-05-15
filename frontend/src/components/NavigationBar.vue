@@ -4,6 +4,7 @@ import { ElMenu, ElMenuItem, ElMessageBox } from "element-plus";
 import {router} from '../router'
 
 const isLoggedIn = computed(() => !!sessionStorage.getItem('token'))
+const isStaff = computed(() => sessionStorage.getItem('role') === 'STAFF');
 
 // 退出登录
 const handleLogout = () => {
@@ -14,6 +15,7 @@ const handleLogout = () => {
   }).then(() => {
     sessionStorage.removeItem("token");
     router.push("/index");
+    router.go(0);
   });
 };
 </script>
@@ -27,8 +29,18 @@ const handleLogout = () => {
     >
       <div class="leaders">
         <el-menu-item index="/">番茄书城</el-menu-item>
+
         <el-menu-item index="/cart">购物车</el-menu-item>
-        <el-menu-item index="/warehouse">库存管理</el-menu-item>
+
+        <el-menu-item index="/warehouse">
+          <template #title>
+            <span v-if="!isStaff">商品列表</span>
+            <span v-else>商品管理</span>
+          </template>
+        </el-menu-item>
+
+        <el-menu-item v-if="isStaff" index="/advertisement">广告管理</el-menu-item>
+
         <el-menu-item index="/dashboard">个人信息</el-menu-item>
       </div>
 

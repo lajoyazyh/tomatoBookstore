@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   getAllAdvertisement,
-  createAdvertisement,
   updateAdvertisementsInfo,
   deleteAdvertisement
 } from '../../api/advertisement.ts';
@@ -33,7 +32,7 @@ const refreshAdvertisements = async () => {
   try {
     const response = await getAllAdvertisement();
     if (response.data.code === '200') {
-      advertisements.value = response.data.data.map(ad => ({
+      advertisements.value = response.data.data.map((ad: any) => ({
         ...ad,
         isEditing: false // 初始化编辑状态
       }));
@@ -132,7 +131,7 @@ const handleDelete = async (id: number) => {
           <el-form-item label="图片">
             <el-upload
                 :auto-upload="false"
-                :on-change="(file) => handleFileChange(file, ad)"
+                :on-change="(file: any) => handleFileChange(file, ad)"
             >
               <el-button>上传图片</el-button>
               <template v-if="ad.imageUrl">
