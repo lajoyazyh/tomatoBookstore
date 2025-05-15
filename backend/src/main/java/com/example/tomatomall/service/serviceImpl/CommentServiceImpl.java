@@ -60,6 +60,15 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public String deleteComment(Integer id) {
         Comment comment = commentRepository.findById(id).get();
+        //获取comment对应的product
+        Product product = comment.getProduct();
+        //获取product的rating和ratingCount
+        Double rating = product.getRating();
+        Integer ratingCount = product.getRatingCount();
+        //重新计算rating和ratingCount
+        product.setRating((rating * ratingCount - comment.getRating()) / (ratingCount - 1));
+        product.setRatingCount(ratingCount - 1);
+
         if (comment != null) {
             commentRepository.deleteById(id);
             return "删除成功";
@@ -79,6 +88,13 @@ public class CommentServiceImpl implements CommentService {
             comment.setRating(commentVO.getRating());
             comment.setProduct(product); // 设置 product 属性
             commentRepository.save(comment);
+
+            int ratingCount = product.getRatingCount() == null ? 0 : product.getRatingCount();
+            Double rating = product.getRating() == null ? 0 : product.getRating();
+            product.setRatingCount(ratingCount + 1);
+            product.setRating(((rating * ratingCount + commentVO.getRating()) / (ratingCount + 1)));
+            productRepository.save(product);
+
         } else {
             throw new IllegalArgumentException("商品不存在");
         }

@@ -122,4 +122,12 @@ public class ProductController {
         StockpileVO thisStockpileVO= productService.getStock(productId);
         return Response.buildSuccess(thisStockpileVO);
     }
+
+    /**
+     * 获取评分rating
+     */
+    @GetMapping("/rating/{productId}")
+    public Response getRating(@PathVariable(value = "productId")Integer productId){
+        return Response.buildSuccess(productService.getRating(productId));
+    }
 }

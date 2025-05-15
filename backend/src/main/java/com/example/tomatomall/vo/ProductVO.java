@@ -22,6 +22,8 @@ public class ProductVO {
     private String description;//商品描述
     private String cover;//商品封面url
     private String detail;//商品详细说明
+    private Double rating;
+    private Integer ratingCount;
     private List<SpecificationVO> specifications;
 
     public Product toPO(){
@@ -33,6 +35,9 @@ public class ProductVO {
         product.setDescription(this.description);
         product.setCover(this.cover);
         product.setDetail(this.detail);
+        product.setRating(this.rating);
+        product.setRatingCount(this.ratingCount);
+
 
         List<Specification> specifications = new ArrayList<>();
         if (this.specifications != null) {
