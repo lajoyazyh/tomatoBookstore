@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from "element-plus";
-import {
-  getAllAdvertisement,
-  updateAdvertisementsInfo,
-  deleteAdvertisement
-} from '../../api/advertisement.ts';
+import {getTheProduct} from "../../api/products.ts";
+import { getAllAdvertisement, updateAdvertisementsInfo, deleteAdvertisement } from '../../api/advertisement.ts';
 import type {updateAdvertiseInfo} from "../../api/advertisement.ts";
 import { uploadImage } from "../../api/images.ts";
 import Advertisement from "@/pages/advertising/Advertisement.vue";
@@ -19,6 +16,8 @@ interface Advertisement {
   imageUrl?: string;
   productId: number;
   isEditing?: boolean; // 新增编辑状态
+  // 商品名称从商品的get方法获取
+  productName?: string;
 }
 
 const advertisements = ref<Advertisement[]>([]);
@@ -27,15 +26,40 @@ onMounted(async () => {
   await refreshAdvertisements();
 });
 
+// 异步获取商品名称
+async function getTheProductName(productId: number): Promise<string> {
+  try {
+    const res = await getTheProduct(productId);
+    if (res.data.code === '200') {
+      return res.data.data.title;
+    } else {
+      ElMessage.error(res.data.msg)
+      return '名称获取失败';
+    }
+  } catch (error) {
+    ElMessage.error('获取商品名称失败！');
+    return '名称获取失败';
+  }
+}
 
 const refreshAdvertisements = async () => {
   try {
     const response = await getAllAdvertisement();
     if (response.data.code === '200') {
-      advertisements.value = response.data.data.map((ad: any) => ({
-        ...ad,
-        isEditing: false // 初始化编辑状态
-      }));
+      // 并发获取所有广告对应的商品名称
+      const ads = await Promise.all(
+          response.data.data.map(async (ad: any) => {
+            const productName = await getTheProductName(ad.productId);
+            return {
+              ...ad,
+              isEditing: false,
+              productName: productName
+            };
+          })
+      );
+      advertisements.value = ads;
+    } else {
+      ElMessage.error(response.data.msg);
     }
   } catch (error) {
     ElMessage.error('获取广告信息失败');
@@ -108,8 +132,8 @@ const handleDelete = async (id: number) => {
           <h3>{{ ad.title }}</h3>
           <p class="content">{{ ad.content }}</p>
           <img v-if="ad.imageUrl" :src="ad.imageUrl" class="ad-image" />
-          <p class="title">商品名称：{{ad.title }}</p>
-          <p class="productId">商品id：{{ad.productId }}</p>
+          <p class="title">商品名称：{{ad.productName}}</p>
+          <p class="productId">商品id：{{ad.productId}}</p>
 
           <div class="actions">
             <el-button v-if="role === 'STAFF'" type="primary" @click="ad.isEditing = true">
