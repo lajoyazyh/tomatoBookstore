@@ -190,4 +190,13 @@ public class ProductSreviceImpl implements ProductService {
         Stockpile stockpile=stockpileRepository.findByProductId(productId);
         return stockpile.toVO();
     }
+
+    @Override
+    public Double getRating(Integer productId) {
+        Product product = productRepository.findById(productId).orElse(null);
+        if (product == null) {
+            return null;
+        }
+        return product.getRating();
+    }
 }

@@ -23,4 +23,6 @@ public interface ProductService {
     String stockChange(Integer productId, Integer amount);
 
     StockpileVO getStock(Integer productId);
+
+    Double getRating(Integer productId);
 }

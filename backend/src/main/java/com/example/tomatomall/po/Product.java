@@ -44,6 +44,15 @@ public class Product {
     @Column(name = "detail")
     private String detail;//商品详细说明
 
+    @Basic
+    @Column(name = "rating")
+    private Double rating;
+
+    @Basic
+    @Column(name = "rating_count")
+    private Integer ratingCount;
+
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Specification> specifications = new ArrayList<>();//商品规格
 
@@ -57,6 +66,8 @@ public class Product {
         productVO.setDescription(this.description);
         productVO.setCover(this.cover);
         productVO.setDetail(this.detail);
+        productVO.setRating(this.rating);
+        productVO.setRatingCount(this.ratingCount);
 
         List<SpecificationVO> specificationVOs = new ArrayList<>();
         if (this.specifications != null) {
