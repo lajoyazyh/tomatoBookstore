@@ -27,21 +27,25 @@ public class Order {
     private Account account; // 关联用户表（users 表）
 
     @Basic
-    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2, columnDefinition = "DECIMAL(10,2) COMMENT '订单总金额'")
+    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
     @Basic
-    @Column(name = "payment_method", nullable = false, length = 50, columnDefinition = "VARCHAR(50) COMMENT '支付方式'")
+    @Column(name = "payment_method", nullable = false, length = 50)
     private String payment_method;
 
     @Basic
-    @Column(name = "status", nullable = false, length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'PENDING' COMMENT '订单支付状态'")
+    @Column(name = "status", nullable = false, length = 20)
     private String status = "PENDING"; // 订单支付状态（PENDING, SUCCESS, FAILED, TIMEOUT）
 
     @Basic
-    @Column(name = "create_time", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '订单创建时间'")
+    @Column(name = "create_time", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createTime;
+
+    @Basic
+    @Column(name = "commented")
+    private Boolean commented = false; // 是否已评论
 
     @Transient // 不映射到数据库列
     private ShippingAddress shippingAddress;  // 虚拟字段：发货地址
@@ -54,6 +58,7 @@ public class Order {
         orderVO.setPaymentMethod(this.payment_method);
         orderVO.setStatus(this.status);
         orderVO.setCreateTime(this.createTime);
+        orderVO.setCommented(this.commented);
         orderVO.setShippingAddress(this.shippingAddress); // 附加虚拟字段
         return orderVO;
     }

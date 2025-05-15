@@ -1,11 +1,17 @@
 package com.example.tomatomall.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.internal.util.AlipaySignature;
+import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.example.tomatomall.po.Order;
 import com.example.tomatomall.repository.OrderRepository;
 import com.example.tomatomall.service.OrderService;
+import com.example.tomatomall.vo.OrderAllResponse;
+import com.example.tomatomall.vo.OrderResponse;
 import com.example.tomatomall.vo.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +26,7 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -57,6 +64,20 @@ public class OrderController {
     @Autowired
     private OrderRepository orderRepository;
 
+    @GetMapping()
+    public Response getOrders(@RequestHeader("token") String token) {
+        try {
+            // 使用 token 获取用户的订单列表
+            OrderResponse orderResponse = orderService.getOrders(token);
+            return Response.buildSuccess(orderResponse);
+        } catch (IllegalArgumentException e) {
+            // 处理非法参数异常，如用户不存在等
+            return Response.buildFailure("400", e.getMessage());
+        } catch (Exception e) {
+            // 处理其他服务器错误
+            return Response.buildFailure("500", "服务器错误");
+        }
+    }
     /**
      * 创建订单并返回支付表单
      * @param orderId  订单ID
@@ -64,98 +85,46 @@ public class OrderController {
      */
     @PostMapping("/{orderId}/pay")
     public Response payOrder(@PathVariable Integer orderId) {
-        //  根据订单ID查询订单
-        Order order = orderRepository.findByOrderId(orderId); // 确保OrderService有getOrderById方法
+        // 根据订单ID查询订单
+        Order order = orderRepository.findByOrderId(orderId);
         if (order == null) {
-//            Map<String, Object> errorResponse = new HashMap<>();
-//            errorResponse.put("code", 400);
-//            errorResponse.put("msg", "Order not found");
             return Response.buildFailure("400", "Order not found");
         }
 
-        String outTradeNo = String.valueOf(order.getOrderId());
-        String totalAmount = String.valueOf(order.getTotalAmount());
-        String paymentMethod = order.getPayment_method();
-        String subject = "TomatoMall订单支付";
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        // 创建 AlipayClient
+        AlipayClient alipayClient = new DefaultAlipayClient(serverUrl, appId,
+                privateKey, FORMAT_JSON, CHARSET_UTF8, alipayPublicKey, signType);
 
-        //  构建支付宝请求参数
-        Map<String, String> params = new HashMap<>();
-        params.put("app_id", appId);
-        params.put("method", ALIPAY_TRADE_PAGE_PAY);
-        params.put("format", FORMAT_JSON);
-        params.put("charset", CHARSET_UTF8);
-        params.put("sign_type", signType);
-        params.put("timestamp", timestamp);
-        params.put("version", "1.0");
-        params.put("notify_url", notifyUrl);
-        params.put("return_url", returnUrl);
+        // 创建 AlipayTradePagePayRequest
+        AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
+        request.setNotifyUrl(notifyUrl);
+        request.setReturnUrl(returnUrl);
 
-        Map<String, String> bizContentParams = new HashMap<>();
-        bizContentParams.put("out_trade_no", outTradeNo);
-        bizContentParams.put("total_amount", totalAmount);
-        bizContentParams.put("subject", subject);
-        bizContentParams.put("product_code", PRODUCT_CODE);
-        String bizContent = JSON.toJSONString(bizContentParams);
-        params.put("biz_content", bizContent);
-
-        //  对请求参数进行签名
-        String sign = null;
+        // 构建业务参数
+        JSONObject bizContent = new JSONObject();
+        bizContent.put("out_trade_no", String.valueOf(order.getOrderId()));
+        bizContent.put("total_amount", String.valueOf(order.getTotalAmount()));
+        bizContent.put("subject", "TomatoMall订单支付");
+        bizContent.put("product_code","FAST_INSTANT_TRADE_PAY");
+        request.setBizContent(bizContent.toString());
+        // 调用 SDK 生成支付表单
+        String form = "";
         try {
-            sign = AlipaySignature.rsaSign(params.toString(), privateKey, CHARSET_UTF8, signType);
-            System.out.println("Generated Signature: " + sign); // 打印生成的签名
+            form = alipayClient.pageExecute(request).getBody();
         } catch (AlipayApiException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            return Response.buildFailure("500", "Failed to generate Alipay payment form");
         }
-        params.put("sign", sign);
 
-        //  构建支付表单
-        String formData = buildFormData(params);
-
-        //  构建响应数据
+        // 构建响应数据
         Map<String, Object> responseData = new HashMap<>();
-        responseData.put("paymentForm", formData);
-        responseData.put("totalAmount", totalAmount);
-        responseData.put("paymentMethod", paymentMethod);
-        responseData.put("orderId", outTradeNo);
+        responseData.put("paymentForm", form);
+        responseData.put("orderId", String.valueOf(order.getOrderId()));
+        responseData.put("totalAmount", String.valueOf(order.getTotalAmount()));
+        responseData.put("paymentMethod", order.getPayment_method() != null ? order.getPayment_method() : "Alipay"); // 从订单获取支付方式
 
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("code", 200);
-//        response.put("data", responseData);
-//        response.put("msg", null);
         return Response.buildSuccess(responseData);
     }
-
-    /**
-     * 构建用于提交到支付宝的表单
-     * @param params  请求参数
-     * @return  HTML表单字符串
-     */
-    private String buildFormData(Map<String, String> params) {
-        StringBuilder formContent = new StringBuilder();
-        formContent.append("<form name=\"punchout_form\" method=\"post\" action=\"").append(serverUrl).append("?charset=").append(CHARSET_UTF8);
-
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            try {
-                value = URLEncoder.encode(value, CHARSET_UTF8);
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException("Error encoding parameter: " + key, e);
-            }
-            formContent.append("&").append(key).append("=").append(value);
-        }
-        formContent.append("\">");
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            formContent.append("<input type=\"hidden\" name=\"").append(key).append("\" value=\"").append(value).append("\">");
-        }
-        formContent.append("<input type=\"submit\" value=\"立即支付\">");
-        formContent.append("</form>");
-        return formContent.toString();
-    }
-
 
     /**
      * 处理支付宝异步通知
@@ -164,7 +133,7 @@ public class OrderController {
      * @throws IOException  IO异常
      */
     @PostMapping("/notify")
-    public Response handleAlipayNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void handleAlipayNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
         PrintWriter out = response.getWriter();
 
         // 1. 解析支付宝回调参数
@@ -182,25 +151,18 @@ public class OrderController {
         } catch (Exception e) {
             System.err.println("Failed to parse Alipay notify parameters: " + e.getMessage());
             out.print("fail");
-            return Response.buildFailure("400", "fail");
         }
 
-        // 打印接收到的所有参数，用于调试
-        System.out.println("Alipay Notify Parameters:");
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            System.out.println(entry.getKey() + " = " + entry.getValue());
-        }
 
         // 2. 验证支付宝签名(这里!!!!!!!!)
-        boolean signVerified = true;
-//        try {
-//            signVerified = AlipaySignature.rsaCheckV1(params, alipayPublicKey, "UTF-8", "RSA2");
-//        } catch (AlipayApiException e) {
-//            System.err.println("Alipay signature verification failed: " + e.getMessage());
-//            e.printStackTrace(); // 打印完整的异常堆栈
-//            out.print("fail");
-//            return;
-//        }
+        boolean signVerified = false;
+        try {
+            signVerified = AlipaySignature.rsaCheckV1(params, alipayPublicKey, "UTF-8", "RSA2");
+        } catch (AlipayApiException e) {
+            System.err.println("Alipay signature verification failed: " + e.getMessage());
+            e.printStackTrace(); // 打印完整的异常堆栈
+            out.print("fail");
+        }
 
         // 3. 处理业务逻辑
         if (signVerified) {
@@ -210,32 +172,28 @@ public class OrderController {
             String totalAmount = params.get("total_amount");
             String tradeNo = params.get("trade_no"); // 支付宝交易号
 
-            System.out.println("Order ID: " + orderId);
-            System.out.println("Trade Status: " + tradeStatus);
-            System.out.println("Total Amount: " + totalAmount);
-            System.out.println("Trade No: " + tradeNo);
+//            System.out.println("Order ID: " + orderId);
+//            System.out.println("Trade Status: " + tradeStatus);
+//            System.out.println("Total Amount: " + totalAmount);
+//            System.out.println("Trade No: " + tradeNo);
 
             if ("TRADE_SUCCESS".equals(tradeStatus) || "TRADE_FINISHED".equals(tradeStatus)) {
                 try {
                     orderService.handlePaymentSuccess(Integer.parseInt(orderId), tradeNo, totalAmount);
                     out.print("success");
-                    return Response.buildSuccess("success");
                 } catch (Exception e) {
                     System.err.println("Error occurred while handling order: " + orderId + ": " + e.getMessage());
                     e.printStackTrace();
                     out.print("fail");
-                    return Response.buildFailure("400", "fail");
                 }
             } else if ("TRADE_CLOSED".equals(tradeStatus)) {
                 try{
                     orderService.closeOrder(orderId);
                     out.print("success");
-                    return Response.buildSuccess("success");
                 } catch(Exception e){
                     System.err.println("Error occurred while closing order: " + orderId + ": " + e.getMessage());
                     e.printStackTrace();
                     out.print("fail");
-                    return Response.buildFailure("400", "fail");
                 }
 
             } else {
@@ -245,12 +203,9 @@ public class OrderController {
         } else {
             System.err.println("Alipay signature verification failed!哭了");
             out.print("fail");
-            return Response.buildSuccess("success");
         }
         out.flush();
         out.close();
 
-        return Response.buildFailure("400", "后端方法实现错了");
     }
 }
-
