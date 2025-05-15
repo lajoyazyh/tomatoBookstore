@@ -6,7 +6,7 @@ import {router} from '../router'
 onMounted(() => {
   if (!sessionStorage.getItem('alreadyRefreshed')) {
     sessionStorage.setItem('alreadyRefreshed', 'true');
-    window.location.reload();
+    router.go(0);
   } else {
     sessionStorage.removeItem('alreadyRefreshed');
   }

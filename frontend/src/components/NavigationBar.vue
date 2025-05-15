@@ -30,7 +30,7 @@ const handleLogout = () => {
       <div class="leaders">
         <el-menu-item index="/">番茄书城</el-menu-item>
 
-        <el-menu-item index="/cart">购物车</el-menu-item>
+        <el-menu-item v-if="!isStaff" index="/cart">购物车</el-menu-item>
 
         <el-menu-item index="/warehouse">
           <template #title>

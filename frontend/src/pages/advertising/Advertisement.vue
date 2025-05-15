@@ -108,6 +108,7 @@ const handleDelete = async (id: number) => {
           <h3>{{ ad.title }}</h3>
           <p class="content">{{ ad.content }}</p>
           <img v-if="ad.imageUrl" :src="ad.imageUrl" class="ad-image" />
+          <p class="title">商品名称：{{ad.title }}</p>
           <p class="productId">商品id：{{ad.productId }}</p>
 
           <div class="actions">
