@@ -13,11 +13,7 @@ import com.example.tomatomall.util.TokenUtil;
 import com.example.tomatomall.repository.CommentRepository;
 import com.example.tomatomall.repository.ProductRepository;
 import com.example.tomatomall.po.Product;
-import com.example.tomatomall.po.Stockpile;
-import com.example.tomatomall.vo.StockpileVO;
-import com.example.tomatomall.repository.StockpileRepository;
-import com.example.tomatomall.service.ProductService;
-import com.example.tomatomall.vo.ProductVO;
+
 
 /**
  * @Author: ZhuYehang
@@ -50,8 +46,8 @@ public class CommentController {
     //删除评论
     @DeleteMapping("/{id}")
     public Response deleteComment(@PathVariable(value = "id") Integer id) {
-        List<Comment> comments = commentRepository.findByProductId(id);
-        if (comments.size() > 0) {
+        Comment comment = commentRepository.findById(id).get();
+        if (comment != null) {
             commentService.deleteComment(id);
             return Response.buildSuccess("删除成功");
         } else {
@@ -67,7 +63,7 @@ public class CommentController {
         Optional<Product> productOptional = productRepository.findById(productId);
 
         if (productOptional.isPresent()) {
-            commentService.addComment(commentVO);
+            commentService.addComment(commentVO, productId, userId);
             return Response.buildSuccess("评论成功");
         } else {
             return Response.buildFailure("400", "商品不存在");

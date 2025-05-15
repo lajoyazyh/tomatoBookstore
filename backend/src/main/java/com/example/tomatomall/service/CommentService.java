@@ -1,7 +1,7 @@
 package com.example.tomatomall.service;
 
-import com.example.tomatomall.po.Comment;
 import com.example.tomatomall.vo.CommentVO;
+
 
 import java.util.List;
 
@@ -16,5 +16,6 @@ public interface CommentService {
 
     String deleteComment(Integer id);
 
-    void addComment(CommentVO commentVO);
+
+    void addComment(CommentVO commentVO, Integer productId, Integer userId);
 }

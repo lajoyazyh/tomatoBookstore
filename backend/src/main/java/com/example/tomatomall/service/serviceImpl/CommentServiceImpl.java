@@ -9,27 +9,22 @@ import com.example.tomatomall.repository.CommentRepository;
 import com.example.tomatomall.repository.ProductRepository;
 import com.example.tomatomall.po.Product;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.example.tomatomall.vo.Response;
 import com.example.tomatomall.repository.StockpileRepository;
-import com.example.tomatomall.po.Stockpile;
-import com.example.tomatomall.service.ProductService;
 
-import java.math.BigDecimal;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.example.tomatomall.util.TokenUtil;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 /**
  * @Author: ZhuYehang
  * @Date: 2025/5/14
  */
 
-
-public class CommentServiceImpl {
+@Service
+public class CommentServiceImpl implements CommentService {
 
     @Autowired
     CommentRepository commentRepository;
@@ -46,7 +41,8 @@ public class CommentServiceImpl {
     @Autowired
     SecurityUtil  securityUtil;
 
-    List<CommentVO> getCommentsByProductId(Integer productId) {
+    @Override
+    public List<CommentVO> getCommentsByProductId(Integer productId) {
         List<Comment> comments = commentRepository.findByProductId(productId);
 
         List<CommentVO> commentVOs = new ArrayList<>();
@@ -61,7 +57,8 @@ public class CommentServiceImpl {
         return commentVOs;
     }
 
-    String deleteComment(Integer id) {
+    @Override
+    public String deleteComment(Integer id) {
         Comment comment = commentRepository.findById(id).get();
         if (comment != null) {
             commentRepository.deleteById(id);
@@ -71,11 +68,19 @@ public class CommentServiceImpl {
         }
     }
 
-    void addComment(CommentVO commentVO, Integer productId, Integer userId) {
-        Comment comment = new Comment();
-        Product product = productRepository.findById(productId).get();
-        comment.setContent(commentVO.getContent());
-        comment.setRating(commentVO.getRating());
-        commentRepository.save(comment);
+    @Override
+    public void addComment(CommentVO commentVO, Integer productId, Integer userId) {
+        Optional<Product> productOptional = productRepository.findById(productId);
+
+        if (productOptional.isPresent()) {
+            Product product = productOptional.get();
+            Comment comment = new Comment();
+            comment.setContent(commentVO.getContent());
+            comment.setRating(commentVO.getRating());
+            comment.setProduct(product); // 设置 product 属性
+            commentRepository.save(comment);
+        } else {
+            throw new IllegalArgumentException("商品不存在");
+        }
     }
 }
