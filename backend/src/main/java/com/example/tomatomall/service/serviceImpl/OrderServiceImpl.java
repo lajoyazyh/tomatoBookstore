@@ -81,6 +81,7 @@ public class OrderServiceImpl implements OrderService {
             Integer quantity = cart.getQuantity();
             Stockpile stockpile = stockpileRepository.findByProductId(product.getId());
             if (stockpile == null || stockpile.getAmount() - stockpile.getFrozen() < quantity) {
+                System.out.println("冻结后数量不足");
                 throw new IllegalArgumentException("商品" + product.getTitle() + "库存不足");
             }
             stockpile.setFrozen(stockpile.getFrozen() + quantity);
