@@ -12,4 +12,5 @@ public interface CouponService {
     CouponVO updateCoupon(Integer couponId, CouponVO couponVO);
     boolean deleteCoupon(Integer couponId);
     CouponVO updateCouponStatus(Integer couponId, String status);
+    void receiveCoupon(Integer userId, Integer couponId);
 }

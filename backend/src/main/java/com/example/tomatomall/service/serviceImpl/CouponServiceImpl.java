@@ -1,24 +1,34 @@
 package com.example.tomatomall.service.serviceImpl;
 
+import com.example.tomatomall.po.Account;
 import com.example.tomatomall.po.Coupon;
+import com.example.tomatomall.po.UserCoupon;
+import com.example.tomatomall.repository.AccountRepository;
 import com.example.tomatomall.repository.CouponRepository;
+import com.example.tomatomall.repository.UserCouponRepository;
 import com.example.tomatomall.service.CouponService;
 import com.example.tomatomall.util.TokenUtil;
 import com.example.tomatomall.vo.CouponVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class CouponServiceImpl implements CouponService {
+    @Autowired
+    private CouponRepository couponRepository;
+    @Autowired
+    private AccountRepository accountRepository;
+    @Autowired
+    private UserCouponRepository userCouponRepository;
 
     @Autowired
     TokenUtil tokenUtil;
-    @Autowired
-    private CouponRepository couponRepository;
     @Override
     public CouponVO createCoupon(CouponVO couponVO) {
         Coupon coupon = couponVO.toPO();
@@ -64,5 +74,30 @@ public class CouponServiceImpl implements CouponService {
             return savedCoupon.toVO();
         }
         return null;
+    }
+    @Transactional
+    public void receiveCoupon(Integer userId, Integer couponId) {
+        // 1. 验证优惠券是否存在
+        Coupon coupon = couponRepository.findById(couponId)
+                .orElseThrow(() -> new IllegalArgumentException("优惠券不存在"));
+
+        // 2. 验证优惠券是否有效
+        if (!"ACTIVE".equals(coupon.getStatus()) || coupon.getValidFrom().isAfter(LocalDateTime.now()) || coupon.getValidUntil().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("优惠券不可领取");
+        }
+
+
+        // 3. 验证用户是否已经领取过该优惠券
+        if (userCouponRepository.findByUserIdAndCouponId(userId, couponId).isPresent()) {
+            throw new IllegalArgumentException("您已领取过该优惠券");
+        }
+
+        // 4. 创建 UserCoupon 记录
+        UserCoupon userCoupon = new UserCoupon();
+        userCoupon.setUserId(userId);
+        userCoupon.setCouponId(couponId);
+        userCoupon.setReceiveTime(LocalDateTime.now());
+        userCoupon.setStatus("UNUSED");
+        userCouponRepository.save(userCoupon);
     }
 }

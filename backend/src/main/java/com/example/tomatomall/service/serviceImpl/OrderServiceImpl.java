@@ -10,10 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.tomatomall.util.TokenUtil;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +49,12 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private CartOrderRelationRepository cartOrderRelationRepository;
 
+    @Autowired
+    private CouponRepository couponRepository;
+
+    @Autowired
+    private UserCouponRepository userCouponRepository;
+
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private static final int LOCK_TIME_MINUTES = 30; // 库存锁定时间，单位：分钟
@@ -56,7 +64,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order createOrder(String username, List<Integer> cartItemIds, ShippingAddress shippingAddress, String payment_method) {
+    public Order createOrder(String username, List<Integer> cartItemIds, ShippingAddress shippingAddress, String payment_method, Integer couponId) {
         // 1. 验证cartItemIds是否为空
         if (cartItemIds == null || cartItemIds.isEmpty()) {
             throw new IllegalArgumentException("cartItemIds不能为空");
@@ -67,42 +75,99 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("购物车商品不存在");
         }
         // 3. 验证用户是否一致, 并获取用户ID
-        Integer userId;
         Account account = accountRepository.findByUsername(username);
         if (account == null) {
             throw new IllegalArgumentException("用户不存在");
         }
-        userId = account.getId();
-        // 4. 验证库存，计算订单总金额，并尝试锁定库存
-        BigDecimal totalAmount = BigDecimal.ZERO;//把初始值赋值为0
+        Integer userId = account.getId();
+
+        // 4. 验证库存，计算订单原始总金额，并尝试锁定库存
+        BigDecimal originalTotalAmount = BigDecimal.ZERO;// 原始总金额
         Map<Integer, Integer> currentOrderLocks = new HashMap<>();
         for (Cart cart : carts) {
             Product product = cart.getProduct();
             Integer quantity = cart.getQuantity();
             Stockpile stockpile = stockpileRepository.findByProductId(product.getId());
             if (stockpile == null || stockpile.getAmount() - stockpile.getFrozen() < quantity) {
-                System.out.println("冻结后数量不足");
                 throw new IllegalArgumentException("商品" + product.getTitle() + "库存不足");
             }
             stockpile.setFrozen(stockpile.getFrozen() + quantity);
             stockpileRepository.save(stockpile); // 更新冻结库存
             currentOrderLocks.put(product.getId(), quantity);
-            totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+            originalTotalAmount = originalTotalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
         }
 
-        // 5. 创建订单
+        BigDecimal discountedTotalAmount = originalTotalAmount;
+        Coupon usedCoupon = null;
+
+        // 5. 处理优惠券
+        if (couponId != null) {
+            Optional<Coupon> couponOptional = couponRepository.findById(couponId);
+            if (couponOptional.isPresent()) {
+                Coupon coupon = couponOptional.get();
+                LocalDateTime now = LocalDateTime.now();
+
+                // 5.1. 验证优惠券状态、有效期和最低消费金额
+                if (!coupon.getStatus().equals("ACTIVE") || coupon.getValidFrom().isAfter(now) || coupon.getValidUntil().isBefore(now)) {
+                    throw new IllegalArgumentException("优惠券不可用");
+                }
+                if (coupon.getMinPurchaseAmount() != null && originalTotalAmount.compareTo(coupon.getMinPurchaseAmount()) < 0) {
+                    throw new IllegalArgumentException("订单金额未达到优惠券最低消费金额");
+                }
+
+                // 5.2. 验证用户是否已领取且未使用该优惠券
+                Optional<UserCoupon> userCouponOptional = userCouponRepository.findByUserIdAndCouponIdAndStatus(userId, couponId, "UNUSED");
+                if (!userCouponOptional.isPresent()) {
+                    throw new IllegalArgumentException("该优惠券您尚未领取或已被使用");
+                }
+                UserCoupon userCoupon = userCouponOptional.get();
+
+                // 5.3. 计算折扣后的金额
+                switch (coupon.getCouponType()) {
+                    case "FIXED":
+                        discountedTotalAmount = discountedTotalAmount.subtract(coupon.getDiscountAmount());
+                        if (discountedTotalAmount.compareTo(BigDecimal.ZERO) < 0) {
+                            discountedTotalAmount = BigDecimal.ZERO; // 保证金额不为负数
+                        }
+                        break;
+                    case "PERCENTAGE":
+                        discountedTotalAmount = discountedTotalAmount.multiply(BigDecimal.ONE.subtract(coupon.getDiscountPercentage()));
+                        break;
+                    case "THRESHOLD": // 满减类型已经在最低消费金额处验证
+                        discountedTotalAmount = discountedTotalAmount.subtract(coupon.getDiscountAmount());
+                        if (discountedTotalAmount.compareTo(BigDecimal.ZERO) < 0) {
+                            discountedTotalAmount = BigDecimal.ZERO; // 保证金额不为负数
+                        }
+                        break;
+                    default:
+                        throw new IllegalArgumentException("不支持的优惠券类型");
+                }
+                usedCoupon = coupon;
+
+                // 5.4. 更新 UserCoupon 状态为已使用
+                userCoupon.setStatus("USED");
+                userCoupon.setUsedTime(LocalDateTime.now());
+                userCouponRepository.save(userCoupon);
+            }
+        }
+
+        // 6. 创建订单
         Order order = new Order();
-        order.setTotalAmount(totalAmount);
+        order.setTotalAmount(discountedTotalAmount); // 使用折扣后的金额
         order.setPayment_method(payment_method);
         order.setStatus("PENDING"); // 初始状态为待支付
         order.setCreateTime(new Date());
         order.setAccount(accountRepository.findById(userId).orElseThrow(() -> new RuntimeException("用户不存在")));
+        if (usedCoupon != null) {
+            order.setCouponId(usedCoupon.getCouponId());
+            order.setCoupon(usedCoupon);
+        }
         orderRepository.save(order);
 
-        // 6. 记录订单的商品锁定信息
+        // 7. 记录订单的商品锁定信息
         orderProductLocks.put(order.getOrderId(), currentOrderLocks);
 
-        // 7. 创建订单和购物车项的关联关系, 并保存
+        // 8. 创建订单和购物车项的关联关系, 并保存
         for (Cart cart : carts) {
             CartOrderRelation cartOrderRelation = new CartOrderRelation();
             cartOrderRelation.setCart(cart);
@@ -110,7 +175,7 @@ public class OrderServiceImpl implements OrderService {
             cartOrderRelationRepository.save(cartOrderRelation); // 保存关联关系
         }
 
-        // 8. 启动定时任务，如果订单在指定时间内未支付，则释放锁定的库存
+        // 9. 启动定时任务，如果订单在指定时间内未支付，则释放锁定的库存
         scheduleReleaseStock(order.getOrderId(), currentOrderLocks); // 传递 currentOrderLocks
 
         return order;

@@ -44,6 +44,7 @@ public class CartController {
         private List<Integer> cartItemIds;
         private ShippingAddress shippingAddress;
         private String payment_method;
+        private Integer couponId; // 新增字段：优惠券 ID
     }
 
     /**
@@ -122,8 +123,9 @@ public class CartController {
         List<Integer> cartItemIds = orderRequest.getCartItemIds();
         ShippingAddress shippingAddress = orderRequest.getShippingAddress();
         String payment_method = orderRequest.getPayment_method();
+        Integer couponId = orderRequest.getCouponId(); // 获取优惠券 ID
 
-        Order order = orderService.createOrder(username, cartItemIds, shippingAddress, payment_method);
+        Order order = orderService.createOrder(username, cartItemIds, shippingAddress, payment_method, couponId);
 
         //  构建符合期望返回结构的 Map
         Map<String, Object> result = new HashMap<>();
@@ -133,6 +135,9 @@ public class CartController {
         result.put("paymentMethod", order.getPayment_method());
         result.put("createTime", order.getCreateTime());
         result.put("status", order.getStatus());
+        if (order.getCouponId() != null) {
+            result.put("couponId", order.getCouponId()); // 返回使用的优惠券 ID
+        }
 
         return Response.buildSuccess(result);
     }

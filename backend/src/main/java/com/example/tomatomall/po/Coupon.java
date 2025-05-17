@@ -39,6 +39,8 @@ public class Coupon {
     private String status; // 优惠券状态：ACTIVE（可用）、INACTIVE（禁用）、EXPIRED（已过期）
     @Column(name = "description")
     private String description; // 优惠券描述
+    @OneToMany(mappedBy = "coupon", cascade = CascadeType.REMOVE)
+    private List<UserCoupon> userCoupons;
 
     public CouponVO toVO(){
         CouponVO couponVO = new CouponVO();

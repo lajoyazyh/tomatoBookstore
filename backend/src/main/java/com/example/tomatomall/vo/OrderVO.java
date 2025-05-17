@@ -19,6 +19,10 @@ public class OrderVO {
     private String status;
     private Date createTime;
     private ShippingAddress shippingAddress;
+    private Integer couponId; // 使用的优惠券 ID
+    private CouponVO couponVO; // 使用的优惠券详细信息 (可选)
+    private boolean usedCoupon; // 标识是否使用了优惠券
+
     public Order toPO(){
         Order order=new Order();
         order.setOrderId(this.orderId);
@@ -27,6 +31,7 @@ public class OrderVO {
         order.setStatus(this.status);
         order.setCreateTime(this.createTime);
         order.setShippingAddress(this.shippingAddress);
+        order.setCouponId(this.couponId); // 设置优惠券 ID
         return order;
     }
 }

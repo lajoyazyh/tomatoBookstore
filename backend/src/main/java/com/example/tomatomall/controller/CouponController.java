@@ -1,5 +1,6 @@
 package com.example.tomatomall.controller;
 import com.example.tomatomall.service.CouponService;
+import com.example.tomatomall.util.TokenUtil;
 import com.example.tomatomall.vo.CouponVO;
 import com.example.tomatomall.vo.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import java.util.List;
 public class CouponController {
     @Autowired
     private CouponService couponService;
+    @Autowired
+    private TokenUtil tokenUtil;
     @PostMapping
     public Response createCoupon(@RequestBody CouponVO couponVO) {
         CouponVO createdCoupon = couponService.createCoupon(couponVO);
@@ -58,5 +61,12 @@ public class CouponController {
         } else {
             return Response.buildFailure("400", "优惠券不存在");
         }
+    }
+    @PostMapping("/{couponId}/receive")
+    public Response receiveCoupon(@RequestHeader("token") String token, @PathVariable Integer couponId) {
+        //  从token中获取用户名
+        Integer userId= tokenUtil.getAccount(token).getId();
+        couponService.receiveCoupon(userId, couponId);
+        return Response.buildSuccess("领取成功");
     }
 }
