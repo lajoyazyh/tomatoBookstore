@@ -46,8 +46,9 @@ public class CommentController {
     //删除评论
     @DeleteMapping("/{id}")
     public Response deleteComment(@PathVariable(value = "id") Integer id) {
-        Comment comment = commentRepository.findById(id).get();
-        if (comment != null) {
+        Optional<Comment> commentOptional = commentRepository.findById(id);
+        if (commentOptional.isPresent()) {
+            Comment comment = commentRepository.findById(id).get();
             commentService.deleteComment(id);
             return Response.buildSuccess("删除成功");
         } else {
