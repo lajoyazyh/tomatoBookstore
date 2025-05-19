@@ -25,7 +25,7 @@ const stockpile = ref<{
   amount: 0,
   frozen: 0,
   productId: -1,
-})
+});
 
 const dialogVisible = ref(false);
 const currentProductId = ref(-1);
