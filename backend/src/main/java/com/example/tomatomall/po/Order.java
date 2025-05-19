@@ -50,18 +50,25 @@ public class Order {
     @Transient // 不映射到数据库列
     private ShippingAddress shippingAddress;  // 虚拟字段：发货地址
 
+    // 新增字段：使用的优惠券 ID
+    @Column(name = "coupon_id")
+    private Integer couponId;
+    // 新增关联：使用的优惠券
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id", referencedColumnName = "coupon_id", insertable = false, updatable = false)
+    private Coupon coupon;
     // 转换为 VO（视图对象）
     public OrderVO toVO() {
         OrderVO orderVO = new OrderVO();
-        orderVO.setUserId(this.account.getId()); // 提取 account 的主键 ID
+        orderVO.setOrderId(this.orderId);
+        orderVO.setUserId(this.account.getId());
         orderVO.setTotalAmount(this.totalAmount);
         orderVO.setPaymentMethod(this.payment_method);
         orderVO.setStatus(this.status);
         orderVO.setCreateTime(this.createTime);
         orderVO.setCommented(this.commented);
         orderVO.setShippingAddress(this.shippingAddress); // 附加虚拟字段
+        orderVO.setCouponId(this.couponId); // 添加优惠券 ID
         return orderVO;
     }
-
-
 }
