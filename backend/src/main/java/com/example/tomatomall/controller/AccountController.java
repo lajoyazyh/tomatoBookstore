@@ -1,5 +1,6 @@
 package com.example.tomatomall.controller;
 
+import com.example.tomatomall.enums.RoleEnum;
 import com.example.tomatomall.po.Account;
 import com.example.tomatomall.service.AccountService;
 import com.example.tomatomall.vo.AccountVO;
@@ -97,5 +98,21 @@ public class AccountController {
             return Response.buildSuccess(token);
         }
         return Response.buildFailure("400", "你的后端方法实现错了，再回去沉淀沉淀！");
+    }
+
+    /**
+     * 获取所有客户信息
+     */
+    @GetMapping
+    public Response getAllUser(@RequestHeader("token") String token){
+        if(!tokenUtil.verifyToken(token)){
+            return Response.buildFailure("400","未登录");
+        }
+        RoleEnum thisAccountRole = tokenUtil.getAccount(token).getRole();
+        if(thisAccountRole==RoleEnum.CUSTOMER){
+            return Response.buildFailure("401","您没有该权限");
+        }else{
+            return Response.buildSuccess(accountService.getAllUser());
+        }
     }
 }

@@ -1,9 +1,12 @@
 package com.example.tomatomall.controller;
 
+import com.example.tomatomall.enums.RoleEnum;
+import com.example.tomatomall.po.Account;
 import com.example.tomatomall.po.Cart;
 import com.example.tomatomall.po.Order;
 import com.example.tomatomall.repository.CartRepository;
 import com.example.tomatomall.repository.ProductRepository;
+import com.example.tomatomall.service.BlockService;
 import com.example.tomatomall.service.CartService;
 import com.example.tomatomall.service.OrderService;
 import com.example.tomatomall.service.ProductService;
@@ -27,6 +30,9 @@ public class CartController {
 
     @Resource
     CartService cartService;
+
+    @Resource
+    BlockService blockService;
 
     @Resource
     private OrderService orderService;
@@ -119,7 +125,11 @@ public class CartController {
             @RequestHeader("token") String token,
             @RequestBody OrderRequest orderRequest) {
         //  从token中获取用户名
-        String username = tokenUtil.getAccount(token).getUsername();
+        Account thisAccount=tokenUtil.getAccount(token);
+        if(blockService.judgeBlock(thisAccount.getId())){
+            return Response.buildFailure("401","false");
+        }
+        String username = thisAccount.getUsername();
         List<Integer> cartItemIds = orderRequest.getCartItemIds();
         ShippingAddress shippingAddress = orderRequest.getShippingAddress();
         String payment_method = orderRequest.getPayment_method();
