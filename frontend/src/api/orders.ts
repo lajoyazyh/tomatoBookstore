@@ -11,6 +11,7 @@ export type checkoutOrderInfo = {
     cartItemIds: number[],
     shipping_address: addressInfo,
     payment_method: string,
+    // couponId: number
 }
 
 export const checkoutOrder = (orderInfo: checkoutOrderInfo) => {
