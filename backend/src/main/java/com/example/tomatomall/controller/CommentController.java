@@ -60,9 +60,10 @@ public class CommentController {
     @PostMapping()
     public Response addComment(@RequestBody CommentVO commentVO,
                                @RequestParam (value = "productId") Integer productId,
-                               @RequestParam (value = "userId") Integer userId) {
+                               @RequestHeader("token") String token) {
         Optional<Product> productOptional = productRepository.findById(productId);
-
+        //获取token中的用户id
+        Integer userId = tokenUtil.getAccount(token).getId();
         if (productOptional.isPresent()) {
             commentService.addComment(commentVO, productId, userId);
             return Response.buildSuccess("评论成功");
