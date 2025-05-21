@@ -48,6 +48,13 @@ export const userInfo = (username: string) => {
         return res;
     });
 };
+// 获取所有用户详情（管理员）
+export const allUserInfos = () => {
+    return axios.get(`${ACCOUNT_MODULE}`)
+        .then(res => {
+            return res;
+        })
+}
 
 // 创建用户
 export const userRegister = (registerInfo: RegisterInfo) => {
