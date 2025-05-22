@@ -31,8 +31,9 @@ const accountRoutes = [
 
 // 优惠券路由
 const couponRoutes = [
-    routeCreator('/manageCoupon', () => import('../pages/coupon/Manage.vue'), { title: '管理优惠券' }),
+    routeCreator('/manageCoupon', () => import('../pages/coupon/Manage.vue'), { title: '优惠券列表' }),
     routeCreator('/createCoupon', () => import('../pages/coupon/Create.vue'), { title: '创建优惠券' }),
+    routeCreator('/couponDetail/:couponId', () => import('../pages/coupon/Detail.vue'), { title: '优惠券详情' }),
 ]
 
 // 订单路由
@@ -59,6 +60,7 @@ const router = createRouter({
         ...baseRoutes,
         ...productRoutes,
         ...accountRoutes,
+        ...couponRoutes,
         ...orderRoutes,
         ...advertisingRoutes,
         ...notFoundRoute,
