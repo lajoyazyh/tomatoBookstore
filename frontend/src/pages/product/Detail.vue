@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { UpdateProductInfo, Specification, getTheProduct, updateProductInfo } from "../../api/products.ts";
 import { addNewProduct } from "../../api/cart.ts";
-import { uploadImage } from "../../api/images.ts";
+import { uploadImage } from "../../api/tools.ts";
 
 // 修改商品信息需要STAFF权限
 const role = sessionStorage.getItem('role');
@@ -126,8 +126,8 @@ function handleFileChange(file: any) {
   formData.append('file', file.raw);
 
   uploadImage(formData).then(res => {
-    if (res.data.code === '000') {
-      productInfo.value.cover = res.data.result; // 存储上传的图片 URL
+    if (res.data.code === '200') {
+      productInfo.value.cover = res.data.data; // 存储上传的图片 URL
       currentFile.value = file; // 存储当前文件
       ElMessage.success('文件上传成功！');
     } else {

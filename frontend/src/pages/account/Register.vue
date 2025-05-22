@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import {ElMessage} from "element-plus";
 import { router } from '../../router'
 import { userRegister } from '../../api/accounts'
-import { uploadImage } from "../../api/images";
+import { uploadImage } from "../../api/tools.ts";
 
 // 必需输入框值
 const username = ref('')
@@ -48,8 +48,8 @@ function handleFileChange(file: any) {
   formData.append('file', file.raw);
 
   uploadImage(formData).then(res => {
-    if (res.data.code === '000') {
-      avatar.value = res.data.result; // 存储上传的图片 URL
+    if (res.data.code === '200') {
+      avatar.value = res.data.data; // 存储上传的图片 URL
       currentFile.value = file; // 存储当前文件
       ElMessage.success('文件上传成功！');
     } else {
