@@ -16,7 +16,7 @@ type item = {
   detail: string,
   quantity: number,
 }
-const cartItems = ref<item[]>([]);
+const cartItems = ref<Array<item>>([]);
 const address = ref<addressInfo>({
   name: '',
   telephone: '',

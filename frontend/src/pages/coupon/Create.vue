@@ -2,35 +2,13 @@
 import { ref, computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { router } from '../../router';
+import { formatDateToString } from "../../api/coupon.ts";
 import { createCoupon } from "../../api/coupon.ts";
 import type { CreateCouponInfo } from "../../api/coupon.ts";
 
 // 需要STAFF权限
 const role = sessionStorage.getItem('role');
 if (role != 'STAFF') ElMessage.error('您不是管理员，不能创建优惠券！')
-
-function getTypeText(type: string): string {
-  switch (type) {
-    case 'FIXED':
-      return '礼金';
-    case 'PERCENTAGE':
-      return '折扣';
-    case 'THRESHOLD':
-      return '满减';
-    default:
-      return type;
-  }
-}
-function getStatusText(status: string): string {
-  switch (status) {
-    case 'ACTIVE':
-      return '可用';
-    case 'INACTIVE':
-      return '禁用';
-    default:
-      return status;
-  }
-}
 
 const couponName = ref('')
 const couponType = ref('')
@@ -66,26 +44,12 @@ const createCouponDisabled = computed(() => {
   return !(role == 'STAFF' && hasNecessaryInfo.value && isValidTypeInfo.value && isValidTimeInfo.value)
 })
 
-function formatDate(date: Date): string {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const seconds = date.getSeconds();
-
-  function pad(num: number): string {
-    if (num < 10) return '0' + num.toString();
-    return num.toString();
-  }
-  return `${year}-${pad(month)}-${pad(day)}T${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-}
 function createCouponInfo(): CreateCouponInfo {
   const createInfo: CreateCouponInfo = {
     couponName: couponName.value,
     couponType: couponType.value,
-    validFrom: formatDate(validFrom.value) || '2008-1-1T12:00:00',
-    validUntil: formatDate(validUntil.value) || '2008-1-1T12:00:00',
+    validFrom: formatDateToString(validFrom.value) || '2008-1-1T12:00:00',
+    validUntil: formatDateToString(validUntil.value) || '2008-1-1T12:00:00',
   }
   if (hasDiscountAmount.value) createInfo.discountAmount = discountAmount.value
   if (hasDiscountPercentage.value) createInfo.discountPercentage = discountPercentage.value
@@ -96,7 +60,6 @@ function createCouponInfo(): CreateCouponInfo {
 }
 
 function handleCreateCoupon() {
-  console.log(formatDate(validFrom.value), '+', formatDate(validUntil.value))
   try {
     createCoupon(createCouponInfo()).then(res => {
       if (res.data.code === '200') {
