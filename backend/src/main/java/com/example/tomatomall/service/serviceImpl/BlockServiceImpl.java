@@ -63,9 +63,11 @@ public class BlockServiceImpl implements BlockService {
     }
 
     @Override
-    public void deleteBlock(Integer id){
-        Optional<Block> thisBlock=blockRepository.findById(id);
+    public void deleteBlock(Integer userId){
+        Optional<Block> thisBlock=blockRepository.findByUserId(userId);
+
         if(thisBlock.isPresent()){
+            Integer id = thisBlock.get().getId();
             blockRepository.deleteById(id);
         }
     }

@@ -7,4 +7,5 @@ import java.util.List;
 import java.util.Optional;
 public interface BlockRepository extends JpaRepository<Block, Integer>{
     Optional<Block> findByUserId(Integer userId);
+
 }
