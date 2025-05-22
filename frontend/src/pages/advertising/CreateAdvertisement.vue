@@ -58,7 +58,7 @@ function createAdvertisementInfo(): createAdvertiseInfo {
   const createInfo: createAdvertiseInfo = {
     title: title.value,
     content: content.value,
-    imageUrl: imageUrl.value,
+    imgUrl: imageUrl.value,
     productId: productId.value
   }
   return createInfo;
@@ -71,9 +71,8 @@ function handleCreateAdvertisement() {
   }
 
   const adInfo = createAdvertisementInfo();
-  console.log('广告信息:', adInfo); // 输出广告信息，确保 product_id 不为空
-
-  createAdvertisement(adInfo).then(res => {
+  console.log('广告信息:', adInfo); // 输出广告信息
+  createAdvertisement(createAdvertisementInfo()).then(res => {
     if (res.data.code === '200') {
       ElMessage.success('广告创建成功！');
       router.push('/advertisement'); // 创建成功后跳转到广告列表页

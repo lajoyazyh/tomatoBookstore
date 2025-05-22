@@ -5,14 +5,14 @@ export type updateAdvertiseInfo = {
     id: number,
     title: string,
     content?: string,
-    imageUrl?: string,
+    imgUrl?: string,
     productId: number
 }
 
 export type createAdvertiseInfo = {
     title: string,
     content?: string,
-    imageUrl?: string,
+    imgUrl?: string,
     productId: number
 }
 

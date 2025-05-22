@@ -13,7 +13,7 @@ interface Advertisement {
   id: number;
   title: string;
   content?: string;
-  imageUrl?: string;
+  imgUrl?: string;
   productId: number;
   isEditing?: boolean; // 新增编辑状态
   // 商品名称从商品的get方法获取
@@ -73,7 +73,7 @@ const handleFileChange = async (file: any, ad: Advertisement) => {
   try {
     const res = await uploadImage(formData);
     if (res.data.code === '200') {
-      ad.imageUrl = res.data.data;
+      ad.imgUrl = res.data.data;
       ElMessage.success('图片上传成功');
     }
   } catch (error) {
@@ -89,7 +89,7 @@ const handleUpdate = async (ad: Advertisement) => {
     id: ad.id,
     title:ad.title || '',
     content: ad.content || '',
-    imageUrl: ad.imageUrl || '',
+    imgUrl: ad.imgUrl || '',
     productId: ad.productId
   }
   console.log('广告更新信息:', createInfo);
@@ -131,7 +131,7 @@ const handleDelete = async (id: number) => {
         <div v-if="!ad.isEditing">
           <h3>{{ ad.title }}</h3>
           <p class="content">{{ ad.content }}</p>
-          <img v-if="ad.imageUrl" :src="ad.imageUrl" class="ad-image" />
+          <img v-if="ad.imgUrl" :src="ad.imgUrl" class="ad-image" />
           <p class="title">商品名称：{{ad.productName}}</p>
           <p class="productId">商品id：{{ad.productId}}</p>
 
@@ -159,8 +159,8 @@ const handleDelete = async (id: number) => {
                 :on-change="(file: any) => handleFileChange(file, ad)"
             >
               <el-button>上传图片</el-button>
-              <template v-if="ad.imageUrl">
-                <img :src="ad.imageUrl" class="preview-image" />
+              <template v-if="ad.imgUrl">
+                <img :src="ad.imgUrl" class="preview-image" />
               </template>
             </el-upload>
           </el-form-item>

@@ -18,10 +18,10 @@ server:
 
 aliyun:
   oss:
-    endpoint: oss-cn-shanghai.aliyuncs.com
+    endpoint:
     accessKeyId:
     accessKeySecret:
-    bucketName:
+    bucketName: 
 
 alipay:
   appId: 2021000147699869
