@@ -48,6 +48,11 @@ const advertisingRoutes = [
     routeCreator('/createAdvertisement', () => import('../pages/advertising/CreateAdvertisement.vue'), { title: '创建广告' }),
 ];
 
+// 黑名单路由
+const blockRoutes = [
+    routeCreator('/blocks', () => import('../pages/block/Block.vue'), { title: '广告' })
+];
+
 // 未定义的路径路由
 const notFoundRoute = [
     routeCreator('/:pathMatch(.*)', () => import('../pages/default/404.vue'), { title: '404-页面未找到' }),
@@ -63,6 +68,7 @@ const router = createRouter({
         ...couponRoutes,
         ...orderRoutes,
         ...advertisingRoutes,
+        ...blockRoutes,
         ...notFoundRoute,
     ],
 });
