@@ -91,6 +91,10 @@ public class AccountController {
      */
     @PostMapping("/login")
     public Response login(@RequestParam("username") String username, @RequestParam("password") String password) {
+        // 寻找对应的用户名是否存在
+        if (username == null || password == null) {
+            return Response.buildFailure("400", "用户名或密码不能为空");
+        }
         String token = accountService.login(username, password);
         if(token == "-1"){
             return Response.buildFailure("400", "用户不存在/用户密码错误");
