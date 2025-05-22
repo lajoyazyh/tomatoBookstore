@@ -66,7 +66,7 @@ export const updateCouponStatus = (updateCouponStatusInfo: UpdateCouponStatusInf
             return res
         })
 }
-export const deleteCoupon = (couponId: number) => {
+export const deleteTheCoupon = (couponId: number) => {
     return axios.delete(`${COUPON_MODULE}/${couponId}`)
         .then(res => {
             return res
@@ -79,4 +79,45 @@ export const receiveCoupon = (couponId: number) => {
         .then(res => {
             return res
         })
+}
+
+/********************************* 辅助函数 *********************************/
+export function getTypeText(type: string): string {
+    switch (type) {
+        case 'FIXED':
+            return '礼金';
+        case 'PERCENTAGE':
+            return '折扣';
+        case 'THRESHOLD':
+            return '满减';
+        default:
+            return type;
+    }
+}
+export function getStatusText(status: string): string {
+    switch (status) {
+        case 'ACTIVE':
+            return '可用';
+        case 'INACTIVE':
+            return '禁用';
+        default:
+            return status;
+    }
+}
+export function formatStringToDate(string: string): Date {
+    return new Date(string)
+}
+export function formatDateToString(date: Date): string {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    function pad(num: number): string {
+        if (num < 10) return '0' + num.toString();
+        return num.toString();
+    }
+    return `${year}-${pad(month)}-${pad(day)}T${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
