@@ -4,7 +4,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import {getTheProduct} from "../../api/products.ts";
 import { getAllAdvertisement, updateAdvertisementsInfo, deleteAdvertisement } from '../../api/advertisement.ts';
 import type {updateAdvertiseInfo} from "../../api/advertisement.ts";
-import { uploadImage } from "../../api/images.ts";
+import { uploadImage } from "../../api/tools.ts";
 import Advertisement from "@/pages/advertising/Advertisement.vue";
 
 const role = sessionStorage.getItem('role');
@@ -72,8 +72,8 @@ const handleFileChange = async (file: any, ad: Advertisement) => {
 
   try {
     const res = await uploadImage(formData);
-    if (res.data.code === '000') {
-      ad.imageUrl = res.data.result;
+    if (res.data.code === '200') {
+      ad.imageUrl = res.data.data;
       ElMessage.success('图片上传成功');
     }
   } catch (error) {

@@ -1,9 +1,9 @@
 import { axios } from '../utils/request'
-import { IMAGE_MODULE } from './_prefix'
+import { TOOL_MODULE } from './_prefix'
 
 // 上传图片
 export const uploadImage = (payload: any) => {
-    return axios.post(`${IMAGE_MODULE}`, payload, {
+    return axios.post(`${TOOL_MODULE}/image`, payload, {
         headers: {
             'Content-Type': "multipart/form-data;"
         }

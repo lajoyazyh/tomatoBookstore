@@ -3,7 +3,7 @@ import {ElForm, ElFormItem, ElMessage, ElMessageBox} from "element-plus"
 import { ref, computed, onMounted } from 'vue'
 import {router} from '../../router'
 import { userInfo, userInfoUpdate } from '../../api/accounts'
-import { uploadImage } from "../../api/images.ts";
+import { uploadImage } from "../../api/tools.ts";
 import type { UpdateInfo } from "../../api/accounts";
 
 const isEditing = ref(false); // 控制编辑状态
@@ -65,8 +65,8 @@ function handleFileChange(file: any) {
   formData.append('file', file.raw);
 
   uploadImage(formData).then(res => {
-    if (res.data.code === '000') {
-      avatar.value = res.data.result; // 存储上传的图片 URL
+    if (res.data.code === '200') {
+      avatar.value = res.data.data; // 存储上传的图片 URL
       currentFile.value = file; // 存储当前文件
       ElMessage.success('文件上传成功！');
     } else {

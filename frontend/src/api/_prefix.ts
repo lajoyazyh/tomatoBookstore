@@ -5,7 +5,7 @@ export const API_MODULE = '/api'
 export const ACCOUNT_MODULE = `${API_MODULE}/accounts`
 
 // 图片上传
-export const IMAGE_MODULE = `${API_MODULE}/images`
+export const TOOL_MODULE = `${API_MODULE}/tools`
 
 // 商品模块
 export const PRODUCT_MODULE = `${API_MODULE}/products`

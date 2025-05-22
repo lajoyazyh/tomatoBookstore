@@ -4,7 +4,7 @@ import { ElMessage, ElMessageBox, ElForm, ElFormItem, ElInput, ElInputNumber, El
 import { router } from '../../router';
 import { createAdvertisement} from '../../api/advertisement';
 import type {createAdvertiseInfo, updateAdvertiseInfo} from '../../api/advertisement';
-import { uploadImage } from '../../api/images';
+import { uploadImage } from '../../api/tools.ts';
 
 
 // 需要 STAFF 权限
@@ -42,8 +42,8 @@ function handleFileChange(file: any) {
   formData.append('file', file.raw);
 
   uploadImage(formData).then(res => {
-    if (res.data.code === '000') {
-      imageUrl.value = res.data.result; // 存储上传的图片 URL
+    if (res.data.code === '200') {
+      imageUrl.value = res.data.data; // 存储上传的图片 URL
       currentFile.value = file; // 存储当前文件
       ElMessage.success('文件上传成功！');
     } else {

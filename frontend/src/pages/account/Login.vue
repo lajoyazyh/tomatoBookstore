@@ -39,7 +39,7 @@ function handleLogin() {
 
         router.push({path: "/index"});
       })
-    } else if (res.data.code === '400') {
+    } else {
       ElMessage({
         message: res.data.msg,
         type: 'error',
