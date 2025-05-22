@@ -8,15 +8,16 @@ const routeCreator = (path: string, component: any, meta: { title: string }) => 
 
 // 基础路由
 const baseRoutes = [
-    routeCreator('/', () => import('../pages/index.vue'), { title: '首页' }),
+    {
+        path: '/',
+        redirect: '/index', // 重定向
+    },
     routeCreator('/index', () => import('../pages/index.vue'), { title: '首页' }),
-    routeCreator('/cart', () => import('../pages/cart/CartPage.vue'), { title: '购物车' }),
-    routeCreator('/orders', () => import('../pages/cart/Order.vue'), { title: '订单' }),
 ];
 
 // 产品路由
 const productRoutes = [
-    routeCreator('/warehouse', () => import('../pages/product/WarehousePage.vue'), { title: '库存管理' }),
+    routeCreator('/warehouse', () => import('../pages/product/WarehousePage.vue'), { title: '商品列表' }),
     routeCreator('/productDetail/:productId', () => import('../pages/product/Detail.vue'), { title: '商品详情' }),
     routeCreator('/createProduct', () => import('../pages/product/Create.vue'), { title: '创建商品' }),
 ];
@@ -27,6 +28,19 @@ const accountRoutes = [
     routeCreator('/login', () => import('../pages/account/Login.vue'), { title: '登入' }),
     routeCreator('/dashboard', () => import('../pages/account/Dashboard.vue'), { title: '个人信息' }),
 ];
+
+// 优惠券路由
+const couponRoutes = [
+    routeCreator('/manageCoupon', () => import('../pages/coupon/Manage.vue'), { title: '优惠券列表' }),
+    routeCreator('/createCoupon', () => import('../pages/coupon/Create.vue'), { title: '创建优惠券' }),
+    routeCreator('/couponDetail/:couponId', () => import('../pages/coupon/Detail.vue'), { title: '优惠券详情' }),
+]
+
+// 订单路由
+const orderRoutes = [
+    routeCreator('/cart', () => import('../pages/cart/CartPage.vue'), { title: '购物车' }),
+    routeCreator('/orders', () => import('../pages/cart/Order.vue'), { title: '订单' }),
+]
 
 // 广告路由
 const advertisingRoutes = [
@@ -46,6 +60,8 @@ const router = createRouter({
         ...baseRoutes,
         ...productRoutes,
         ...accountRoutes,
+        ...couponRoutes,
+        ...orderRoutes,
         ...advertisingRoutes,
         ...notFoundRoute,
     ],
