@@ -2,6 +2,7 @@ package com.example.tomatomall.controller;
 
 import com.example.tomatomall.enums.RoleEnum;
 import com.example.tomatomall.po.Account;
+import com.example.tomatomall.repository.AccountRepository;
 import com.example.tomatomall.service.AccountService;
 import com.example.tomatomall.vo.AccountVO;
 import com.example.tomatomall.vo.Response;
@@ -20,6 +21,9 @@ public class AccountController {
 
     @Autowired
     private TokenUtil tokenUtil;
+
+    @Autowired
+    AccountRepository accountRepository;
 
     /**
      * 获取用户详情
@@ -95,9 +99,14 @@ public class AccountController {
         if (username == null || password == null) {
             return Response.buildFailure("400", "用户名或密码不能为空");
         }
+        //预先在数据库中寻找是否存在对应的用户名
+        Account account = accountRepository.findByUsername(username);
+        if (account == null) {
+            return Response.buildFailure("400", "用户不存在");
+        }
         String token = accountService.login(username, password);
         if(token == "-1"){
-            return Response.buildFailure("400", "用户不存在/用户密码错误");
+            return Response.buildFailure("400", "用户密码错误");
         }else if(token != null){
             return Response.buildSuccess(token);
         }
