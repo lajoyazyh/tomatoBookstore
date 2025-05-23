@@ -26,11 +26,26 @@ public class Collect {
     @Column(name = "product_id")
     private Integer productId;//收藏商品id
 
+    @Basic
+    @Column(name = "product_title")
+    private String productTitle;//商品名
+
+    @Basic
+    @Column(name = "price")
+    private BigDecimal price;//商品价格
+
+    @Basic
+    @Column(name = "cover")
+    private String cover;//商品封面url
+
     public CollectVO toVO(){
         CollectVO collectVO=new CollectVO();
         collectVO.setId(this.id);
         collectVO.setUserId(this.userId);
         collectVO.setProductId(this.productId);
+        collectVO.setProductTitle(this.productTitle);
+        collectVO.setPrice(this.price);
+        collectVO.setCover(this.cover);
         return collectVO;
     }
 }
