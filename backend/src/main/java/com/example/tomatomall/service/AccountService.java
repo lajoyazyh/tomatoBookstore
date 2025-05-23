@@ -14,4 +14,6 @@ public interface AccountService {
     Boolean updateInformation(AccountVO accountVO);
 
     List<AccountVO> getAllUser();
+
+    List<AccountVO> getUsers(String partialUsername);
 }
