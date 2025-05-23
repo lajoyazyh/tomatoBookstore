@@ -117,4 +117,16 @@ public class AccountServiceImpl implements AccountService {
         }
         return allUserVO;
     }
+
+    @Override
+    public List<AccountVO> getUsers(String partialUsername){
+        List<Account> allUsers=accountRepository.findAll();
+        List<AccountVO> thisAccountsVO=new ArrayList<>();
+        for(Account account:allUsers){
+            if(account.getUsername().contains(partialUsername)){
+                thisAccountsVO.add(account.toVO());
+            }
+        }
+        return thisAccountsVO;
+    }
 }
