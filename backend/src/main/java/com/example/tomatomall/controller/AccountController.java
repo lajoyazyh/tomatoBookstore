@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import com.example.tomatomall.util.TokenUtil;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Array;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -127,5 +129,13 @@ public class AccountController {
         }else{
             return Response.buildSuccess(accountService.getAllUser());
         }
+    }
+
+    /**
+     * 搜索用户
+     */
+    @GetMapping("/find")
+    public Response getSomeUser(@RequestParam("partialUsername") String partialUsername){
+        return Response.buildSuccess(accountService.getUsers(partialUsername));
     }
 }
