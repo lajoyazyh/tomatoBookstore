@@ -44,6 +44,8 @@ onMounted(async () => {
         detail: product.detail,
         specifications: product.specifications
       }));
+    } else {
+      ElMessage.error(response.data.msg);
     }
   } catch (error) {
     ElMessage.error('获取商品列表失败!');

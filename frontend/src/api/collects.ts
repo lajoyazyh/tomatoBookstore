@@ -9,8 +9,15 @@ export type CollectInfo = {
 
 // 用户进行收藏
 export const createCollectOf = (productId: number) => {
-    return axios.post(`${COLLECTS_MODULE}`,
+    return axios.post(`${COLLECTS_MODULE}`, null,
         { params: {productId: productId } })
+        .then(res => {
+            return res;
+        })
+}
+// 删除收藏
+export const deleteCollectOf = (id: number) => {
+    return axios.delete(`${COLLECTS_MODULE}/${id}`)
         .then(res => {
             return res;
         })

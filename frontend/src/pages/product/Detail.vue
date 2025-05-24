@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { UpdateProductInfo, Specification, getTheProduct, updateProductInfo } from "../../api/products.ts";
+import { createCollectOf } from '../../api/collects.ts';
 import { addNewProduct } from "../../api/cart.ts";
 import { uploadImage } from "../../api/tools.ts";
 
@@ -121,6 +122,20 @@ function addCartItem() {
   }
 }
 
+function addCollection() {
+  try {
+    createCollectOf(productId).then((res) => {
+      if (res.data.code == '200') {
+        ElMessage.success('收藏商品成功！')
+      } else {
+        ElMessage.error(res.data.msg)
+      }
+    })
+  } catch (error) {
+    ElMessage.error('收藏商品失败！')
+  }
+}
+
 function handleFileChange(file: any) {
   const formData = new FormData();
   formData.append('file', file.raw);
@@ -223,10 +238,14 @@ function handleUpdate() {
             {{ isEditing ? '结束编辑' : '编辑' }}
           </el-button>
         </div>
-        <!-- 添加商品到购物车按钮，只对CUSTOMER显示 -->
+
+        <!-- 添加商品到购物车按钮与收藏按钮，只对CUSTOMER显示 -->
         <div v-if="role === 'CUSTOMER'" style="margin-top: 20px; text-align: center;">
-          <el-button type="warning" @click="handleAddToCart">
+          <el-button type="primary" @click="handleAddToCart">
             添加到购物车
+          </el-button>
+          <el-button type="warning" @click="addCollection">
+            收藏
           </el-button>
         </div>
 

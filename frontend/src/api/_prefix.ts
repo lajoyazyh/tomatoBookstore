@@ -14,7 +14,7 @@ export const PRODUCT_MODULE = `${API_MODULE}/products`
 export const CART_MODULE = `${API_MODULE}/cart`
 
 // 优惠券模块
-export const COUPON_MODULE = `${API_MODULE}/coupon`
+export const COUPON_MODULE = `${API_MODULE}/coupons`
 
 // 订单模块
 export const ORDER_MODULE = `${API_MODULE}/orders`
