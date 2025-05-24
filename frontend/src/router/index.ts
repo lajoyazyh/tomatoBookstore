@@ -51,7 +51,7 @@ const advertisingRoutes = [
 
 // 黑名单路由
 const blockRoutes = [
-    routeCreator('/blocks', () => import('../pages/block/block.vue'), { title: '广告' })
+    routeCreator('/blocks', () => import('../pages/block/Block.vue'), { title: '广告' })
 ];
 
 // 未定义的路径路由

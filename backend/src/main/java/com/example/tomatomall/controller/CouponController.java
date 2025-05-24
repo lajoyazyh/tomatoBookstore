@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+
+import static java.lang.Thread.sleep;
+
 @RestController
 @RequestMapping("/api/coupons")
 public class CouponController {
@@ -78,6 +81,9 @@ public class CouponController {
             @RequestParam BigDecimal orderTotal) {
         Integer userId = tokenUtil.getAccount(token).getId();
         List<CouponVO> applicableCoupons = couponService.getApplicableCouponsForUser(userId, orderTotal);
+//        for (CouponVO coupon : applicableCoupons) {
+//            System.out.println(coupon.getCouponName());
+//        }
         return Response.buildSuccess(applicableCoupons);
     }
 }
