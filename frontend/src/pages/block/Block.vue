@@ -20,7 +20,7 @@ const userList = ref<User[]>([]);
  * 更新用户的 isBlocked 状态，再更新 userList。
  */
 function fetchUsers() {
-  getUsers()
+  getUsers(searchQuery.value)
       .then(res => {
         if (res.data.code === '200') {
           const users = res.data.data;
