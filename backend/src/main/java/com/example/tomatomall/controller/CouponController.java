@@ -5,6 +5,8 @@ import com.example.tomatomall.vo.CouponVO;
 import com.example.tomatomall.vo.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 import java.util.List;
 @RestController
 @RequestMapping("/api/coupons")
@@ -68,5 +70,14 @@ public class CouponController {
         Integer userId= tokenUtil.getAccount(token).getId();
         couponService.receiveCoupon(userId, couponId);
         return Response.buildSuccess("领取成功");
+    }
+
+    @GetMapping("/user")
+    public Response<List<CouponVO>> getApplicableCouponsForOrder(
+            @RequestHeader("token") String token,
+            @RequestParam BigDecimal orderTotal) {
+        Integer userId = tokenUtil.getAccount(token).getId();
+        List<CouponVO> applicableCoupons = couponService.getApplicableCouponsForUser(userId, orderTotal);
+        return Response.buildSuccess(applicableCoupons);
     }
 }

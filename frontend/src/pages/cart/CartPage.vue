@@ -2,10 +2,23 @@
 import {ref, onMounted} from 'vue'
 import { deleteProduct, updateCartItem, getCart } from "../../api/cart.ts";
 import { checkoutOrder } from "../../api/orders.ts";
+import { getUsableCoupons, getTypeText } from "../../api/coupon.ts";
 import type { addressInfo, checkoutOrderInfo } from "../../api/orders.ts";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {router} from "../../router";
 
+type coupon = {
+  couponId: number,
+  couponName: string,
+  couponType: string,
+  discountAmount?: number     // when type is 'FIXED' or 'THRESHOLD'
+  discountPercentage?: number // when type is 'PERCENTAGE'
+  minPurchaseAmount?: number  // when type is 'THRESHOLD'
+  // 由于默认后端返回的都是可用的优惠券，所以和优惠券可用性有关的项不再获取
+  description?: string
+}
+const usableCoupons = ref<Array<coupon>>([]);
+const chosenCouponId = ref(-1);
 type item = {
   cartItemId: number,
   productId: number,
@@ -17,6 +30,7 @@ type item = {
   quantity: number,
 }
 const cartItems = ref<Array<item>>([]);
+
 const address = ref<addressInfo>({
   name: '',
   telephone: '',
@@ -70,10 +84,33 @@ const deleteCartItem = (item: item) => {
   });
 };
 
+async function handleGetUsableCoupons(total: number) {
+  try {
+    const response = await getUsableCoupons(total);
+    if (response.data.code === '200') {
+      usableCoupons.value = response.data.data.map((coupon: any) => ({
+        couponId: coupon.couponId,
+        couponName: coupon.couponName,
+        couponType: coupon.couponType,
+        discountAmount: coupon.discountAmount,
+        discountPercentage: coupon.discountPercentage,
+        minPurchaseAmount: coupon.minPurchaseAmount,
+        description: coupon.description,
+      }));
+    } else {
+      ElMessage.error(response.data.msg);
+    }
+  } catch (error) {
+    ElMessage.error('获取可用优惠券失败！');
+    console.error(error);
+  }
+}
+
 const orderId = ref();
 function makeCheckout() {
   checkout.value.cartItemIds = cartItems.value.map(item => item.cartItemId);
   checkout.value.shipping_address = address.value;
+  if (chosenCouponId.value != -1) checkout.value.couponId = chosenCouponId.value;
 }
 function handleOrder() {
   makeCheckout();
@@ -90,11 +127,13 @@ function handleOrder() {
 function showCheckoutConfirmation() {
   makeCheckout();
 
-  // 总金额
+  // 计算订单总金额
   const totalAmount = cartItems.value.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
-  // 生成带有唯一ID的输入框
-  const messageHtml = `
+  // 获取可用优惠券
+  handleGetUsableCoupons(totalAmount).then(() => {
+    // 生成带有唯一ID的输入框和优惠券选择
+    const messageHtml = `
     <div style="display: flex; gap: 20px;">
       <!-- 左侧商品列表 -->
       <div style="flex: 1; border-right: 1px solid #ddd; padding-right: 20px;">
@@ -109,6 +148,19 @@ function showCheckoutConfirmation() {
         <div style="margin-top: 20px; font-weight: bold;">
           总计: ¥${totalAmount.toFixed(2)}
         </div>
+      </div>
+
+      <!-- 中间优惠券选择 -->
+      <div style="flex: 1; border-right: 1px solid #ddd; padding-right: 20px;">
+        <h3>优惠券</h3>
+        <select id="couponSelect" style="width: 100%; margin-bottom: 10px;">
+          <option value="-1">-- 请选择优惠券 --</option>
+          ${usableCoupons.value.map(coupon => `
+            <option value="${coupon.couponId}" ${chosenCouponId.value === coupon.couponId ? 'selected' : ''}>
+              ${coupon.couponName})
+            </option>
+          `).join('')}
+        </select>
       </div>
 
       <!-- 右侧地址表单 -->
@@ -131,75 +183,89 @@ function showCheckoutConfirmation() {
     </div>
   `;
 
-  ElMessageBox({
-    title: '确认订单',
-    message: messageHtml,
-    dangerouslyUseHTMLString: true,
-    showCancelButton: true,
-    cancelButtonText: '取消',
-    confirmButtonText: '确认订单',
-    beforeClose: (action, instance, done) => {
-      if (action === 'confirm') {
-        // 提交前手动获取最新值（确保同步）
-        const telephoneInput = document.getElementById('telephoneInput') as HTMLInputElement;
-        const postCodeInput = document.getElementById('postCodeInput') as HTMLInputElement;
-        const addressTextarea = document.getElementById('addressTextarea') as HTMLTextAreaElement;
+    ElMessageBox({
+      title: '确认订单',
+      message: messageHtml,
+      dangerouslyUseHTMLString: true,
+      showCancelButton: true,
+      cancelButtonText: '取消',
+      confirmButtonText: '确认订单',
+      beforeClose: (action, instance, done) => {
+        if (action === 'confirm') {
+          // 提交前手动获取最新值（确保同步）
+          const couponSelect = document.getElementById('couponSelect') as HTMLSelectElement;
+          const telephoneInput = document.getElementById('telephoneInput') as HTMLInputElement;
+          const postCodeInput = document.getElementById('postCodeInput') as HTMLInputElement;
+          const addressTextarea = document.getElementById('addressTextarea') as HTMLTextAreaElement;
 
-        // 更新address的值
-        address.value.telephone = telephoneInput.value;
-        address.value.postcode = postCodeInput.value;
-        address.value.address = addressTextarea.value;
+          // 更新选中的优惠券ID
+          chosenCouponId.value = parseInt(couponSelect.value);
 
-        // 验证逻辑
-        if (!/^1\d{10}$/.test(address.value.telephone)) {
-          ElMessage.error('请输入有效的手机号码');
-          return;
+          // 更新address的值
+          address.value.telephone = telephoneInput.value;
+          address.value.postcode = postCodeInput.value;
+          address.value.address = addressTextarea.value;
+
+          // 验证逻辑
+          if (!/^1\d{10}$/.test(address.value.telephone)) {
+            ElMessage.error('请输入有效的手机号码');
+            return;
+          }
+          if (!/^\d{6}$/.test(address.value.postcode)) {
+            ElMessage.error('请输入有效的邮政编码');
+            return;
+          }
+          if (!address.value.address) {
+            ElMessage.error('请输入详细地址');
+            return;
+          }
+          done();
+          handleOrder();
+        } else {
+          done();
         }
-        if (!/^\d{6}$/.test(address.value.postcode)) {
-          ElMessage.error('请输入有效的邮政编码');
-          return;
-        }
-        if (!address.value.address) {
-          ElMessage.error('请输入详细地址');
-          return;
-        }
-        done();
-        handleOrder()
-      } else {
-        done();
       }
-    }
-  });
+    }).catch(() => {});
 
-  // 弹窗显示后，设置初始值并绑定input事件
-  setTimeout(() => {
-    const nameInput = document.getElementById('nameInput') as HTMLInputElement;
-    const telephoneInput = document.getElementById('telephoneInput') as HTMLInputElement;
-    const postCodeInput = document.getElementById('postCodeInput') as HTMLInputElement;
-    const addressTextarea = document.getElementById('addressTextarea') as HTMLTextAreaElement;
+    // 弹窗显示后，设置初始值并绑定input事件
+    setTimeout(() => {
+      const couponSelect = document.getElementById('couponSelect') as HTMLSelectElement;
+      const nameInput = document.getElementById('nameInput') as HTMLInputElement;
+      const telephoneInput = document.getElementById('telephoneInput') as HTMLInputElement;
+      const postCodeInput = document.getElementById('postCodeInput') as HTMLInputElement;
+      const addressTextarea = document.getElementById('addressTextarea') as HTMLTextAreaElement;
 
-    // 设置初始值
-    if (nameInput && telephoneInput && postCodeInput && addressTextarea) {
-      nameInput.value = address.value.name;
-      telephoneInput.value = address.value.telephone;
-      postCodeInput.value = address.value.postcode;
-      addressTextarea.value = address.value.address;
+      // 设置初始值
+      if (nameInput && telephoneInput && postCodeInput && addressTextarea) {
+        nameInput.value = address.value.name;
+        telephoneInput.value = address.value.telephone;
+        postCodeInput.value = address.value.postcode;
+        addressTextarea.value = address.value.address;
 
-      // 绑定input事件实时更新address
-      nameInput.addEventListener('input', (e) => {
-        address.value.name = (e.target as HTMLInputElement).value;
-      });
-      telephoneInput.addEventListener('input', (e) => {
-        address.value.telephone = (e.target as HTMLInputElement).value;
-      });
-      postCodeInput.addEventListener('input', (e) => {
-        address.value.postcode = (e.target as HTMLInputElement).value;
-      });
-      addressTextarea.addEventListener('input', (e) => {
-        address.value.address = (e.target as HTMLTextAreaElement).value;
-      });
-    }
-  }, 0);
+        // 如果已选择优惠券，设置选中状态
+        if (chosenCouponId.value !== -1) {
+          couponSelect.value = chosenCouponId.value.toString();
+        }
+
+        // 绑定input事件实时更新address
+        nameInput.addEventListener('input', (e) => {
+          address.value.name = (e.target as HTMLInputElement).value;
+        });
+        telephoneInput.addEventListener('input', (e) => {
+          address.value.telephone = (e.target as HTMLInputElement).value;
+        });
+        postCodeInput.addEventListener('input', (e) => {
+          address.value.postcode = (e.target as HTMLInputElement).value;
+        });
+        addressTextarea.addEventListener('input', (e) => {
+          address.value.address = (e.target as HTMLTextAreaElement).value;
+        });
+        couponSelect.addEventListener('change', (e) => {
+          chosenCouponId.value = parseInt((e.target as HTMLSelectElement).value);
+        });
+      }
+    }, 0);
+  })
 }
 </script>
 

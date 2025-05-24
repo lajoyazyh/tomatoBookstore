@@ -48,6 +48,9 @@ public class CollectServiceImpl implements CollectService {
             CollectVO collectVO=new CollectVO();
             collectVO.setUserId(userId);
             collectVO.setProductId(productId);
+            collectVO.setProductTitle(thisProduct.get().getTitle());
+            collectVO.setPrice(thisProduct.get().getPrice());
+            collectVO.setCover(thisProduct.get().getCover());
             collectRepository.save(collectVO.toPO());
             return "收藏成功";
         }

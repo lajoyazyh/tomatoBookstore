@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -87,10 +88,10 @@ public class CouponServiceImpl implements CouponService {
         }
 
 
-        // 3. 验证用户是否已经领取过该优惠券
-        if (userCouponRepository.findByUserIdAndCouponId(userId, couponId).isPresent()) {
-            throw new IllegalArgumentException("您已领取过该优惠券");
-        }
+//        // 3. 验证用户是否已经领取过该优惠券
+//        if (userCouponRepository.findByUserIdAndCouponId(userId, couponId).isPresent()) {
+//            throw new IllegalArgumentException("您已领取过该优惠券");
+//        }
 
         // 4. 创建 UserCoupon 记录
         UserCoupon userCoupon = new UserCoupon();
@@ -99,5 +100,23 @@ public class CouponServiceImpl implements CouponService {
         userCoupon.setReceiveTime(LocalDateTime.now());
         userCoupon.setStatus("UNUSED");
         userCouponRepository.save(userCoupon);
+    }
+    @Override
+    public List<CouponVO> getApplicableCouponsForUser(Integer userId, BigDecimal orderTotal) {
+        LocalDateTime now = LocalDateTime.now();
+
+        // 1. 获取用户所有未使用的优惠券记录
+        List<UserCoupon> userUnusedCoupons = userCouponRepository.findByUserIdAndStatus(userId, "UNUSED");
+
+        // 2. 筛选出有效的优惠券 (ACTIVE 状态, 在有效期内, 满足最低消费金额)
+        return userUnusedCoupons.stream()
+                .map(UserCoupon::getCoupon) // 获取关联的 Coupon 对象
+                .filter(coupon -> coupon != null &&
+                        "ACTIVE".equals(coupon.getStatus()) &&
+                        coupon.getValidFrom().isBefore(now) &&
+                        coupon.getValidUntil().isAfter(now) &&
+                        (coupon.getMinPurchaseAmount() == null || orderTotal.compareTo(coupon.getMinPurchaseAmount()) >= 0))
+                .map(Coupon::toVO) // 转换为 CouponVO
+                .collect(Collectors.toList());
     }
 }
