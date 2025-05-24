@@ -59,9 +59,10 @@ export const updateCoupon = (updateCouponInfo: UpdateCouponInfo) => {
 }
 export const updateCouponStatus = (updateCouponStatusInfo: UpdateCouponStatusInfo) => {
     const couponId = updateCouponStatusInfo.couponId;
+    const status = updateCouponStatusInfo.status;
 
-    return axios.patch(`${COUPON_MODULE}/${couponId}/status`,
-        { params: {couponId: couponId } })
+    return axios.patch(`${COUPON_MODULE}/${couponId}/status`, null,
+        { params: {status: status } })
         .then(res => {
             return res
         })
@@ -100,6 +101,8 @@ export function getStatusText(status: string): string {
             return '可用';
         case 'INACTIVE':
             return '禁用';
+        case 'EXPIRED':
+            return '已过期';
         default:
             return status;
     }
