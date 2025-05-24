@@ -127,7 +127,7 @@ public class CartController {
         //  从token中获取用户名
         Account thisAccount=tokenUtil.getAccount(token);
         if(blockService.judgeBlock(thisAccount.getId())){
-            return Response.buildFailure("401","false");
+            return Response.buildFailure("400","操作失败，请联系管理员");
         }
         String username = thisAccount.getUsername();
         List<Integer> cartItemIds = orderRequest.getCartItemIds();

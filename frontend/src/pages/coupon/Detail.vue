@@ -74,8 +74,8 @@ const isValidTypeInfo = computed(() => {
   return case1 || case2 || case3
 })
 const isValidTimeInfo = computed(() => couponInfo.value.validFrom < couponInfo.value.validUntil)
-const UpdateCouponDisabled = computed(() => {
-  return !(role == 'STAFF' && hasNecessaryInfo.value && isValidTypeInfo.value && isValidTimeInfo.value)
+const updateCouponDisabled = computed(() => {
+  return !(role === 'STAFF' && hasNecessaryInfo.value && isValidTypeInfo.value && isValidTimeInfo.value)
 })
 
 function createUpdateCouponInfo(): UpdateCouponInfo {
@@ -113,9 +113,161 @@ function handleUpdateCoupon(updateInfo: UpdateCouponInfo) {
 </script>
 
 <template>
+  <div class="coupon-edit-container">
+    <el-card class="coupon-card">
+      <template #header>
+        <div class="card-header">
+          <span>{{ isEditing ? '编辑优惠券' : '优惠券详情' }}</span>
+          <el-button
+              type="primary"
+              style="margin-left: 20px;"
+              @click="isEditing = !isEditing"
+          >
+            {{ isEditing ? '取消编辑' : '编辑' }}
+          </el-button>
+        </div>
+      </template>
 
+      <el-form label-width="120px" :model="couponInfo">
+        <!-- 优惠券名称 -->
+        <el-form-item label="优惠券名称" :required="true">
+          <el-input
+              v-model="couponInfo.couponName"
+              placeholder="请输入优惠券名称"
+              clearable
+              style="width: 100%"
+              :readonly="!isEditing"
+          ></el-input>
+        </el-form-item>
+
+        <!-- 优惠券类型 -->
+        <el-form-item label="优惠券类型" :required="true">
+          <el-select
+              v-model="couponInfo.couponType"
+              placeholder="请选择优惠券类型"
+              style="width: 100%"
+              :disabled="!isEditing"
+          >
+            <el-option label="礼金" value="FIXED"></el-option>
+            <el-option label="折扣" value="PERCENTAGE"></el-option>
+            <el-option label="满减" value="THRESHOLD"></el-option>
+          </el-select>
+        </el-form-item>
+
+        <!-- 折扣金额 -->
+        <el-form-item
+            v-if="couponInfo.couponType === 'FIXED' || couponInfo.couponType === 'THRESHOLD'"
+            label="折扣金额"
+            :required="true"
+        >
+          <el-input-number
+              v-model="couponInfo.discountAmount"
+              :min="0"
+              placeholder="请输入折扣金额"
+              style="width: 100%"
+              :disabled="!isEditing"
+          ></el-input-number>
+        </el-form-item>
+
+        <!-- 折扣百分比 -->
+        <el-form-item v-if="couponInfo.couponType === 'PERCENTAGE'" label="折扣百分比" :required="true">
+          <el-input-number
+              v-model="couponInfo.discountPercentage"
+              :min="0"
+              :max="100"
+              placeholder="请输入折扣百分比"
+              style="width: 100%"
+              :disabled="!isEditing"
+          ></el-input-number>
+        </el-form-item>
+
+        <!-- 最低消费金额 -->
+        <el-form-item v-if="couponInfo.couponType === 'THRESHOLD'" label="最低消费金额" :required="true">
+          <el-input-number
+              v-model="couponInfo.minPurchaseAmount"
+              :min="0"
+              placeholder="请输入最低消费金额"
+              style="width: 100%"
+              :disabled="!isEditing"
+          ></el-input-number>
+        </el-form-item>
+
+        <!-- 有效期起始 -->
+        <el-form-item label="有效期起始" :required="true">
+          <el-date-picker
+              v-model="couponInfo.validFrom"
+              type="datetime"
+              placeholder="选择起始时间"
+              style="width: 100%"
+              :disabled="!isEditing"
+          ></el-date-picker>
+        </el-form-item>
+
+        <!-- 有效期结束 -->
+        <el-form-item label="有效期结束" :required="true">
+          <el-date-picker
+              v-model="couponInfo.validUntil"
+              type="datetime"
+              placeholder="选择结束时间"
+              style="width: 100%"
+              :disabled="!isEditing"
+          ></el-date-picker>
+        </el-form-item>
+
+        <!-- 状态 -->
+        <el-form-item label="状态">
+          <el-select
+              v-model="couponInfo.status"
+              placeholder="请选择状态"
+              style="width: 100%"
+              :disabled="!isEditing"
+          >
+            <el-option label="可用" value="ACTIVE"></el-option>
+            <el-option label="禁用" value="INACTIVE"></el-option>
+          </el-select>
+        </el-form-item>
+
+        <!-- 描述 -->
+        <el-form-item label="描述">
+          <el-input
+              v-model="couponInfo.description"
+              type="textarea"
+              placeholder="请输入描述"
+              :rows="3"
+              style="width: 100%"
+              :readonly="!isEditing"
+          ></el-input>
+        </el-form-item>
+
+        <!-- 提交按钮 -->
+        <el-form-item v-if="isEditing">
+          <el-button
+              type="primary"
+              :disabled="updateCouponDisabled"
+              @click="handleUpdateCoupon"
+              style="width: 100%"
+          >
+            保存修改
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+  </div>
 </template>
 
 <style scoped>
+.coupon-edit-container {
+  max-width: 800px;
+  margin: 20px auto;
+}
 
+.coupon-card {
+  width: 100%;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 </style>
