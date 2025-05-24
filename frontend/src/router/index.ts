@@ -19,6 +19,7 @@ const baseRoutes = [
 const productRoutes = [
     routeCreator('/warehouse', () => import('../pages/product/WarehousePage.vue'), { title: '商品列表' }),
     routeCreator('/productDetail/:productId', () => import('../pages/product/Detail.vue'), { title: '商品详情' }),
+    routeCreator('/collection', () => import('../pages/product/Collection.vue'), { title: '我的收藏' }),
     routeCreator('/createProduct', () => import('../pages/product/Create.vue'), { title: '创建商品' }),
 ];
 
