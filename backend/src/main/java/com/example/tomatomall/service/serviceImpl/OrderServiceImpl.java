@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.tomatomall.util.TokenUtil;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
@@ -131,7 +132,15 @@ public class OrderServiceImpl implements OrderService {
                         }
                         break;
                     case "PERCENTAGE":
-                        discountedTotalAmount = discountedTotalAmount.multiply(BigDecimal.ONE.subtract(coupon.getDiscountPercentage()));
+                        // 校验折扣百分比范围（0~100）
+                        if (coupon.getDiscountPercentage().compareTo(BigDecimal.ZERO) < 0
+                                || coupon.getDiscountPercentage().compareTo(BigDecimal.valueOf(100)) > 0) {
+                            throw new IllegalArgumentException("折扣百分比必须在 0~100 之间");
+                        }
+                        // 转换为小数（如 90 → 0.9）
+                        BigDecimal discountRate = coupon.getDiscountPercentage()
+                                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                        discountedTotalAmount = discountedTotalAmount.multiply(discountRate);
                         break;
                     case "THRESHOLD": // 满减类型已经在最低消费金额处验证
                         discountedTotalAmount = discountedTotalAmount.subtract(coupon.getDiscountAmount());
