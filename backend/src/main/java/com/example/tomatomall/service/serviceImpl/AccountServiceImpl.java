@@ -123,7 +123,7 @@ public class AccountServiceImpl implements AccountService {
         List<Account> allUsers=accountRepository.findAll();
         List<AccountVO> thisAccountsVO=new ArrayList<>();
         for(Account account:allUsers){
-            if(account.getUsername().contains(partialUsername)){
+            if(account.getUsername().contains(partialUsername)&&account.getRole()==RoleEnum.CUSTOMER){
                 thisAccountsVO.add(account.toVO());
             }
         }

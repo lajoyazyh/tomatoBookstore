@@ -132,7 +132,7 @@ public class AccountController {
     }
 
     /**
-     * 搜索用户
+     * 搜索客户(若为空串则返回所有客户)
      */
     @GetMapping("/find")
     public Response getSomeUser(@RequestParam("partialUsername") String partialUsername){
