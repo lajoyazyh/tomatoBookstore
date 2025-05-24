@@ -10,6 +10,7 @@ import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.example.tomatomall.po.Order;
 import com.example.tomatomall.repository.OrderRepository;
 import com.example.tomatomall.service.OrderService;
+import com.example.tomatomall.util.TokenUtil;
 import com.example.tomatomall.vo.OrderAllResponse;
 import com.example.tomatomall.vo.OrderResponse;
 import com.example.tomatomall.vo.Response;
@@ -57,6 +58,9 @@ public class OrderController {
 
     @Value("${alipay.alipayPublicKey}")
     private String alipayPublicKey;
+
+    @Autowired
+    private TokenUtil tokenUtil;
 
     private static final String ALIPAY_TRADE_PAGE_PAY = "alipay.trade.page.pay";
     private static final String CHARSET_UTF8 = "utf-8";
@@ -195,5 +199,21 @@ public class OrderController {
         out.flush();
         out.close();
 
+    }
+    @GetMapping("/pending")
+    public Response<Boolean> hasPendingOrders(@RequestHeader("token") String token) {
+        try {
+            Integer userId = tokenUtil.getAccount(token).getId();
+            if (userId == null) {
+                return Response.buildFailure("400", "无效的令牌");
+            }
+            boolean hasPending = orderService.hasPendingOrders(userId);
+            return Response.buildSuccess(hasPending);
+        } catch (IllegalArgumentException e) {
+            return Response.buildFailure("400", e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.buildFailure("500", "服务器错误");
+        }
     }
 }

@@ -11,4 +11,5 @@ public interface OrderService {
     void handlePaymentSuccess(Integer orderId, String alipayTradeNo, String totalAmount);
     void closeOrder(String orderId);
     OrderResponse getOrders(String token);
+    boolean hasPendingOrders(Integer userId);
 }

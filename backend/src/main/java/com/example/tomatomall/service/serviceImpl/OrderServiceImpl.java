@@ -334,4 +334,10 @@ public class OrderServiceImpl implements OrderService {
         orderResponse.setOrders(orderAllResponseList);
         return orderResponse;
     }
+
+    @Override
+    public boolean hasPendingOrders(Integer userId) {
+        List<Order> pendingOrders = orderRepository.findByAccountIdAndStatus(userId, "PENDING");
+        return !pendingOrders.isEmpty();
+    }
 }
