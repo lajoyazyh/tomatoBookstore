@@ -3,7 +3,7 @@ import { BLOCK_MODULE } from "./_prefix.ts";
 
 // 拉黑用户
 export const blockTheUser = (userId: number) => {
-    return axios.post(`${BLOCK_MODULE}`,
+    return axios.post(`${BLOCK_MODULE}`, null,
         { params: {userId: userId } })
         .then(res => {
             return res;
