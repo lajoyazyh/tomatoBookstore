@@ -81,6 +81,13 @@ export const receiveCoupon = (couponId: number) => {
             return res
         })
 }
+export const getUsableCoupons = (orderTotal: number) => {
+    return axios.get(`${COUPON_MODULE}/user`,
+        { params: {orderTotal: orderTotal } })
+        .then(res => {
+            return res
+        })
+}
 
 /********************************* 辅助函数 *********************************/
 export function getTypeText(type: string): string {
