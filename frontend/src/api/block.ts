@@ -19,17 +19,21 @@ export type GetUsersParams = {
  * @returns Promise 对象，解析后返回后端响应
  */
 
-// export const getUsers = (params: GetUsersParams = {}) => {
-//     return axios.get(`${BLOCK_MODULE}`, { params })
-//         .then(res => {
-//             return res
-//         })
-// }
-
-export const getUsers = () => {
-    return axios.get(`api/accounts`)
-        .then(res => res)
+export const getUsers = (partialUsername: String) => {
+    return axios.get(`api/accounts/find` ,{
+        params:{
+            partialUsername: partialUsername,
+        }
+    })
+        .then(res => {
+            return res
+        })
 }
+
+// export const getUsers = () => {
+//     return axios.get(`api/accounts`)
+//         .then(res => res)
+// }
 
 /** 拉黑用户请求数据结构 */
 export type BlockUserRequest = {
