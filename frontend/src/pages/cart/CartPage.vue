@@ -157,7 +157,7 @@ function showCheckoutConfirmation() {
           <option value="-1">-- 请选择优惠券 --</option>
           ${usableCoupons.value.map(coupon => `
             <option value="${coupon.couponId}" ${chosenCouponId.value === coupon.couponId ? 'selected' : ''}>
-              ${coupon.couponName})
+              ${coupon.couponName}
             </option>
           `).join('')}
         </select>

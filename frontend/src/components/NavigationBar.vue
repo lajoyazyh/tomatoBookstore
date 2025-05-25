@@ -39,7 +39,9 @@ const handleLogout = () => {
           </template>
         </el-menu-item>
 
+        <el-menu-item v-if="!isStaff" index="/collection">我的收藏</el-menu-item>
         <el-menu-item v-if="isStaff" index="/advertisement">广告管理</el-menu-item>
+        <el-menu-item v-if="isStaff" index="/manageCoupon">优惠券管理</el-menu-item>
 
         <el-menu-item index="/dashboard">个人信息</el-menu-item>
       </div>
