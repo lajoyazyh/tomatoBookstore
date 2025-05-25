@@ -3,6 +3,11 @@ import {onMounted,ref} from 'vue'
 import {ElMessage} from "element-plus";
 import { getOrders, payForOrder } from "../../api/orders.ts";
 
+if (sessionStorage.getItem("hasPendingOrder") === 'true') {
+  ElMessage.error('请先完成待支付订单！');
+  sessionStorage.removeItem("hasPendingOrder");
+}
+
 type order = {
   orderId: number,
   totalAmount: number,

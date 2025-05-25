@@ -101,6 +101,12 @@ function deleteCoupon(id: number) {
 
 <template>
   <div class="coupons-container">
+    <div v-if="role==='STAFF'" class="create-button">
+      <router-link to="/createAdvertisement">
+        <el-button type="primary">新建优惠券</el-button>
+      </router-link>
+    </div>
+
     <el-card class="coupons-card">
       <template #header>
         <div class="card-header">
@@ -149,6 +155,11 @@ function deleteCoupon(id: number) {
 </template>
 
 <style scoped>
+.create-button {
+  text-align: center;
+  margin: 0 20px 20px;
+}
+
 .coupons-container {
   max-width: 1200px;
   margin: 20px auto;

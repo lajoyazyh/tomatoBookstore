@@ -116,6 +116,12 @@ async function handleManageStock(productId: number) {
 
 <template>
   <div class="container">
+    <div v-if="role==='STAFF'" class="create-button">
+      <router-link to="/createProduct">
+        <el-button type="primary">新建商品</el-button>
+      </router-link>
+    </div>
+
     <el-row :gutter="20" justify="start">
       <el-col
           v-for="product in products"
@@ -200,6 +206,11 @@ async function handleManageStock(productId: number) {
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
+}
+
+.create-button {
+  text-align: center;
+  margin: 0 20px 20px;
 }
 
 .product-card {

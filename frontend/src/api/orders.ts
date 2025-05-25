@@ -20,6 +20,12 @@ export const checkoutOrder = (orderInfo: checkoutOrderInfo) => {
             return res
         })
 }
+export const hasPendingOrder = () => {
+    return axios.get(`${ORDER_MODULE}/pending`)
+        .then(res => {
+            return res
+        })
+}
 export const getOrders = () => {
     return axios.get(`${ORDER_MODULE}`)
         .then(res => {
