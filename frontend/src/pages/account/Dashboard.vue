@@ -61,6 +61,8 @@ onMounted(async () => {
 })
 
 function handleFileChange(file: any) {
+  ElMessage.info('上传200×200的图片最佳哦~');
+
   const formData = new FormData();
   formData.append('file', file.raw);
 
@@ -139,6 +141,27 @@ function toggleEdit() {
 <template>
   <el-main class="main-container" v-if="username">
     <el-card class="info-card">
+      <!-- 头像区域 -->
+      <div class="avatar-container">
+        <div class="avatar-uploader">
+          <el-upload
+              class="avatar-uploader"
+              drag
+              :auto-upload="false"
+              :on-change="handleFileChange"
+              :show-file-list="false"
+              accept="image/*"
+              :disabled="!isEditing"
+          >
+            <img v-if="avatar" :src="avatar" class="avatar" />
+            <div v-else>
+              <i class="el-icon-upload"></i>
+              <div class="el-upload__text">点击或拖拽上传头像</div>
+            </div>
+          </el-upload>
+        </div>
+      </div>
+
       <div class="card-header">
         <h2>个人信息</h2>
       </div>
@@ -169,20 +192,6 @@ function toggleEdit() {
 
         <el-form-item label="位置">
           <el-input v-model="location" :disabled="!isEditing" placeholder="请输入位置"></el-input>
-        </el-form-item>
-
-        <el-form-item label="头像">
-          <el-upload
-              class="avatar-uploader"
-              :auto-upload="false"
-              :on-change="handleFileChange"
-              :show-file-list="false"
-              accept="image/*"
-              :disabled="!isEditing"
-          >
-            <img v-if="avatar" :src="avatar" class="avatar" />
-            <el-button v-else type="primary" :disabled="!isEditing">选择头像</el-button>
-          </el-upload>
         </el-form-item>
 
         <el-form-item label="密码">
@@ -225,7 +234,7 @@ function toggleEdit() {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   padding: 20px;
 }
 
@@ -240,6 +249,58 @@ function toggleEdit() {
   margin-bottom: 20px;
 }
 
+/* 头像区域样式 */
+.avatar-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.avatar-uploader {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 2px dashed #d9d9d9;
+  overflow: hidden;
+  position: relative;
+}
+
+.avatar-uploader:hover {
+  border-color: #409EFF;
+}
+
+.avatar-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-uploader .el-icon-upload {
+  font-size: 30px;
+  color: #8c939d;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-uploader .el-upload__text {
+  text-align: center;
+  margin-top: 5px;
+}
+
 .el-form-item {
   margin-bottom: 20px;
 }
@@ -248,16 +309,5 @@ function toggleEdit() {
   color: red;
   font-size: 12px;
   margin-top: 5px;
-}
-
-.avatar-uploader {
-  text-align: center;
-}
-
-.avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
 }
 </style>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref, onMounted} from 'vue'
 import { deleteProduct, updateCartItem, getCart } from "../../api/cart.ts";
-import { checkoutOrder } from "../../api/orders.ts";
+import { checkoutOrder, hasPendingOrder } from "../../api/orders.ts";
 import { getUsableCoupons, getTypeText } from "../../api/coupon.ts";
 import type { addressInfo, checkoutOrderInfo } from "../../api/orders.ts";
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -43,27 +43,45 @@ const checkout = ref<checkoutOrderInfo>({
   payment_method: 'ALIPAY',
 })
 
-onMounted(async () => {
+async function handlePending() {
   try {
-    const response = await getCart();
+    const response = await hasPendingOrder();
     if (response.data.code === '200') {
-      cartItems.value = response.data.data.items.map((item: any) => ({
-        cartItemId: item.cartItemId,
-        productId: item.productId,
-        title: item.title,
-        price: item.price,
-        description: item.description,
-        cover: item.cover,
-        detail: item.detail,
-        quantity: item.quantity,
-      }))
+      if (response.data.data === true) {
+        sessionStorage.setItem("hasPendingOrder", 'true');
+        await router.push("/orders");
+      }
     } else {
       ElMessage.error(response.data.msg);
     }
   } catch (error) {
-    ElMessage.error('获取购物车信息失败！');
+    ElMessage.error('信息获取异常,请联系工作人员');
     console.log(error);
   }
+}
+onMounted(async () => {
+  handlePending().then(async () => {
+    try {
+      const response = await getCart();
+      if (response.data.code === '200') {
+        cartItems.value = response.data.data.items.map((item: any) => ({
+          cartItemId: item.cartItemId,
+          productId: item.productId,
+          title: item.title,
+          price: item.price,
+          description: item.description,
+          cover: item.cover,
+          detail: item.detail,
+          quantity: item.quantity,
+        }))
+      } else {
+        ElMessage.error(response.data.msg);
+      }
+    } catch (error) {
+      ElMessage.error('获取购物车信息失败！');
+      console.log(error);
+    }
+  })
 })
 
 function goToOrders() {
