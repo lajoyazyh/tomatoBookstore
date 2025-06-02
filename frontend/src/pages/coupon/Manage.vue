@@ -102,7 +102,7 @@ function deleteCoupon(id: number) {
 <template>
   <div class="coupons-container">
     <div v-if="role==='STAFF'" class="create-button">
-      <router-link to="/createAdvertisement">
+      <router-link to="/createCoupon">
         <el-button type="primary">新建优惠券</el-button>
       </router-link>
     </div>
