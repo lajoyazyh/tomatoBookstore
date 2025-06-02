@@ -4,7 +4,7 @@ import { ElMessage, ElMessageBox, ElForm, ElFormItem, ElInput, ElInputNumber, El
 import { router } from '../../router';
 import { createAdvertisement} from '../../api/advertisement';
 import type {createAdvertiseInfo, updateAdvertiseInfo} from '../../api/advertisement';
-import { uploadImage } from '../../api/images';
+import { uploadImage } from '../../api/tools.ts';
 
 
 // 需要 STAFF 权限
@@ -42,8 +42,8 @@ function handleFileChange(file: any) {
   formData.append('file', file.raw);
 
   uploadImage(formData).then(res => {
-    if (res.data.code === '000') {
-      imageUrl.value = res.data.result; // 存储上传的图片 URL
+    if (res.data.code === '200') {
+      imageUrl.value = res.data.data; // 存储上传的图片 URL
       currentFile.value = file; // 存储当前文件
       ElMessage.success('文件上传成功！');
     } else {
@@ -58,7 +58,7 @@ function createAdvertisementInfo(): createAdvertiseInfo {
   const createInfo: createAdvertiseInfo = {
     title: title.value,
     content: content.value,
-    imageUrl: imageUrl.value,
+    imgUrl: imageUrl.value,
     productId: productId.value
   }
   return createInfo;
@@ -71,9 +71,8 @@ function handleCreateAdvertisement() {
   }
 
   const adInfo = createAdvertisementInfo();
-  console.log('广告信息:', adInfo); // 输出广告信息，确保 product_id 不为空
-
-  createAdvertisement(adInfo).then(res => {
+  console.log('广告信息:', adInfo); // 输出广告信息
+  createAdvertisement(createAdvertisementInfo()).then(res => {
     if (res.data.code === '200') {
       ElMessage.success('广告创建成功！');
       router.push('/advertisement'); // 创建成功后跳转到广告列表页

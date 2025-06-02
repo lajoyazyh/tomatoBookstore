@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from "element-plus";
-import {
-  getAllAdvertisement,
-  createAdvertisement,
-  updateAdvertisementsInfo,
-  deleteAdvertisement
-} from '../../api/advertisement.ts';
+import {getTheProduct} from "../../api/products.ts";
+import { getAllAdvertisement, updateAdvertisementsInfo, deleteAdvertisement } from '../../api/advertisement.ts';
 import type {updateAdvertiseInfo} from "../../api/advertisement.ts";
-import { uploadImage } from "../../api/images.ts";
+import { uploadImage } from "../../api/tools.ts";
 import Advertisement from "@/pages/advertising/Advertisement.vue";
 
 const role = sessionStorage.getItem('role');
@@ -17,9 +13,11 @@ interface Advertisement {
   id: number;
   title: string;
   content?: string;
-  imageUrl?: string;
+  imgUrl?: string;
   productId: number;
   isEditing?: boolean; // 新增编辑状态
+  // 商品名称从商品的get方法获取
+  productName?: string;
 }
 
 const advertisements = ref<Advertisement[]>([]);
@@ -28,15 +26,40 @@ onMounted(async () => {
   await refreshAdvertisements();
 });
 
+// 异步获取商品名称
+async function getTheProductName(productId: number): Promise<string> {
+  try {
+    const res = await getTheProduct(productId);
+    if (res.data.code === '200') {
+      return res.data.data.title;
+    } else {
+      ElMessage.error(res.data.msg)
+      return '名称获取失败';
+    }
+  } catch (error) {
+    ElMessage.error('获取商品名称失败！');
+    return '名称获取失败';
+  }
+}
 
 const refreshAdvertisements = async () => {
   try {
     const response = await getAllAdvertisement();
     if (response.data.code === '200') {
-      advertisements.value = response.data.data.map(ad => ({
-        ...ad,
-        isEditing: false // 初始化编辑状态
-      }));
+      // 并发获取所有广告对应的商品名称
+      const ads = await Promise.all(
+          response.data.data.map(async (ad: any) => {
+            const productName = await getTheProductName(ad.productId);
+            return {
+              ...ad,
+              isEditing: false,
+              productName: productName
+            };
+          })
+      );
+      advertisements.value = ads;
+    } else {
+      ElMessage.error(response.data.msg);
     }
   } catch (error) {
     ElMessage.error('获取广告信息失败');
@@ -49,8 +72,8 @@ const handleFileChange = async (file: any, ad: Advertisement) => {
 
   try {
     const res = await uploadImage(formData);
-    if (res.data.code === '000') {
-      ad.imageUrl = res.data.result;
+    if (res.data.code === '200') {
+      ad.imgUrl = res.data.data;
       ElMessage.success('图片上传成功');
     }
   } catch (error) {
@@ -66,7 +89,7 @@ const handleUpdate = async (ad: Advertisement) => {
     id: ad.id,
     title:ad.title || '',
     content: ad.content || '',
-    imageUrl: ad.imageUrl || '',
+    imgUrl: ad.imgUrl || '',
     productId: ad.productId
   }
   console.log('广告更新信息:', createInfo);
@@ -108,8 +131,9 @@ const handleDelete = async (id: number) => {
         <div v-if="!ad.isEditing">
           <h3>{{ ad.title }}</h3>
           <p class="content">{{ ad.content }}</p>
-          <img v-if="ad.imageUrl" :src="ad.imageUrl" class="ad-image" />
-          <p class="productId">商品id：{{ad.productId }}</p>
+          <img v-if="ad.imgUrl" :src="ad.imgUrl" class="ad-image" />
+          <p class="title">商品名称：{{ad.productName}}</p>
+          <p class="productId">商品id：{{ad.productId}}</p>
 
           <div class="actions">
             <el-button v-if="role === 'STAFF'" type="primary" @click="ad.isEditing = true">
@@ -132,11 +156,11 @@ const handleDelete = async (id: number) => {
           <el-form-item label="图片">
             <el-upload
                 :auto-upload="false"
-                :on-change="(file) => handleFileChange(file, ad)"
+                :on-change="(file: any) => handleFileChange(file, ad)"
             >
               <el-button>上传图片</el-button>
-              <template v-if="ad.imageUrl">
-                <img :src="ad.imageUrl" class="preview-image" />
+              <template v-if="ad.imgUrl">
+                <img :src="ad.imgUrl" class="preview-image" />
               </template>
             </el-upload>
           </el-form-item>

@@ -3,6 +3,11 @@ import {onMounted,ref} from 'vue'
 import {ElMessage} from "element-plus";
 import { getOrders, payForOrder } from "../../api/orders.ts";
 
+if (sessionStorage.getItem("hasPendingOrder") === 'true') {
+  ElMessage.error('请先完成待支付订单！');
+  sessionStorage.removeItem("hasPendingOrder");
+}
+
 type order = {
   orderId: number,
   totalAmount: number,
@@ -41,6 +46,13 @@ function handlePayment(orderId: number) {
         return;
       }
 
+      const paymentWindow = window.open('', 'paymentWindow', 'width=600,height=400');
+
+      if (!paymentWindow) {
+        ElMessage.error('无法打开支付窗口，请允许弹窗');
+        return;
+      }
+
       const container = document.createElement('div');
       container.style.display = 'none';
       container.innerHTML = pfm;
@@ -48,8 +60,9 @@ function handlePayment(orderId: number) {
 
       const form = container.querySelector('form');
       if (form) {
+        form.setAttribute('target', 'paymentWindow');
         form.submit();
-        document.body.removeChild(container); // 提交后清理掉，防止页面堆垃圾
+        document.body.removeChild(container);
       } else {
         ElMessage.error('支付表单格式错误');
       }
@@ -59,7 +72,7 @@ function handlePayment(orderId: number) {
   }).catch(err => {
     ElMessage.error('网络异常，请稍后重试');
     console.error('支付接口异常', err);
-  })
+  });
 }
 
 

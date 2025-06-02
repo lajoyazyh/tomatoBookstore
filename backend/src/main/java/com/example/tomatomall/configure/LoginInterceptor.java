@@ -28,10 +28,14 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         // 获取请求路径
-        String requestURI = request.getRequestURI();
-
-        // 排除 /register 路径
-        if (requestURI.contains("/accounts") || requestURI.contains("/advertisement")) {
+        String requestURL = request.getRequestURI();
+        System.out.println("Request URL in Interceptor: " + requestURL);
+        // 排除路径
+        if (requestURL.contains("/accounts") ||
+                requestURL.contains("/advertisement")||
+                requestURL.contains("/alipay/notify") ||
+                requestURL.equals("/alipay/returnUrl") ||
+                requestURL.equals("/favicon.ico")) {
             return true; // 放行
         }
 

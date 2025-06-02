@@ -11,10 +11,17 @@ export type checkoutOrderInfo = {
     cartItemIds: number[],
     shipping_address: addressInfo,
     payment_method: string,
+    couponId?: number
 }
 
 export const checkoutOrder = (orderInfo: checkoutOrderInfo) => {
     return axios.post(`${CART_MODULE}/checkout`, orderInfo)
+        .then(res => {
+            return res
+        })
+}
+export const hasPendingOrder = () => {
+    return axios.get(`${ORDER_MODULE}/pending`)
         .then(res => {
             return res
         })

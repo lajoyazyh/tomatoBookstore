@@ -10,6 +10,7 @@ import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.example.tomatomall.po.Order;
 import com.example.tomatomall.repository.OrderRepository;
 import com.example.tomatomall.service.OrderService;
+import com.example.tomatomall.util.TokenUtil;
 import com.example.tomatomall.vo.OrderAllResponse;
 import com.example.tomatomall.vo.OrderResponse;
 import com.example.tomatomall.vo.Response;
@@ -28,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -56,6 +58,9 @@ public class OrderController {
 
     @Value("${alipay.alipayPublicKey}")
     private String alipayPublicKey;
+
+    @Autowired
+    private TokenUtil tokenUtil;
 
     private static final String ALIPAY_TRADE_PAGE_PAY = "alipay.trade.page.pay";
     private static final String CHARSET_UTF8 = "utf-8";
@@ -132,32 +137,19 @@ public class OrderController {
      * @param response  HttpServletResponse
      * @throws IOException  IO异常
      */
-    @PostMapping("/notify")
+    @PostMapping("/alipay/notify")
     public void handleAlipayNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
         PrintWriter out = response.getWriter();
 
         // 1. 解析支付宝回调参数
-        Map<String, String> params = new HashMap<>();
-        try {
-            Map<String, String[]> requestParams = request.getParameterMap();
-            for (String name : requestParams.keySet()) {
-                String[] values = requestParams.get(name);
-                String valueStr = "";
-                for (int i = 0; i < values.length; i++) {
-                    valueStr = (i == values.length - 1) ? valueStr + values[i] : valueStr + values[i] + ",";
-                }
-                params.put(name, valueStr);
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to parse Alipay notify parameters: " + e.getMessage());
-            out.print("fail");
-        }
+        Map<String, String> params = request.getParameterMap().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()[0]));
 
 
         // 2. 验证支付宝签名(这里!!!!!!!!)
         boolean signVerified = false;
         try {
-            signVerified = AlipaySignature.rsaCheckV1(params, alipayPublicKey, "UTF-8", "RSA2");
+            signVerified = AlipaySignature.rsaCheckV1(params, alipayPublicKey, "UTF-8", signType);
         } catch (AlipayApiException e) {
             System.err.println("Alipay signature verification failed: " + e.getMessage());
             e.printStackTrace(); // 打印完整的异常堆栈
@@ -207,5 +199,21 @@ public class OrderController {
         out.flush();
         out.close();
 
+    }
+    @GetMapping("/pending")
+    public Response<Boolean> hasPendingOrders(@RequestHeader("token") String token) {
+        try {
+            Integer userId = tokenUtil.getAccount(token).getId();
+            if (userId == null) {
+                return Response.buildFailure("400", "无效的令牌");
+            }
+            boolean hasPending = orderService.hasPendingOrders(userId);
+            return Response.buildSuccess(hasPending);
+        } catch (IllegalArgumentException e) {
+            return Response.buildFailure("400", e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.buildFailure("500", "服务器错误");
+        }
     }
 }

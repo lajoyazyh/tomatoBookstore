@@ -17,11 +17,11 @@ server:
   port: 8080
 
 aliyun:
-  oss:
-    endpoint: oss-cn-shanghai.aliyuncs.com
-    accessKeyId:
-    accessKeySecret:
-    bucketName: 
+#  oss:
+#    endpoint:
+#    accessKeyId:
+#    accessKeySecret:
+#    bucketName:
 
 alipay:
   appId: 2021000147699869

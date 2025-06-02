@@ -1,5 +1,6 @@
 package com.example.tomatomall.service.serviceImpl;
 
+import com.example.tomatomall.enums.RoleEnum;
 import com.example.tomatomall.exception.TomatoMallException;
 import com.example.tomatomall.po.Account;
 import com.example.tomatomall.repository.AccountRepository;
@@ -10,6 +11,9 @@ import com.example.tomatomall.vo.AccountVO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Author: ZhuYehang
@@ -102,4 +106,27 @@ public class AccountServiceImpl implements AccountService {
         return true;
     }
 
+    @Override
+    public List<AccountVO> getAllUser(){
+        List<Account> allUser=accountRepository.findAll();
+        List<AccountVO> allUserVO=new ArrayList<>();
+        for(Account account:allUser){
+            if(account.getRole()== RoleEnum.CUSTOMER){
+                allUserVO.add(account.toVO());
+            }
+        }
+        return allUserVO;
+    }
+
+    @Override
+    public List<AccountVO> getUsers(String partialUsername){
+        List<Account> allUsers=accountRepository.findAll();
+        List<AccountVO> thisAccountsVO=new ArrayList<>();
+        for(Account account:allUsers){
+            if(account.getUsername().contains(partialUsername)&&account.getRole()==RoleEnum.CUSTOMER){
+                thisAccountsVO.add(account.toVO());
+            }
+        }
+        return thisAccountsVO;
+    }
 }

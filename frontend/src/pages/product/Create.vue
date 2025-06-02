@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus';
 import { router } from '../../router';
-import { uploadImage } from "../../api/images.ts";
+import { uploadImage } from "../../api/tools.ts";
 import { createProduct } from "../../api/products.ts";
 import type { Specification, CreateProductInfo } from "../../api/products.ts";
 
@@ -42,8 +42,8 @@ function handleFileChange(file: any) {
   formData.append('file', file.raw);
 
   uploadImage(formData).then(res => {
-    if (res.data.code === '000') {
-      cover.value = res.data.result; // 存储上传的图片 URL
+    if (res.data.code === '200') {
+      cover.value = res.data.data; // 存储上传的图片 URL
       currentFile.value = file; // 存储当前文件
       ElMessage.success('文件上传成功！');
     } else {

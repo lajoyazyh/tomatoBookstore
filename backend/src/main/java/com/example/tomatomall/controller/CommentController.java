@@ -46,8 +46,9 @@ public class CommentController {
     //删除评论
     @DeleteMapping("/{id}")
     public Response deleteComment(@PathVariable(value = "id") Integer id) {
-        Comment comment = commentRepository.findById(id).get();
-        if (comment != null) {
+        Optional<Comment> commentOptional = commentRepository.findById(id);
+        if (commentOptional.isPresent()) {
+            Comment comment = commentRepository.findById(id).get();
             commentService.deleteComment(id);
             return Response.buildSuccess("删除成功");
         } else {
@@ -59,9 +60,10 @@ public class CommentController {
     @PostMapping()
     public Response addComment(@RequestBody CommentVO commentVO,
                                @RequestParam (value = "productId") Integer productId,
-                               @RequestParam (value = "userId") Integer userId) {
+                               @RequestHeader("token") String token) {
         Optional<Product> productOptional = productRepository.findById(productId);
-
+        //获取token中的用户id
+        Integer userId = tokenUtil.getAccount(token).getId();
         if (productOptional.isPresent()) {
             commentService.addComment(commentVO, productId, userId);
             return Response.buildSuccess("评论成功");

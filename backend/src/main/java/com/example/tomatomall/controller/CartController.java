@@ -1,9 +1,12 @@
 package com.example.tomatomall.controller;
 
+import com.example.tomatomall.enums.RoleEnum;
+import com.example.tomatomall.po.Account;
 import com.example.tomatomall.po.Cart;
 import com.example.tomatomall.po.Order;
 import com.example.tomatomall.repository.CartRepository;
 import com.example.tomatomall.repository.ProductRepository;
+import com.example.tomatomall.service.BlockService;
 import com.example.tomatomall.service.CartService;
 import com.example.tomatomall.service.OrderService;
 import com.example.tomatomall.service.ProductService;
@@ -29,6 +32,9 @@ public class CartController {
     CartService cartService;
 
     @Resource
+    BlockService blockService;
+
+    @Resource
     private OrderService orderService;
 
     @Autowired
@@ -44,6 +50,7 @@ public class CartController {
         private List<Integer> cartItemIds;
         private ShippingAddress shippingAddress;
         private String payment_method;
+        private Integer couponId; // 新增字段：优惠券 ID
     }
 
     /**
@@ -79,7 +86,7 @@ public class CartController {
      * 修改购物车商品数量
      */
     @PatchMapping("/{cartItemId}")
-    public Response changeProductAmount(@RequestHeader("token") String token, @PathVariable Integer cartItemId, @RequestBody Integer quantity) {
+    public Response changeProductAmount(@RequestHeader("token") String token, @PathVariable Integer cartItemId, @RequestParam Integer quantity) {
         String res = cartService.changeProductAmount(cartItemId, quantity);
         if(res.equals("修改数量成功")) {
             return Response.buildSuccess(res);
@@ -118,12 +125,17 @@ public class CartController {
             @RequestHeader("token") String token,
             @RequestBody OrderRequest orderRequest) {
         //  从token中获取用户名
-        String username = tokenUtil.getAccount(token).getUsername();
+        Account thisAccount=tokenUtil.getAccount(token);
+        if(blockService.judgeBlock(thisAccount.getId())){
+            return Response.buildFailure("400","操作失败，请联系管理员");
+        }
+        String username = thisAccount.getUsername();
         List<Integer> cartItemIds = orderRequest.getCartItemIds();
         ShippingAddress shippingAddress = orderRequest.getShippingAddress();
         String payment_method = orderRequest.getPayment_method();
+        Integer couponId = orderRequest.getCouponId(); // 获取优惠券 ID
 
-        Order order = orderService.createOrder(username, cartItemIds, shippingAddress, payment_method);
+        Order order = orderService.createOrder(username, cartItemIds, shippingAddress, payment_method, couponId);
 
         //  构建符合期望返回结构的 Map
         Map<String, Object> result = new HashMap<>();
@@ -133,6 +145,9 @@ public class CartController {
         result.put("paymentMethod", order.getPayment_method());
         result.put("createTime", order.getCreateTime());
         result.put("status", order.getStatus());
+        if (order.getCouponId() != null) {
+            result.put("couponId", order.getCouponId()); // 返回使用的优惠券 ID
+        }
 
         return Response.buildSuccess(result);
     }

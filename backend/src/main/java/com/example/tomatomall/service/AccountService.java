@@ -2,6 +2,8 @@ package com.example.tomatomall.service;
 
 import com.example.tomatomall.vo.AccountVO;
 
+import java.util.List;
+
 public interface AccountService {
     String register(AccountVO accountVO);
 
@@ -11,4 +13,7 @@ public interface AccountService {
 
     Boolean updateInformation(AccountVO accountVO);
 
+    List<AccountVO> getAllUser();
+
+    List<AccountVO> getUsers(String partialUsername);
 }

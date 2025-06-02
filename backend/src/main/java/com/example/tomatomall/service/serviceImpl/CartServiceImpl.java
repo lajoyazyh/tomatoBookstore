@@ -76,7 +76,7 @@ public class CartServiceImpl implements  CartService {
 
         // 检查商品数量是否超过库存
         Integer cartProductId = product.getId();
-        if(quantity > stockpileRepository.findByProductId(cartProductId).getAmount()) {
+        if(quantity + stockpileRepository.findByProductId(cartProductId).getFrozen() > stockpileRepository.findByProductId(cartProductId).getAmount())  {
             throw new IllegalArgumentException("超出库存数量");
         }
 
@@ -118,13 +118,12 @@ public class CartServiceImpl implements  CartService {
         if(cartItem == null) {
             return "购物车商品不存在";
         }
-
         Integer productId = cartItem.getProduct().getId();
-        if(quantity > stockpileRepository.findByProductId(productId).getAmount()) {
+        cartItem.setQuantity(quantity);
+        if(quantity +stockpileRepository.findByProductId(productId).getFrozen()> stockpileRepository.findByProductId(productId).getAmount()) {
+            System.out.println("超出库存数量");
             return "超出库存数量";
         }
-
-        cartItem.setQuantity(quantity);
         cartRepository.save(cartItem);
         return "修改数量成功";
     }

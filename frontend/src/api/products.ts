@@ -47,7 +47,13 @@ export const getAllProducts = () => {
             return res
         })
 }
-export const getTheProduct = (id : number) => {
+export const getTheProduct = (id: number) => {
+    return axios.get(`${PRODUCT_MODULE}/${id}`)
+        .then(res => {
+            return res
+        })
+}
+export const getTheProductCommentRate = (id: number) => {
     return axios.get(`${PRODUCT_MODULE}/${id}`)
         .then(res => {
             return res

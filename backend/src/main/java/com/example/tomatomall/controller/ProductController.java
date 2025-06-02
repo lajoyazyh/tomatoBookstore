@@ -128,6 +128,10 @@ public class ProductController {
      */
     @GetMapping("/rating/{productId}")
     public Response getRating(@PathVariable(value = "productId")Integer productId){
-        return Response.buildSuccess(productService.getRating(productId));
+        Optional<Product> productOptional = productRepository.findById(productId);
+        if (productOptional.isPresent()) {
+            return Response.buildSuccess(productService.getRating(productId));
+        }
+        return Response.buildFailure("400", "商品不存在");
     }
 }

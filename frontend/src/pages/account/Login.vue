@@ -37,9 +37,9 @@ function handleLogin() {
         sessionStorage.setItem('username', res.data.data.username)
         sessionStorage.setItem('role', res.data.data.role)
 
-        router.push({path: "/dashboard"})
+        router.push({path: "/index"});
       })
-    } else if (res.data.code === '400') {
+    } else {
       ElMessage({
         message: res.data.msg,
         type: 'error',

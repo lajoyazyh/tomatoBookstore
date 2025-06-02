@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import  { router } from "../../router";
 import { useRoute } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { UpdateProductInfo, Specification, getTheProduct, updateProductInfo } from "../../api/products.ts";
+import { UpdateProductInfo, Specification, getTheProduct, updateProductInfo, getTheProductCommentRate } from "../../api/products.ts";
+import { CommentInfo, CreateCommentInfo, getCommentsOf, deleteTheComment, createComment } from "../../api/comments.ts";
+import { createCollectOf } from '../../api/collects.ts';
 import { addNewProduct } from "../../api/cart.ts";
-import { uploadImage } from "../../api/images.ts";
+import { uploadImage } from "../../api/tools.ts";
 
 // 修改商品信息需要STAFF权限
 const role = sessionStorage.getItem('role');
@@ -27,6 +30,7 @@ const productInfo = ref<{
   title: string,
   price: number,
   rate: number,
+  commentRate?: number,   // 用户评论产生的评分
   description?: string,
   cover?: string,        // 封面url
   detail?: string,
@@ -38,6 +42,7 @@ const productInfo = ref<{
   rate: 0,
   specifications: []
 });
+
 const newSpecification = ref<{
   item: string,
   value: string,
@@ -47,6 +52,13 @@ const newSpecification = ref<{
   value: '',
   productId: productId,
 });
+
+const comments = ref<Array<CommentInfo>>([]);
+const newComment = ref<CreateCommentInfo>({
+  productId: productId,
+  rating: 10,
+  content: '',
+})
 
 const addSpecificationDisabled = computed(() => {
   return !(!!newSpecification.value.item && !!newSpecification.value.value && !!newSpecification.value.productId);
@@ -59,26 +71,61 @@ const updateDisabled = computed(() => {
       !!productInfo.value.id && !!productInfo.value.title);
 })
 
-function getProduct() {
-  getTheProduct(productId).then((res) => {
-    if (res.data.code == '200') {
-      productInfo.value.id = productId
-      productInfo.value.title = res.data.data.title
-      productInfo.value.price = res.data.data.price
-      productInfo.value.rate = res.data.data.rate
-      productInfo.value.description = res.data.data.description
-      productInfo.value.cover = res.data.data.cover
-      productInfo.value.detail = res.data.data.detail
-      productInfo.value.specifications = res.data.data.specifications || []
+async function getProduct() {
+  try {
+    getTheProduct(productId).then((res) => {
+      if (res.data.code == '200') {
+        productInfo.value.id = productId
+        productInfo.value.title = res.data.data.title
+        productInfo.value.price = res.data.data.price
+        productInfo.value.rate = res.data.data.rate
+        productInfo.value.description = res.data.data.description
+        productInfo.value.cover = res.data.data.cover
+        productInfo.value.detail = res.data.data.detail
+        productInfo.value.specifications = res.data.data.specifications || []
+      } else {
+        ElMessage.error(res.data.msg)
+      }
+    })
+  } catch (error) {
+    ElMessage.error('获取商品信息失败!');
+  }
+}
+async function getProductCommentRate() {
+  try {
+    getTheProductCommentRate(productId).then((res) => {
+      if (res.data.code == '200') {
+        productInfo.value.commentRate = res.data.data;
+      } else {
+        ElMessage.error(res.data.msg)
+      }
+    })
+  } catch (error) {
+    ElMessage.error('获取商品评分失败!');
+  }
+}
+async function getComments() {
+  try {
+    const response = await getCommentsOf(productId);
+    if (response.data.code == '200') {
+      comments.value = response.data.data.map((comment: any) => ({
+        id: comment.id,
+        rating: comment.rating,
+        content: comment.content,
+        productId: comment.productId,
+      }));
+    } else {
+      ElMessage.error(response.data.msg);
     }
-    else if (res.data.code == '400') {
-      ElMessage.error(res.data.msg)
-    }
-  })
+  } catch (error) {
+    ElMessage.error('获取商品评论失败!');
+  }
 }
 
 onMounted(async () => {
-  getProduct()
+  getProduct();
+  getProductCommentRate();
+  getComments();
 })
 
 // 新增：处理添加到购物车的弹窗
@@ -121,13 +168,27 @@ function addCartItem() {
   }
 }
 
+function addCollection() {
+  try {
+    createCollectOf(productId).then((res) => {
+      if (res.data.code == '200') {
+        ElMessage.success('收藏商品成功！')
+      } else {
+        ElMessage.error(res.data.msg)
+      }
+    })
+  } catch (error) {
+    ElMessage.error('收藏商品失败！')
+  }
+}
+
 function handleFileChange(file: any) {
   const formData = new FormData();
   formData.append('file', file.raw);
 
   uploadImage(formData).then(res => {
-    if (res.data.code === '000') {
-      productInfo.value.cover = res.data.result; // 存储上传的图片 URL
+    if (res.data.code === '200') {
+      productInfo.value.cover = res.data.data; // 存储上传的图片 URL
       currentFile.value = file; // 存储当前文件
       ElMessage.success('文件上传成功！');
     } else {
@@ -193,6 +254,42 @@ function handleUpdate() {
   })
 }
 
+function handleCreateComment() {
+  try {
+    createComment(newComment.value).then(res => {
+      if (res.data.code == '200') {
+        ElMessage.success('评论成功');
+        // 直接刷新
+        router.go(0);
+      } else {
+        ElMessage.error(res.data.msg);
+      }
+    })
+  } catch (error) {
+    ElMessage.error('评论失败！');
+  }
+}
+function handleDeleteComment(commentId: number) {
+  ElMessageBox.confirm('确定删除该评论吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    try {
+      deleteTheComment(commentId).then((res) => {
+        if (res.data.code == '200') {
+          ElMessage.success('删除成功');
+          comments.value = comments.value.filter(c => c.id !== commentId);
+        } else {
+          ElMessage.error(res.data.msg);
+        }
+      })
+    } catch (error) {
+      ElMessage.error('删除失败！');
+    }
+  }).catch(() => {});
+}
+
 </script>
 
 <template>
@@ -223,10 +320,14 @@ function handleUpdate() {
             {{ isEditing ? '结束编辑' : '编辑' }}
           </el-button>
         </div>
-        <!-- 添加商品到购物车按钮，只对CUSTOMER显示 -->
+
+        <!-- 添加商品到购物车按钮与收藏按钮，只对CUSTOMER显示 -->
         <div v-if="role === 'CUSTOMER'" style="margin-top: 20px; text-align: center;">
-          <el-button type="warning" @click="handleAddToCart">
+          <el-button type="primary" @click="handleAddToCart">
             添加到购物车
+          </el-button>
+          <el-button type="warning" @click="addCollection">
+            收藏
           </el-button>
         </div>
 
@@ -347,6 +448,54 @@ function handleUpdate() {
           </el-button>
         </div>
       </div>
+
+      <!-- 评论模块 -->
+      <div class="product-comments">
+        <h3>商品评论</h3>
+
+        <!-- 添加评论区域，仅对普通用户（CUSTOMER）显示 -->
+        <div v-if="role === 'CUSTOMER'" class="add-comment">
+          <h4>添加评论</h4>
+          <el-form label-width="100px">
+            <el-form-item label="评分">
+              <el-rate
+                  v-model="newComment.rating"
+                  :max="10"
+                  show-text :texts="['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']"
+              ></el-rate>
+            </el-form-item>
+            <el-form-item label="评论内容">
+              <el-input
+                  v-model="newComment.content"
+                  type="textarea"
+                  placeholder="请输入评论内容"
+                  style="width: 100%"
+              ></el-input>
+            </el-form-item>
+            <el-button type="primary" @click="handleCreateComment">
+              提交评论
+            </el-button>
+          </el-form>
+        </div>
+
+        <!-- 评论列表，对所有用户可见 -->
+        <div class="comment-list">
+          <div v-for="(comment, index) in comments" :key="index" class="comment-item">
+            <div class="comment-header">
+              <span>用户评分：{{ comment.rating }}/10</span>
+            </div>
+            <div class="comment-content">
+              <p>{{ comment.content }}</p>
+            </div>
+            <!-- 删除评论按钮，仅对管理员（STAFF）显示 -->
+            <div v-if="role === 'STAFF'">
+              <el-button type="danger" size="small" @click="handleDeleteComment(comment.id)">
+                删除评论
+              </el-button>
+            </div>
+          </div>
+        </div>
+      </div>
     </el-card>
   </el-main>
 </template>
@@ -402,5 +551,30 @@ function handleUpdate() {
 
 .edit-form {
   margin-bottom: 20px;
+}
+
+/* 评论模块样式 */
+.product-comments {
+  margin-top: 30px;
+}
+
+.add-comment {
+  margin-bottom: 20px;
+}
+
+.comment-list {
+  margin-top: 20px;
+}
+
+.comment-item {
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.comment-header {
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 </style>

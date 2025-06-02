@@ -56,6 +56,8 @@ public class AdvertisementController {
      */
     @PostMapping
     public Response createAdvertisement(@RequestBody AdvertisementVO advertisementVO){
+        //输出后端接收到的数据(逐行打印）
+        System.out.println(advertisementVO.getImgUrl());
         Optional<Product> thisProduct=productRepository.findById(advertisementVO.getProductId());
         if(thisProduct.isPresent()){
             return Response.buildSuccess(advertisementService.createAdvertisement(advertisementVO));
